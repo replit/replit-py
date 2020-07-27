@@ -18,10 +18,10 @@ Module contents
    :undoc-members:
    :show-inheritance:
 
-replit.types module
+replit.audio module
 -------------------
 
-.. automodule:: replit.types
+.. automodule:: replit.audio
    :members:
    :undoc-members:
    :show-inheritance:
