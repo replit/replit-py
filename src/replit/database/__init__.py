@@ -269,7 +269,7 @@ class ReplitDb(dict):
 
     def __repr__(self) -> str:
         """A representation of the database.
-        
+
         Returns:
             A string representation of the database object.
         """
