@@ -1,6 +1,6 @@
 """Interface with the Replit Database."""
-import os
 import json
+import os
 from sys import stderr
 from typing import Any, Callable, Dict, Tuple, Union
 
@@ -12,9 +12,12 @@ JSON_TYPE = Union[str, int, float, bool, type(None), dict, list]
 
 class JSONKey:
     """Represents a key in the database that holds a JSON value.
-    
+
     db.jsonkey() will initialize an instance for you,
-    you don't have to do it manually."""
+    you don't have to do it manually.
+    """
+
+    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data")
 
     def __init__(
         self,
@@ -24,6 +27,18 @@ class JSONKey:
         get_default: Callable = None,
         discard_bad_data: bool = False,
     ) -> None:
+        """Initialize the key.
+
+        Args:
+            db (Any): An instance of ReplitDb
+            key (str): The key to read
+            dtype (JSON_TYPE): The datatype the key should be, can be typing.Any.
+            get_default (Callable): A function that returns the default
+                value if the key is not set. If it is None (the default) the dtype
+                argument is used.
+            discard_bad_data (bool): Don't prompt if bad data is read, overwrite it
+                with the default. Defaults to False.
+        """
         self.db = db
         self.key = key
         self.dtype = dtype
@@ -43,20 +58,11 @@ class JSONKey:
             "expected {self.dtype.__name__}"
         )
 
-    def get(self):
+    def get(self) -> JSON_TYPE:
         """Get the value of the key.
 
         If an invalid JSON value is read or the type does not match, it will show a
             prompt asking the user what to do unless discard_bad_data is set.
-
-        Args:
-            key (str): The key to read
-            dtype (JSON_TYPE): The datatype the key should be, can be typing.Any.
-            get_default (Callable[JSON_TYPE]): A function that returns the default
-                value if the key is not set. If it is None (the default) the dtype
-                argument is used.
-            discard_bad_data (bool): Don't prompt if bad data is read, overwrite it
-                with the default. Defaults to False.
 
         Returns:
             JSON_TYPE: The value read from the database
@@ -79,7 +85,6 @@ class JSONKey:
         return data
 
     def _error(self, error: str, read: str) -> JSON_TYPE:
-        """Handle an error """
         print(f"Error reading key {self.key!r}: {error}", file=stderr)
         if self.discard_bad_data:
             val = self._default()
@@ -89,11 +94,10 @@ class JSONKey:
         return self._should_discard_prompt(error, read)
 
     def _should_discard_prompt(self, error: str, read: str) -> bool:
-        """Prompt user for action when key is invalid."""
         while True:
             choice = input(
-                "d to use default, v to view the invalid data, c to insert custom value,"
-                "^C to exit: "
+                "d to use default, v to view the invalid data, c to insert custom "
+                "value, ^C to exit: "
             )
             if choice.startswith("d"):
                 print("Writing default...")
@@ -104,7 +108,8 @@ class JSONKey:
                 print(f"Data read from key: {read!r}")
             elif choice.startswith("c"):
                 toset = input(
-                    f"Enter data to write, should be of type {self.dtype.__name__!r} (leave blank to return to menu): "
+                    f"Enter data to write, should be of type {self.dtype.__name__!r}"
+                    " (leave blank to return to menu): "
                 )
                 if not toset:
                     continue
@@ -122,6 +127,14 @@ class JSONKey:
                     return data
 
     def set(self, data: JSON_TYPE) -> None:
+        """Set the value of the jsonkey.
+
+        Args:
+            data (JSON_TYPE): The value to set it to.
+
+        Raises:
+            TypeError: The type of the value set does not match the datatype.
+        """
         if not self._is_valid_type(data):
             raise TypeError(self._type_mismatch_msg(data))
         self.db[self.key] = json.dumps(data)
@@ -129,6 +142,8 @@ class JSONKey:
 
 class ReplitDb(dict):
     """Interface with the Replit Database."""
+
+    __slots__ = ("db_url", "sess")
 
     def __init__(self, db_url: str) -> None:
         """Initialize database. You shouldn't have to do this manually.
@@ -227,6 +242,23 @@ class ReplitDb(dict):
         get_default: Callable = None,
         discard_bad_data: bool = False,
     ) -> JSONKey:
+        """Initialize a JSONKey instance.
+
+        A JSONKey is used to easily read and set JSON data from the database.
+        Arguments are the same as JSONKey constructor.
+
+        Args:
+            key (str): The key to read
+            dtype (JSON_TYPE): The datatype the key should be, can be typing.Any.
+            get_default (Callable): A function that returns the default
+                value if the key is not set. If it is None (the default) the dtype
+                argument is used.
+            discard_bad_data (bool): Don't prompt if bad data is read, overwrite it
+                with the default. Defaults to False.
+
+        Returns:
+            JSONKey: [description]
+        """
         return JSONKey(
             db=self,
             key=key,
@@ -236,7 +268,11 @@ class ReplitDb(dict):
         )
 
     def __repr__(self) -> str:
-        """A representation of the database."""
+        """A representation of the database.
+        
+        Returns:
+            A string representation of the database object.
+        """
         return f"<ReplitDb(db_url={self.db_url!r})>"
 
 
