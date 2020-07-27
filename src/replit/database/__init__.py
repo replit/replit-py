@@ -200,7 +200,7 @@ class ReplitDb(dict):
                 blank means anything. Defaults to "".
 
         Returns:
-            Tuple[str]: [description]
+            Tuple[str]: The keys found.
         """
         r = requests.get(f"{self.db_url}", params={"prefix": prefix})
         r.raise_for_status()
@@ -257,7 +257,7 @@ class ReplitDb(dict):
                 with the default. Defaults to False.
 
         Returns:
-            JSONKey: [description]
+            JSONKey: The initialized JSONKey instance.
         """
         return JSONKey(
             db=self,
@@ -281,7 +281,8 @@ if db_url:
     db = ReplitDb(db_url)
 else:
     print(
-        "Warning: REPLIT_DB_URL does not exist, are we running on repl.it? Database will not function.",
+        "Warning: REPLIT_DB_URL does not exist, are we running on repl.it? "
+        "Database will not function.",
         file=stderr,
     )
     db = None
