@@ -1,0 +1,14 @@
+/* Body dark theme */
+body {
+    background: #333;
+    color: #fff;
+}
+
+.wy-nav-content {
+    background: #444;
+}
+
+/* Use original color inside of code blocks */
+.highlight {
+    color: #404040;
+}

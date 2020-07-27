@@ -241,17 +241,6 @@ version = "3.1.7"
 gitdb = ">=4.0.1,<5"
 
 [[package]]
-category = "dev"
-description = "Sphinx theme for groundwork projects (Based on flask_theme)"
-name = "groundwork-sphinx-theme"
-optional = false
-python-versions = "*"
-version = "1.1.1"
-
-[package.dependencies]
-Sphinx = ">=1.6.1"
-
-[[package]]
 category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
 name = "idna"
@@ -614,7 +603,7 @@ secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "pyOpenSSL (>=0
 socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
 
 [metadata]
-content-hash = "b4fbea4fefd4fd185efb94fc94d08c25d92e9b903e97c4e735c8a88c36affa82"
+content-hash = "7388d8240a2817695e502fb845922da8df699d77d143693ffe3285eca1df3495"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -703,10 +692,6 @@ gitdb = [
 gitpython = [
     {file = "GitPython-3.1.7-py3-none-any.whl", hash = "sha256:fa3b92da728a457dd75d62bb5f3eb2816d99a7fe6c67398e260637a40e3fafb5"},
     {file = "GitPython-3.1.7.tar.gz", hash = "sha256:2db287d71a284e22e5c2846042d0602465c7434d910406990d5b74df4afb0858"},
-]
-groundwork-sphinx-theme = [
-    {file = "groundwork-sphinx-theme-1.1.1.tar.gz", hash = "sha256:5f1217bf34daba5fcd93e8a2a04ef5a6c2b144ec43754aec7ce14de501e23fe4"},
-    {file = "groundwork_sphinx_theme-1.1.1-py2.py3-none-any.whl", hash = "sha256:b4796989ce3cd6d5b5a3c7ebe52a8c9cf848110e9f12c2c88e2b3c0e4e8f0e24"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
