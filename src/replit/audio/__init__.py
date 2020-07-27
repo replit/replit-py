@@ -464,11 +464,3 @@ class Audio:
         data = self.read_status()
         sources = data["Sources"]
         return [Source(s, s["Loop"]) for s in sources]
-
-
-audio = Audio()
-"""The interface used for all things audio.
-Can be used to play and fetch audio sources.
-
-"""
-
