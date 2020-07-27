@@ -1,0 +1,8 @@
+[flake8]
+select = ANN,B,B9,BLK,C,D,DAR,E,F,I,S,W
+ignore = E203,W503,ANN101,ANN102
+per-file-ignores = tests/*:S101
+max-line-length = 88
+application-import-names = vidgen,tests
+import-order-style = google
+docstring-convention = google

@@ -1,4 +1,5 @@
 """Interface with the Replit Database."""
+import os
 import json
 from sys import stderr
 from typing import Any, Callable, Dict, Tuple, Union
@@ -12,7 +13,8 @@ JSON_TYPE = Union[str, int, float, bool, type(None), dict, list]
 class JSONKey:
     """Represents a key in the database that holds a JSON value.
     
-    db.jsonkey() will initialize an instance for you, you don't have to do it manually."""
+    db.jsonkey() will initialize an instance for you,
+    you don't have to do it manually."""
 
     def __init__(
         self,
@@ -36,7 +38,10 @@ class JSONKey:
         return self.dtype is Any or isinstance(data, self.dtype)
 
     def _type_mismatch_msg(self, data: Any) -> str:
-        return f"Type mismatch: Got type {type(data).__name__}, expected {self.dtype.__name__}"
+        return (
+            f"Type mismatch: Got type {type(data).__name__},"
+            "expected {self.dtype.__name__}"
+        )
 
     def get(self):
         """Get the value of the key.
@@ -87,7 +92,8 @@ class JSONKey:
         """Prompt user for action when key is invalid."""
         while True:
             choice = input(
-                "d to use default, v to view the invalid data, c to insert custom value, ^C to exit: "
+                "d to use default, v to view the invalid data, c to insert custom value,"
+                "^C to exit: "
             )
             if choice.startswith("d"):
                 print("Writing default...")
@@ -232,3 +238,6 @@ class ReplitDb(dict):
     def __repr__(self) -> str:
         """A representation of the database."""
         return f"<ReplitDb(db_url={self.db_url!r})>"
+
+
+db = ReplitDb(os.environ["REPLIT_DB_URL"])
