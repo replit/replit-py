@@ -14,11 +14,6 @@ from datetime import datetime, timedelta
 from os import path
 
 
-def clear():
-    "Clear is used to clear the terminal."
-    print("\033[H\033[2J", end="", flush=True)
-
-
 class InvalidFileType(Exception):
     "Exception for when a requested file's type isnt valid"
     pass
