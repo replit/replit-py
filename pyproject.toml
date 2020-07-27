@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "replit"
-version = "0.1.0"
+version = "0.3.0"
 description = "Interface with repl.it database"
 authors = ["Scoder12 <34356756+Scoder12@users.noreply.github.com>"]
 license = "MIT"
