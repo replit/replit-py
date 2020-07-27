@@ -26,6 +26,14 @@ replit.audio module
    :undoc-members:
    :show-inheritance:
 
+replit.database module
+----------------------
+
+.. automodule:: replit.database
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 
 Indices and tables
