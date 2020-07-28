@@ -30,7 +30,7 @@ class HTMLElement(ABC):
         """Generates an HTML representation of the tag."""
         attr_text = self.stringify_attrs()
         return (
-            f"<{self.tagname}{'' + attr_text if attr_text else ''}>{self.content}"
+            f"<{self.tagname}{' ' + attr_text if attr_text else ''}>{self.content}"
             f"</{self.tagname}>"
         )
 
