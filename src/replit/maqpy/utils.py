@@ -25,12 +25,14 @@ def signin(title: str = "Please Sign In") -> Page:
     return Page(title=title, body=sign_in_snippet)
 
 
-def needs_signin(func: Callable = None, loginhtml: str = sign_in_snippet) -> Callable:
+def needs_signin(func: Callable = None, login_html: str = sign_in_snippet) -> Callable:
     """A decorator that enforces that the user is signed in before accessing the page.
 
     Args:
-        func (Callable): The function passed in if used as a decorator. Defaults to None.
-        loginhtml (str): The HTML to show when the user needs to sign in. Defaults to sign_in_snippet.
+        func (Callable): The function passed in if used as a decorator. Defaults to
+            None.
+        loginhtml (str): The HTML to show when the user needs to sign in. Defaults to
+            sign_in_snippet.
 
     Returns:
         Callable: The new handler.
@@ -42,7 +44,7 @@ def needs_signin(func: Callable = None, loginhtml: str = sign_in_snippet) -> Cal
             if flask.request.signed_in:
                 return func(*args, **kwargs)
             else:
-                return loginhtml
+                return login_html
 
     if func is not None:  # called with no options @needs_signin
         return decorator(func)
