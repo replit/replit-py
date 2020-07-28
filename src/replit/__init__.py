@@ -1,5 +1,5 @@
 """The replit python module."""
-from . import maqpi
+from . import maqpy
 from .audio import Audio
 from .database import db
 
