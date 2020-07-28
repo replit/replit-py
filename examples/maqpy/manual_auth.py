@@ -1,7 +1,7 @@
 """A basic example of repl auth."""
 from replit import maqpy
 
-app = maqpy.App("app")
+app = maqpy.App(__name__)
 
 
 @app.route("/")
