@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "replit"
 version = "0.3.0"
-description = "Interface with repl.it database"
-authors = ["Scoder12 <pypi@scoder12.ml>", "AllAwesome497"]
+description = "A library for interacting with features of repl.it"
+authors = ["mat <pypi@matdoes.dev>", "Scoder12 <pypi@scoder12.ml>", "AllAwesome497"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/replit/replit-py"
 homepage = "https://github.com/replit/replit-py"
+documentation = "https://replit-python-docs.scoder12.repl.co"
 
 [tool.poetry.dependencies]
 python = "^3.8"
