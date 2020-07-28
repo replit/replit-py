@@ -72,12 +72,14 @@ class App(flask.Flask):
 
     request_class = Request
 
-    def all_pages_sign_in(self, exclude: Set[str] = ("/",)) -> None:
-        """Require sign-in on all pages.
+    def login_wall(self, exclude: Set[str] = ("/",), handler: Callable = None) -> None:
+        """Require users to be logged-in on all pages.
 
         Args:
             exclude (Tuple[str]): The routes that should not require sign in.
                 Defaults to just /.
+            handler (Callable): The handler to call when the user is not signed in. If
+                not provided, defaults to maqpy.signin()
         """
         self._apsi_exclude = set(exclude) or set()
 
