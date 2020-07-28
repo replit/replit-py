@@ -2,8 +2,11 @@
 name = "replit"
 version = "0.3.0"
 description = "Interface with repl.it database"
-authors = ["Scoder12 <34356756+Scoder12@users.noreply.github.com>"]
+authors = ["Scoder12 <pypi@scoder12.ml>", "AllAwesome497"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/replit/replit-py"
+homepage = "https://github.com/replit/replit-py"
 
 [tool.poetry.dependencies]
 python = "^3.8"
