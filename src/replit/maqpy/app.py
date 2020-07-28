@@ -1,9 +1,11 @@
-"""Core of maqpi."""
+"""Core of maqpy."""
 from dataclasses import dataclass
 from functools import wraps
 from typing import Any, Callable, Set
 
 import flask
+
+from .utils import signin
 
 
 @dataclass
@@ -81,7 +83,8 @@ class App(flask.Flask):
             handler (Callable): The handler to call when the user is not signed in. If
                 not provided, defaults to maqpy.signin()
         """
-        self._apsi_exclude = set(exclude) or set()
+        self._lw_exclude = set(exclude) or set()
+        self._lw_handler = handler or (lambda: signin())
 
     def _request_handler(self, rule: str, view_func: Callable) -> Callable:
         """Return a handler for a given request.
@@ -99,12 +102,12 @@ class App(flask.Flask):
         @wraps(view_func)
         def handler(*args: Any, **kwargs: Any) -> Any:
             if (
-                hasattr(self, "_apsi_exclude")
-                and self._apsi_exclude is not None
-                and rule not in self._apsi_exclude
+                hasattr(self, "_lw_exclude")
+                and self._lw_exclude is not None
+                and rule not in self._lw_exclude
                 and not flask.request.signed_in
             ):
-                return "<login screen>"
+                return self._lw_handler(*args, **kwargs)
             return view_func(*args, **kwargs)
 
         return handler
