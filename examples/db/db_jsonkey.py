@@ -1,4 +1,4 @@
-from simple import db
+from replit import db
 
 
 def demo():
