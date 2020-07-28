@@ -54,7 +54,7 @@ class Link(HTMLElement):
             href (str): The href attribute, where the link points to.
             attrs (str): Any additional attributes of the tag.
         """
-        super().__init__(self, content, {"href": href, **attrs})
+        super().__init__(content, **{"href": href, **attrs})
 
 
 class Page(flask.Response):
