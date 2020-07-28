@@ -9,6 +9,7 @@ license = "MIT"
 python = "^3.8"
 requests = "^2.24.0"
 typing_extensions = "^3.7.4"
+flask = "^1.1.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.3"
