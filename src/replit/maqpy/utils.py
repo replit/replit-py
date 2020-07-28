@@ -46,6 +46,8 @@ def needs_signin(func: Callable = None, login_html: str = sign_in_snippet) -> Ca
             else:
                 return login_html
 
+        return handler
+
     if func is not None:  # called with no options @needs_signin
         return decorator(func)
     else:  # called with options, eg @needs_signin(loginhtml='...')
