@@ -124,7 +124,7 @@ class App(flask.Flask):
         return super().add_url_rule(
             rule,
             endpoint=endpoint,
-            view_func=self._request_handler(view_func)
+            view_func=self._request_handler(rule, view_func)
             if view_func is not None
             else view_func,
             provide_automatic_options=provide_automatic_options,
