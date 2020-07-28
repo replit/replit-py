@@ -15,7 +15,7 @@ app.login_wall(exclude=["/"], handler=login_page)
 
 @app.route("/")
 def index() -> str:
-    return "Some introduction " + maqpy.Link("check out my page", href="/page")
+    return f"Hello! {maqpy.Link('check out this page', href='/page')}"
 
 
 @app.route("/page")
