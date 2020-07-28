@@ -235,7 +235,7 @@ class ReplitDb(dict):
         data = self.to_dict()
         return tuple(data.values())
 
-    def items(self) -> dict_items:
+    def items(self) -> Tuple[Tuple[str]]:
         return self.to_dict().items()
 
     def jsonkey(
