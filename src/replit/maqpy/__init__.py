@@ -6,7 +6,7 @@ from werkzeug.local import LocalProxy
 
 from . import html
 from .app import App
-from .html import Page, Paragraph
+from .html import HTMLElement, Paragraph, Link, Page
 from .utils import sign_in_snippet, signin
 from ..database import db
 
