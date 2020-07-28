@@ -1,6 +1,6 @@
 """Utitilities to make development easier."""
-from typing import Any, Callable
 from functools import wraps
+from typing import Any, Callable
 
 import flask
 
@@ -31,7 +31,7 @@ def needs_signin(func: Callable = None, login_html: str = sign_in_snippet) -> Ca
     Args:
         func (Callable): The function passed in if used as a decorator. Defaults to
             None.
-        loginhtml (str): The HTML to show when the user needs to sign in. Defaults to
+        login_html (str): The HTML to show when the user needs to sign in. Defaults to
             sign_in_snippet.
 
     Returns:
@@ -50,5 +50,5 @@ def needs_signin(func: Callable = None, login_html: str = sign_in_snippet) -> Ca
 
     if func is not None:  # called with no options @needs_signin
         return decorator(func)
-    else:  # called with options, eg @needs_signin(loginhtml='...')
+    else:  # called with options, eg @needs_signin(login_html='...')
         return decorator
