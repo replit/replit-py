@@ -6,6 +6,7 @@ class FileCache:
     """A simple cache for files."""
 
     def __init__(self) -> None:
+        """Initialize the class."""
         self.data = {}
 
     def add_to_cache(self, filename: str, content: str) -> None:
@@ -51,6 +52,13 @@ class File(flask.Response):
     """Represents a static file."""
 
     def __init__(self, filename: str, no_cache: bool = False) -> None:
+        """Initialize the file.
+
+        Args:
+            filename (str): The filename to read from.
+            no_cache (bool): Whether to skip caching the file. Defaults to
+                False.
+        """
         self.filename = str(filename)
         self.no_cache = no_cache
 
