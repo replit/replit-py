@@ -21,3 +21,7 @@ def index() -> str:
 @app.route("/page")
 def page() -> str:
     return f"Hello {maqpy.auth.name}, if you are reading this you signed in."
+
+
+if __name__ == "__main__":
+    app.run()
