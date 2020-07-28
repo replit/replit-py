@@ -1,6 +1,6 @@
-# replit
+# replit-py
 
-Replit is python library designed to be run from a repl on [repl.it](https://repl.it).
+Replit-py is a python library designed to be run from a repl on [repl.it](https://repl.it).
 
 ### Features
 
