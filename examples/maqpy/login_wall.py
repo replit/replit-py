@@ -5,7 +5,7 @@ app = maqpy.App(__name__)
 
 
 def login_page() -> str:
-    return "Hello, please sign in to access this page!\n" + maqpy.signin()
+    return "Hello, please sign in to access this page!\n" + maqpy.sign_in_snippet
 
 
 # this is an example of the arguments, but the exclude kwarg already defaults to this
