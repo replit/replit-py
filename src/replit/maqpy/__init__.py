@@ -4,8 +4,10 @@ import os
 import flask
 from werkzeug.local import LocalProxy
 
+from . import files
 from . import html
 from .app import App
+from .files import File
 from .html import HTMLElement, Link, Page, Paragraph
 from .utils import needs_signin, sign_in_snippet, signin
 from ..database import db
