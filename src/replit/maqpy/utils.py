@@ -1,6 +1,5 @@
 """Utitilities to make development easier."""
 from functools import wraps
-from types import FunctionType
 from typing import Any, Callable, Tuple
 
 import flask
