@@ -27,7 +27,7 @@ def onerror(missing):
     return f"Missing parameter {missing}"
 
 
-@app.route("/form")
+@app.route("/form", methods=["POST"])
 @maqpy.needs_params("param", onerror=onerror)
 def form(param):
     return f"The value of param is: {param}"
