@@ -62,8 +62,9 @@ class File(flask.Response):
         self.filename = str(filename)
         self.no_cache = no_cache
 
-        # load file
-        if filename not in cache:
+        if filename in cache:
+            self.content = cache[filename]
+        else:
             with open(filename, "r") as f:
                 self.content = f.read()
 
