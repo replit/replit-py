@@ -18,14 +18,6 @@ Module contents
    :undoc-members:
    :show-inheritance:
 
-replit.audio module
--------------------
-
-.. automodule:: replit.audio
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 replit.database module
 ----------------------
 
@@ -34,7 +26,21 @@ replit.database module
    :undoc-members:
    :show-inheritance:
 
+replit.audio module
+-------------------
 
+.. automodule:: replit.audio
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+replit.maqpy module
+-------------------
+
+.. automodule:: replit.maqpy
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Indices and tables
 ==================
