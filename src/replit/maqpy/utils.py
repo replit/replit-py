@@ -1,6 +1,6 @@
 """Utitilities to make development easier."""
 from functools import wraps
-from typing import Any, Callable, Tuple
+from typing import Any, Callable
 
 import flask
 
@@ -55,20 +55,19 @@ def needs_signin(func: Callable = None, login_html: str = sign_in_snippet) -> Ca
 
 
 def needs_params(
-    *param_names: str, onerror: Callable[[Tuple[str]], flask.Response] = None
+    *param_names: str, onerror: Callable[str, flask.Response] = None
 ) -> Callable:
     """Require paramaters before a handler can be activated.
 
     Args:
         param_names (str): The paramaters that must be in the request.
         onerror (Callable): A function to handle when a paramater is missing. It will
-            be passed a tuple of all of the missing paramaters. If no function is
-            specified a handler that returns a descriptive error and 400 Bad Request
-            status code will be used.
+            be passed the parameter that is missing. If no function is specified a
+            handler that returns a descriptive error and 400 Bad Request status code
+            will be used.
 
     Raises:
         TypeError: No paramaters were provided or an invalid one was provided.
-        NotImplementedError: If the handler is called.
 
     Returns:
         Callable: The new handler.
@@ -80,10 +79,24 @@ def needs_params(
     if not all(isinstance(p, str) for p in param_names):
         raise TypeError("All paramater names should be strings.")
 
+    def default_onerror(missing_param: str) -> flask.Response:
+        return flask.make_response(
+            f"Parameter {missing_param!r} is required but is missing",
+            400,
+            mimetype="text/plain",
+        )
+
+    onerror = default_onerror if onerror is None else onerror
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def handler(*args: Any, **kwargs: Any) -> flask.Response:
-            raise NotImplementedError()
+        def handler(*args: Any, **ignoredkwargs: Any) -> flask.Response:
+            param_kwargs = {}
+            for p in param_names:
+                if p not in flask.request.form:
+                    return onerror(p)
+                param_kwargs[p] = flask.request.form[p]
+            return func(*args, **param_kwargs)
 
         return handler
 
