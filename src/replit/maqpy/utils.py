@@ -55,7 +55,7 @@ def needs_signin(func: Callable = None, login_html: str = sign_in_snippet) -> Ca
 
 
 def needs_params(
-    *param_names: str, onerror: Callable[str, flask.Response] = None
+    *param_names: str, onerror: Callable[[str], flask.Response] = None
 ) -> Callable:
     """Require paramaters before a handler can be activated.
 
