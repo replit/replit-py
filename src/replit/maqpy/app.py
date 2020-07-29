@@ -108,7 +108,7 @@ class App(flask.Flask):
                 and not flask.request.signed_in
             ):
                 return self._lw_handler(*args, **kwargs)
-            return view_func(*args, **kwargs)
+            return view_func()
 
         return handler
 
