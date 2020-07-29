@@ -91,19 +91,20 @@ def needs_params(
             mimetype="text/plain",
         )
 
-    if src in ["form", "query"]:
-        src = getattr(flask.request, src)
-
     onerror = default_onerror if onerror is None else onerror
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def handler(*args: Any, **ignoredkwargs: Any) -> flask.Response:
+            if src in ["form", "query"]:
+                params = getattr(flask.request, src)
+            else:
+                params = src
             param_kwargs = {}
             for p in param_names:
-                if p not in src:
+                if p not in params:
                     return onerror(p)
-                param_kwargs[p] = src[p]
+                param_kwargs[p] = params[p]
             return func(*args, **param_kwargs)
 
         return handler
