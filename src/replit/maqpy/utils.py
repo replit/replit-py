@@ -1,6 +1,6 @@
 """Utitilities to make development easier."""
 from functools import wraps
-from typing import Any, Callable
+from typing import Any, Callable, Union
 
 import flask
 
@@ -55,12 +55,17 @@ def needs_signin(func: Callable = None, login_html: str = sign_in_snippet) -> Ca
 
 
 def needs_params(
-    *param_names: str, onerror: Callable[[str], flask.Response] = None
+    *param_names: str,
+    src: Union[str, dict],
+    onerror: Callable[[str], flask.Response] = None,
 ) -> Callable:
     """Require paramaters before a handler can be activated.
 
     Args:
         param_names (str): The paramaters that must be in the request.
+        src (Union[str, dict]): The source to get the paramaters from. Can be "form"
+            to use flask.request.form (POST requests), "query" for flask.request.query
+            (GET requests), or a custom dictionary.
         onerror (Callable): A function to handle when a paramater is missing. It will
             be passed the parameter that is missing. If no function is specified a
             handler that returns a descriptive error and 400 Bad Request status code
@@ -86,6 +91,9 @@ def needs_params(
             mimetype="text/plain",
         )
 
+    if src in ["form", "query"]:
+        src = getattr(flask.request, src)
+
     onerror = default_onerror if onerror is None else onerror
 
     def decorator(func: Callable) -> Callable:
@@ -93,9 +101,9 @@ def needs_params(
         def handler(*args: Any, **ignoredkwargs: Any) -> flask.Response:
             param_kwargs = {}
             for p in param_names:
-                if p not in flask.request.form:
+                if p not in src:
                     return onerror(p)
-                param_kwargs[p] = flask.request.form[p]
+                param_kwargs[p] = src[p]
             return func(*args, **param_kwargs)
 
         return handler
