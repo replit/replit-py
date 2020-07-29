@@ -17,6 +17,7 @@ def index():
     <input type=hidden name=param value=value>
     <button type=submit>Submit form with parameter</button>
 </form>
+<a href="/query">Querystring version</a>
 </body>
 </html>
 """
@@ -31,6 +32,13 @@ def onerror(missing):
 @maqpy.needs_params("param", onerror=onerror)
 def form(param):
     return f"The value of param is: {param}"
+
+
+@app.route("/query")
+# source can be form, query, or a dictionary
+@maqpy.needs_params("q", src="query", onerror=(lambda p: f"Need query param {p}"))
+def query(q):
+    return f"The query param is: {q}"
 
 
 if __name__ == "__main__":
