@@ -26,6 +26,6 @@ class File(flask.Response):
                 self.content = f.read()
 
             if not no_cache:
-                cache.add_to_cache(filename, self.content)
+                cache[filename] = self.content
 
         super().__init__(self.content)
