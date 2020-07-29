@@ -96,8 +96,10 @@ def needs_params(
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def handler(*args: Any, **ignoredkwargs: Any) -> flask.Response:
-            if src in ["form", "query"]:
-                params = getattr(flask.request, src)
+            if src == "form":
+                params = flask.request.form
+            elif src == "query":
+                params = flask.request.args
             else:
                 params = src
             param_kwargs = {}
