@@ -1,5 +1,6 @@
 """Utitilities to make development easier."""
 from functools import wraps
+from types import FunctionType
 from typing import Any, Callable, Tuple
 
 import flask
@@ -54,14 +55,17 @@ def needs_signin(func: Callable = None, login_html: str = sign_in_snippet) -> Ca
         return decorator
 
 
-def needs_params(*param_names: str, onerror: Callable[Tuple[str]] = None) -> Callable:
+def needs_params(
+    *param_names: str, onerror: Callable[[Tuple[str]], flask.Response] = None
+) -> Callable[FunctionType]:
     """Require paramaters before a handler can be activated.
 
     Args:
         param_names (str): The paramaters that must be in the request.
-        onerror (Callable): A function to handle when a paramater is missing.
-            If no function is specified a handler that returns a descriptive error and
-            400 Bad Request status code will be used.
+        onerror (Callable): A function to handle when a paramater is missing. It will
+            be passed a tuple of all of the missing paramaters. If no function is
+            specified a handler that returns a descriptive error and 400 Bad Request
+            status code will be used.
 
     Raises:
         TypeError: No paramaters were provided or an invalid one was provided.
