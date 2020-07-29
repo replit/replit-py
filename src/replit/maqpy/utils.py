@@ -59,7 +59,7 @@ def needs_params(*param_names: str, onerror: Callable[Tuple[str]] = None) -> Cal
 
     Args:
         param_names (str): The paramaters that must be in the request.
-        onerror (Callable): A function to handle when a paramater is missing. 
+        onerror (Callable): A function to handle when a paramater is missing.
             If no function is specified a handler that returns a descriptive error and
             400 Bad Request status code will be used.
 
