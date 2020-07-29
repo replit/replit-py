@@ -10,10 +10,10 @@ def index():
 <head><title>Form testing</title></head>
 <body>
 <h3>Form testing</h3>
-<form action="/form">
+<form action="/form" method=POST>
     <button type=submit>Submit form with no parameter</button>
 </form>
-<form action="/form">
+<form action="/form" method=POST>
     <input type=hidden name=param value=value>
     <button type=submit>Submit form with parameter</button>
 </form>
