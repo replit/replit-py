@@ -85,7 +85,7 @@ def needs_params(
         raise TypeError("All paramater names should be strings.")
 
     def default_onerror(missing_param: str) -> flask.Response:
-        return flask.make_response(
+        return flask.Response(
             f"Parameter {missing_param!r} is required but is missing",
             400,
             mimetype="text/plain",
