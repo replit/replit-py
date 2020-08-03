@@ -14,7 +14,22 @@ from ..database import db
 
 auth = LocalProxy(lambda: flask.request.auth)
 signed_in = LocalProxy(lambda: flask.request.signed_in)
+request = LocalProxy(lambda: flask.request)
+render_template = flask.render_template
+redirect = flask.redirect
 
-# TODO: signinwall(exclude=['/a', '/b'])
-# TODO: @need_signin
-# TODO: Param checking with @needs_params
+
+def local_redirect(location: str, code: int = 302) -> flask.Response:
+    """Perform a redirection to a local path without downgrading to HTTP.
+
+    Args:
+        location (str): The path to redirect to.
+        code (int): The code to use for the redirect. Defaults to 302.
+
+    Returns:
+        flask.Response: The redirect response.
+    """
+    # Use a LocalProxy so that it can be called before the request context is available
+    return LocalProxy(
+        lambda: redirect("https://" + request.headers["host"] + location, code)
+    )
