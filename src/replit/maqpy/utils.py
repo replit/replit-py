@@ -3,6 +3,7 @@ from functools import wraps
 from typing import Any, Callable, Union
 
 import flask
+from werkzeug.local import LocalProxy
 
 from .html import Page
 
@@ -112,3 +113,21 @@ def needs_params(
         return handler
 
     return decorator
+
+
+def local_redirect(location: str, code: int = 302) -> flask.Response:
+    """Perform a redirection to a local path without downgrading to HTTP.
+
+    Args:
+        location (str): The path to redirect to.
+        code (int): The code to use for the redirect. Defaults to 302.
+
+    Returns:
+        flask.Response: The redirect response.
+    """
+    # Use a LocalProxy so that it can be called before the request context is available
+    return LocalProxy(
+        lambda: flask.redirect(
+            "https://" + flask.request.headers["host"] + location, code
+        )
+    )
