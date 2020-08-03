@@ -27,6 +27,7 @@ class JSONKey:
 
     def __init__(
             self,
+            db: Any,
             key: str,
             dtype: JSON_TYPE,
             get_default: Callable = None,
