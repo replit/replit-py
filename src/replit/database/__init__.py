@@ -1,8 +1,8 @@
 """Interface with the Replit Database."""
 import asyncio
 import functools
-import json
 import inspect
+import json
 import os
 from sys import stderr
 from typing import Any, Callable, Dict, Tuple, Union
@@ -299,7 +299,7 @@ def _async2sync(src_cls: object, res_cls: object) -> None:
         def __repr__(self) -> str:
             return (
                 f"<function {res_cls.__name__}.{self.func.__name__}"
-                " at {hex(id(self.func))}>"
+                f" at {hex(id(self.func))}>"
             )
 
     for attr in dir(src_cls):
