@@ -26,7 +26,10 @@ def sign_in(title: str = "Please Sign In") -> Page:
     return Page(title=title, body=sign_in_snippet)
 
 
-def needs_signin(func: Callable = None, login_html: str = sign_in_snippet) -> Callable:
+sign_in_page = sign_in()
+
+
+def needs_sign_in(func: Callable = None, login_res: str = sign_in_page) -> Callable:
     """A decorator that enforces that the user is signed in before accessing the page.
 
     Args:
