@@ -14,7 +14,7 @@ sign_in_snippet = (
 )
 
 
-def signin(title: str = "Please Sign In") -> Page:
+def sign_in(title: str = "Please Sign In") -> Page:
     """Return a sign-in page.
 
     Args:
