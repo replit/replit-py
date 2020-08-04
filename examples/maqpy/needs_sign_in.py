@@ -4,7 +4,7 @@ app = maqpy.App(__name__)
 
 
 @app.route("/")
-@maqpy.needs_sign_in(login_html=f"Hello! {maqpy.sign_in_snippet}")
+@maqpy.needs_sign_in(login_res=f"Hello! {maqpy.sign_in_snippet}")
 def index():
     return "Index function"
 
