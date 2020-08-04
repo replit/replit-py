@@ -5,7 +5,7 @@ from typing import Any, Callable, Set
 
 import flask
 
-from .utils import signin
+from .utils import sign_in
 
 
 @dataclass
@@ -84,7 +84,7 @@ class App(flask.Flask):
                 not provided, defaults to maqpy.signin()
         """
         self._lw_exclude = set(exclude) or set()
-        self._lw_handler = handler or (lambda: signin())
+        self._lw_handler = handler or (lambda: sign_in())
 
     def _request_handler(self, rule: str, view_func: Callable) -> Callable:
         """Return a handler for a given request.
