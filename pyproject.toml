@@ -15,7 +15,6 @@ requests = "^2.24.0"
 typing_extensions = "^3.7.4"
 flask = "^1.1.2"
 werkzeug = "^1.0.1"
-asks = "^2.4.8"
 aiohttp = "^3.6.2"
 
 [tool.poetry.dev-dependencies]
