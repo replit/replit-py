@@ -3,13 +3,9 @@ import asyncio
 import json
 import os
 from sys import stderr
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, Tuple, Union
 
 import aiohttp
-
-from . import _async
-
-asyncio.run = _async.run
 
 
 JSON_TYPE = Union[str, int, float, bool, type(None), dict, list]
@@ -63,7 +59,7 @@ class JSONKey:
             "expected {self.dtype.__name__}"
         )
 
-    def get(self) -> JSON_TYPE:
+    async def get(self) -> JSON_TYPE:
         """Get the value of the key.
 
         If an invalid JSON value is read or the type does not match, it will show a
@@ -73,32 +69,32 @@ class JSONKey:
             JSON_TYPE: The value read from the database
         """
         try:
-            read = self.db[self.key]
+            read = await self.db.get(self.key)
         except KeyError:
             print(f"Database key {self.key} not set, setting it to default value")
             default = self._default()
-            self.db[self.key] = default
+            await self.db.set(self.key, default)
             return default
 
         try:
             data = json.loads(read)
         except json.JSONDecodeError:
-            return self._error("Invalid JSON data read", read)
+            return await self._error("Invalid JSON data read", read)
 
         if not self._is_valid_type(data):
-            return self._error(self._type_mismatch_msg(data), read,)
+            return await self._error(self._type_mismatch_msg(data), read,)
         return data
 
-    def _error(self, error: str, read: str) -> JSON_TYPE:
+    async def _error(self, error: str, read: str) -> JSON_TYPE:
         print(f"Error reading key {self.key!r}: {error}", file=stderr)
         if self.discard_bad_data:
             val = self._default()
-            self.db[self.key] = json.dumps(val)
+            await self.db.set(self.key, json.dumps(val))
             print(f"Wrote default to key {self.key!r}")
             return val
-        return self._should_discard_prompt(error, read)
+        return await self._should_discard_prompt(error, read)
 
-    def _should_discard_prompt(self, error: str, read: str) -> bool:
+    async def _should_discard_prompt(self, error: str, read: str) -> bool:
         while True:
             choice = input(
                 "d to use default, v to view the invalid data, c to insert custom "
@@ -107,7 +103,7 @@ class JSONKey:
             if choice.startswith("d"):
                 print("Writing default...")
                 val = self._default()
-                self.db[self.key] = val
+                await self.db.set(self.key, val)
                 return val
             elif choice.startswith("v"):
                 print(f"Data read from key: {read!r}")
@@ -127,11 +123,11 @@ class JSONKey:
                         print(self._type_mismatch_msg(data))
                         continue
 
-                    self.db[self.key] = toset
+                    await self.db.set(self.key, toset)
                     print("Wrote data to key")
                     return data
 
-    def set(self, data: JSON_TYPE) -> None:
+    async def set(self, data: JSON_TYPE) -> None:
         """Set the value of the jsonkey.
 
         Args:
@@ -142,11 +138,12 @@ class JSONKey:
         """
         if not self._is_valid_type(data):
             raise TypeError(self._type_mismatch_msg(data))
-        self.db[self.key] = json.dumps(data)
+
+        await self.db.set(self.key, json.dumps(data))
 
 
-class ReplitDb(dict):
-    """Interface with the Replit Database."""
+class AsyncClient:
+    """Async client interface with the Replit Database."""
 
     __slots__ = ("db_url", "sess")
 
@@ -157,9 +154,8 @@ class ReplitDb(dict):
             db_url (str): Database url to use.
         """
         self.db_url = db_url
-        self.sess = _AsyncBackend(db_url)
 
-    def __getitem__(self, key: str) -> str:
+    async def get(self, key: str) -> str:
         """Get the value of an item from the database.
 
         Args:
@@ -171,39 +167,53 @@ class ReplitDb(dict):
         Returns:
             str: The value of the key
         """
-        r = asyncio.run(self.sess.view(key))
-        return r
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.db_url + "/" + key) as response:
+                if response.status == 404:
+                    raise KeyError(key)
+                response.raise_for_status()
+                return await response.text()
 
-    def __setitem__(self, key: str, value: str) -> None:
+    async def set(self, key: str, value: str) -> None:
         """Set a key in the database to value.
 
         Args:
             key (str): The key to set
             value (str): The value to set it to
         """
-        asyncio.run(self.sess.set(key, value))
+        async with aiohttp.ClientSession() as session:
+            async with session.post(self.db_url, data={key: value}) as response:
+                response.raise_for_status()
 
-    def __delitem__(self, key: str) -> None:
+    async def delete(self, key: str) -> None:
         """Delete a key from the database.
 
         Args:
             key (str): The key to delete
         """
-        asyncio.run(self.sess.delete(key))
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(self.db_url + "/" + key) as response:
+                response.raise_for_status()
 
-    def keys(self, prefix: str = "") -> Tuple[str]:
-        """Return all of the keys in the database.
+    async def list(self, prefix: str) -> Tuple[str]:
+        """List keys in the database which start with prefix.
 
         Args:
-            prefix (str): The prefix the keys must start with,
-                blank means anything. Defaults to "".
+            prefix (str): The prefix keys must start with, blank not not check.
 
         Returns:
             Tuple[str]: The keys found.
         """
-        return asyncio.run(self.sess.list(prefix))
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.db_url + "?prefix=" + prefix) as response:
+                response.raise_for_status()
+                text = await response.text()
+                if not text:
+                    return tuple()
+                else:
+                    return tuple(text.split("\n"))
 
-    def to_dict(self, prefix: str = "") -> Dict[str, str]:
+    async def to_dict(self, prefix: str = "") -> Dict[str, str]:
         """Dump all data in the database into a dictionary.
 
         Args:
@@ -213,23 +223,22 @@ class ReplitDb(dict):
         Returns:
             Dict[str, str]: All keys in the database.
         """
-        keys = self.keys()
-        data = {}
-        for k in keys:
-            data[k] = self[k]
-        return data
+        ret = {}
+        keys = await self.list(prefix=prefix)
+        for i in keys:
+            ret[i] = await self.view(i)
+        return ret
 
-    def values(self) -> Tuple[str]:
+    async def keys(self) -> Tuple[str]:
+        return tuple(await self.list(""))
+
+    async def values(self) -> Tuple[str]:
         """Get every value in the database.
 
         Returns:
             Tuple[str]: The values in the database.
         """
-        data = self.to_dict()
-        return tuple(data.values())
-
-    def items(self) -> Tuple[Tuple[str]]:
-        return self.to_dict().items()
+        return tuple((await self.to_dict()).values())
 
     def jsonkey(
         self,
@@ -270,69 +279,6 @@ class ReplitDb(dict):
             A string representation of the database object.
         """
         return f"<ReplitDb(db_url={self.db_url!r})>"
-
-
-class AsyncClient:
-    def __init__(self, db_url: str) -> None:
-        self.db_url = db_url
-        self.backend = _AsyncBackend(db_url)
-
-    async def view(self, key: str) -> str:
-        return await self.backend.view(key)
-
-    async def list(self, prefix: str) -> List[str]:
-        return await self.backend.list(prefix)
-
-    async def delete(self, key: str) -> None:
-        return await self.backend.delete(key)
-
-    async def set(self, key: str, val: str) -> None:
-        return await self.backend.set(key, val)
-
-    async def to_dict(self) -> Dict[str, str]:
-        ret = {}
-        keys = await self.keys()
-        for i in keys:
-            ret[i] = await self.view(i)
-        return ret
-
-    async def keys(self) -> Tuple[str]:
-        return tuple(await self.list(""))
-
-    async def values(self) -> Tuple[str]:
-        return tuple((await self.to_dict()).values())
-
-
-class _AsyncBackend:
-    def __init__(self, db_url: str) -> None:
-        self.db_url = db_url
-
-    async def set(self, key: str, val: str) -> None:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(self.db_url, data={key: val}) as response:
-                response.raise_for_status()
-
-    async def view(self, key: str) -> str:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.db_url + "/" + key) as response:
-                if response.status == 404:
-                    raise KeyError(key)
-                response.raise_for_status()
-                return await response.text()
-
-    async def delete(self, key: str) -> None:
-        async with aiohttp.ClientSession() as session:
-            async with session.delete(self.db_url + "/" + key) as response:
-                response.raise_for_status()
-
-    async def list(self, prefix: str) -> Tuple[str]:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.db_url + "?prefix=" + prefix) as response:
-                response.raise_for_status()
-                if not await response.text():
-                    return tuple()
-                else:
-                    return tuple((await response.text()).split("\n"))
 
 
 db_url = os.environ.get("REPLIT_DB_URL")

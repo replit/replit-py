@@ -11,7 +11,6 @@ documentation = "https://replit-python-docs.scoder12.repl.co"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-requests = "^2.24.0"
 typing_extensions = "^3.7.4"
 flask = "^1.1.2"
 werkzeug = "^1.0.1"
