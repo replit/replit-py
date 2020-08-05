@@ -7,6 +7,7 @@ from sys import stderr
 from typing import Any, Callable, Dict, Tuple, Union
 
 import aiohttp
+import nest_asyncio
 
 
 JSON_TYPE = Union[str, int, float, bool, type(None), dict, list]
@@ -380,6 +381,7 @@ class ReplitDb(AsyncReplitDb):
     values = _async2sync(AsyncReplitDb.values)
 
 
+nest_asyncio.apply()
 db_url = os.environ.get("REPLIT_DB_URL")
 if db_url:
     db = ReplitDb(db_url)
