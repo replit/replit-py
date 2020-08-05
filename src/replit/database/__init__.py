@@ -1,7 +1,6 @@
 """Interface with the Replit Database."""
 import asyncio
 import functools
-import inspect
 import json
 import os
 from sys import stderr
@@ -288,54 +287,25 @@ class AsyncReplitDb:
         return f"<ReplitDb(db_url={self.db_url!r})>"
 
 
-def _async2sync(src_cls: object, res_cls: object) -> None:
-    class ReprWrapped(object):
-        def __init__(self, func: Callable) -> None:
-            self.func = func
+def _async2sync(coro: Callable) -> None:
+    @functools.wraps(coro)
+    def sync_func(self: object, *args: Any, **kwargs: Any) -> Any:
+        return asyncio.run(coro(self, *args, **kwargs))
 
-        def __call__(self, *args: Any, **kwargs: Any) -> Any:
-            return self.func(*args, **kwargs)
-
-        def __repr__(self) -> str:
-            return (
-                f"<function {res_cls.__name__}.{self.func.__name__}"
-                f" at {hex(id(self.func))}>"
-            )
-
-    for attr in dir(src_cls):
-        if attr in ["__class__", "__dict__"]:
-            continue
-        val = getattr(src_cls, attr)
-        if inspect.iscoroutinefunction(val):
-            # Convert the async function to sync with asyncio.run
-            @functools.wraps(val)
-            def sync_func(*args: Any, **kwargs: Any) -> Any:
-                print(f"Calling {attr}: {val}")
-                return asyncio.run(val(*args, **kwargs))
-
-            setattr(res_cls, attr, ReprWrapped(sync_func))
-        elif inspect.isfunction(val):
-            # Wrap the source function
-            @functools.wraps(val)
-            def new_func(*args: Any, **kwargs: Any) -> Any:
-                return val(*args, **kwargs)
-
-            setattr(res_cls, attr, ReprWrapped(new_func))
-        else:
-            setattr(res_cls, attr, val)
+    return sync_func
 
 
-class JSONKey:
+class JSONKey(AsyncJSONKey):
     """Represents an key in the async database that holds a JSON value.
 
     db.jsonkey() will initialize an instance for you,
     you don't have to do it manually.
     """
 
-    pass
-
-
-_async2sync(AsyncJSONKey, JSONKey)
+    get = _async2sync(AsyncJSONKey.get)
+    set = _async2sync(AsyncJSONKey.set)
+    _error = _async2sync(AsyncJSONKey._error)
+    _should_discard_prompt = _async2sync(AsyncJSONKey._should_discard_prompt)
 
 
 class ReplitDb:
@@ -401,8 +371,13 @@ class ReplitDb:
             discard_bad_data=discard_bad_data,
         )
 
-
-_async2sync(AsyncReplitDb, ReplitDb)
+    get = _async2sync(AsyncReplitDb.get)
+    set = _async2sync(AsyncReplitDb.set)
+    delete = _async2sync(AsyncReplitDb.delete)
+    list = _async2sync(AsyncReplitDb.list)
+    keys = _async2sync(AsyncReplitDb.keys)
+    to_dict = _async2sync(AsyncReplitDb.to_dict)
+    values = _async2sync(AsyncReplitDb.values)
 
 
 db_url = os.environ.get("REPLIT_DB_URL")
