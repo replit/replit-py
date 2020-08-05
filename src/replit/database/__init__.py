@@ -365,7 +365,7 @@ class ReplitDb(AsyncReplitDb):
             JSONKey: The initialized JSONKey instance.
         """
         return JSONKey(
-            db=self,
+            db=super(),
             key=key,
             dtype=dtype,
             get_default=get_default,
