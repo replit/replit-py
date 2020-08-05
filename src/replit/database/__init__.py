@@ -305,8 +305,6 @@ class JSONKey(AsyncJSONKey):
 
     get = _async2sync(AsyncJSONKey.get)
     set = _async2sync(AsyncJSONKey.set)
-    _error = _async2sync(AsyncJSONKey._error)
-    _should_discard_prompt = _async2sync(AsyncJSONKey._should_discard_prompt)
 
 
 class ReplitDb(AsyncReplitDb):
