@@ -308,7 +308,7 @@ class JSONKey(AsyncJSONKey):
     _should_discard_prompt = _async2sync(AsyncJSONKey._should_discard_prompt)
 
 
-class ReplitDb:
+class ReplitDb(AsyncReplitDb):
     """Client interface with the Replit Database."""
 
     def __getitem__(self, item: str) -> str:
