@@ -14,7 +14,6 @@ python = "^3.8"
 typing_extensions = "^3.7.4"
 flask = "^1.1.2"
 werkzeug = "^1.0.1"
-asks = "^2.4.8"
 aiohttp = "^3.6.2"
 nest_asyncio = "^1.4.0"
 
