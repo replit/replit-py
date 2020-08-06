@@ -29,6 +29,7 @@ class AsyncJSONKey:
         dtype: JSON_TYPE,
         get_default: Callable = None,
         discard_bad_data: bool = False,
+        do_raise: bool = False,
     ) -> None:
         """Initialize the key.
 
@@ -41,12 +42,14 @@ class AsyncJSONKey:
                 argument is used.
             discard_bad_data (bool): Don't prompt if bad data is read, overwrite it
                 with the default. Defaults to False.
+            do_raise (bool): Whether to raise exceptions when errors are encountered.
         """
         self.db = db
         self.key = key
         self.dtype = dtype
         self.get_default = get_default
         self.discard_bad_data = discard_bad_data
+        self.do_raise = do_raise
 
     def _default(self) -> JSON_TYPE:
         get_default_func = self.get_default or self.dtype
@@ -73,6 +76,8 @@ class AsyncJSONKey:
         try:
             read = await self.db.get(self.key)
         except KeyError:
+            if self.do_raise:
+                raise
             print(f"Database key {self.key} not set, setting it to default value")
             default = self._default()
             await self.db.set(self.key, default)
@@ -81,6 +86,8 @@ class AsyncJSONKey:
         try:
             data = json.loads(read)
         except json.JSONDecodeError:
+            if self.do_raise:
+                raise
             return await self._error("Invalid JSON data read", read)
 
         if not self._is_valid_type(data):
@@ -88,6 +95,9 @@ class AsyncJSONKey:
         return data
 
     async def _error(self, error: str, read: str) -> JSON_TYPE:
+        if self.do_raise:
+            raise ValueError(error)
+
         print(f"Error reading key {self.key!r}: {error}", file=stderr)
         if self.discard_bad_data:
             val = self._default()
