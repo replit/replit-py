@@ -70,6 +70,11 @@ class AsyncJSONKey:
         If an invalid JSON value is read or the type does not match, it will show a
             prompt asking the user what to do unless discard_bad_data is set.
 
+        Raises:
+            KeyError: If do_raise is true and the key does not exist.
+            json.JSONDecodeError: If do_raise is true and invalid JSON data is read
+                from the key.
+
         Returns:
             JSON_TYPE: The value read from the database
         """
