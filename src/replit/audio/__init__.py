@@ -98,7 +98,7 @@ class Source:
         "The estimated time remaining in the source's current loop."
         data = self.__get_source()
         if not data:
-            return timedelta(millaseconds=0)
+            return timedelta(milliseconds=0)
 
         return timedelta(milliseconds=data["Remaining"])
 
