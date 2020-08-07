@@ -6,7 +6,7 @@ def clear() -> None:
     print("\033[H\033[2J", end="", flush=True)
 
 
-class color:
+class Color:
     """Dynamic Color: Accepts RGB Color."""
 
     def __init__(self, r: int, g: int, b: int) -> None:
@@ -100,7 +100,7 @@ class color:
         
         return cls(r, g, b)
 
-class bit:
+class Bit:
     def __init__(self, value: int) -> None:
         """
         Use a 8bit colorpallete
@@ -132,7 +132,7 @@ attributes = {  # use only repl.it supported ansi codes. Codes such as blink do 
 }
 
 
-class attr:
+class Attr:
     def __init__(self, attrib: str) -> None:
         """
         Custom Attributes such as bold and italic
