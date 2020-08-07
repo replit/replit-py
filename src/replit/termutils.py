@@ -1,5 +1,5 @@
 """Pure Python ANSI Color Escape Code generator."""
-
+import colorsys
 
 def clear() -> None:
     """Clear the terminal."""
@@ -56,6 +56,49 @@ class color:
 
         return cls(r, g, b)
 
+    @classmethod
+    def hsv(cls, h, s, v) -> None:
+        """
+        Convert Hex Value to RGB
+        then generate an ANSI escape code
+
+        Args:
+          hexvalue (str): The color's hex value
+        
+        Raises:
+          ValueError
+
+        Returns:
+          color : RGB colors from Hex Value
+        """   
+        try: 
+          r, g, b = colorsys.hsv_to_rgb(h, s, v)
+        except:
+          raise ValueError('Converting HSV to RGB ran into an error')
+        
+        return cls(r, g, b)
+    
+    @classmethod
+    def hls(cls, h, l, s)
+        """
+        Convert Hex Value to RGB
+        then generate an ANSI escape code
+
+        Args:
+          hexvalue (str): The color's hex value
+        
+        Raises:
+          ValueError
+
+        Returns:
+          color : RGB colors from Hex Value
+        """   
+        try: 
+          r, g, b = colorsys.hls_to_rgb(h, s, v)
+        except:
+          raise ValueError('Converting HLS to RGB ran into an error')
+        
+        return cls(r, g, b)
 
 class bit:
     def __init__(self, value: int) -> None:
