@@ -6,7 +6,7 @@ Replit-py is a python library designed to be run from a repl on [repl.it](https:
 
 - Fully featured database client for Repl DB
 - Audio library which can play tones and files
-- Clear the terminal
+- Terminal Utillity library which can create and clear colors better than most libaries
 
 ### Documentation
 
