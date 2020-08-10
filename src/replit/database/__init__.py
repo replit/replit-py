@@ -20,7 +20,7 @@ class AsyncJSONKey:
     you don't have to do it manually.
     """
 
-    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data")
+    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data", "do_raise")
 
     def __init__(
         self,
@@ -350,6 +350,8 @@ class JSONKey(AsyncJSONKey):
             do_raise=do_raise,
         )
 
+    _error = _async2sync(AsyncJSONKey._error)
+    _should_discard_prompt = _async2sync(AsyncJSONKey._should_discard_prompt)
     get = _async2sync(AsyncJSONKey.get)
     set = _async2sync(AsyncJSONKey.set)
 
