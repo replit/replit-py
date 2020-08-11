@@ -262,7 +262,7 @@ class AsyncReplitDb:
         return tuple(data.values())
 
     async def items(self) -> Tuple[Tuple[str]]:
-        """Convert the database to a dict and return the dict's items().
+        """Convert the database to a dict and return the dict's items method.
 
         Returns:
             Tuple[Tuple[str]]: The items
@@ -539,7 +539,7 @@ class ReplitDb(dict):
         return tuple(data.values())
 
     def items(self) -> Tuple[Tuple[str]]:
-        """Convert the database to a dict and return the dict's items().
+        """Convert the database to a dict and return the dict's items method.
 
         Returns:
             Tuple[Tuple[str]]: The items
