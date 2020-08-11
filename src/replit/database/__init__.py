@@ -447,12 +447,15 @@ class JSONKey(AsyncJSONKey):
             )
         return self.get()[name]
 
-    def key(self, name: str, default: Any = None) -> Any:
+    def read(self, name: str, default: Any = None) -> Any:
         """Shorthand for self.get().get(name, default) if datatype is dict.
 
         Args:
             name (str): The name to get.
             default (Any): The default if the key doesn't exist. Defaults to None.
+
+        Raises:
+            TypeError: The datatype is not dict.
 
         Returns:
             Any: The value read or the default.
