@@ -39,7 +39,7 @@ class ReplitAuthContext:
         Returns:
             bool: whether or not the authentication is activated.
         """
-        return self.name != ""
+        return bool(self.name)
 
 
 class Request(flask.Request):
