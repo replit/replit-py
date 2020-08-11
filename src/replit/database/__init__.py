@@ -1,13 +1,11 @@
 """Interface with the Replit Database."""
-import asyncio
-import functools
 import json
 import os
 from sys import stderr
 from typing import Any, Callable, Dict, Tuple, Union
 
 import aiohttp
-import nest_asyncio
+import requests
 
 
 JSON_TYPE = Union[str, int, float, bool, type(None), dict, list]
@@ -260,7 +258,16 @@ class AsyncReplitDb:
         Returns:
             Tuple[str]: The values in the database.
         """
-        return tuple((await self.to_dict()).values())
+        data = await self.to_dict()
+        return tuple(data.values())
+
+    async def items(self) -> Tuple[Tuple[str]]:
+        """Convert the database to a dict and return the dict's items().
+
+        Returns:
+            Tuple[Tuple[str]]: The items
+        """
+        return (await self.to_dict()).items()
 
     def jsonkey(
         self,
@@ -303,21 +310,14 @@ class AsyncReplitDb:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-def _async2sync(coro: Callable) -> None:
-    @functools.wraps(coro)
-    def sync_func(self: object, *args: Any, **kwargs: Any) -> Any:
-        res = asyncio.run(coro(self._super, *args, **kwargs))
-        return res
-
-    return sync_func
-
-
-class JSONKey(AsyncJSONKey):
-    """Represents an key in the async database that holds a JSON value.
+class JSONKey:
+    """Represents a key in the database that holds a JSON value.
 
     db.jsonkey() will initialize an instance for you,
     you don't have to do it manually.
     """
+
+    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data", "do_raise")
 
     def __init__(
         self,
@@ -341,59 +341,210 @@ class JSONKey(AsyncJSONKey):
                 with the default. Defaults to False.
             do_raise (bool): Whether to raise exceptions when errors are encountered.
         """
-        self._super = AsyncJSONKey(
-            db=db,
-            key=key,
-            dtype=dtype,
-            get_default=get_default,
-            discard_bad_data=discard_bad_data,
-            do_raise=do_raise,
+        self.db = db
+        self.key = key
+        self.dtype = dtype
+        self.get_default = get_default
+        self.discard_bad_data = discard_bad_data
+        self.do_raise = do_raise
+
+    def _default(self) -> JSON_TYPE:
+        get_default_func = self.get_default or self.dtype
+        return get_default_func()
+
+    def _is_valid_type(self, data: JSON_TYPE) -> bool:
+        return self.dtype is Any or isinstance(data, self.dtype)
+
+    def _type_mismatch_msg(self, data: Any) -> str:
+        return (
+            f"Type mismatch: Got type {type(data).__name__},"
+            "expected {self.dtype.__name__}"
         )
 
-    _error = _async2sync(AsyncJSONKey._error)
-    _should_discard_prompt = _async2sync(AsyncJSONKey._should_discard_prompt)
-    get = _async2sync(AsyncJSONKey.get)
-    set = _async2sync(AsyncJSONKey.set)
+    def get(self) -> JSON_TYPE:
+        """Get the value of the key.
 
-
-class ReplitDb(AsyncReplitDb):
-    """Client interface with the Replit Database."""
-
-    def __init__(self, db_url: str) -> None:
-        """Initialize the class.
-
-        Args:
-            db_url (str): The database URL to connect to.
-        """
-        self._super = AsyncReplitDb(db_url)
-
-    def __getitem__(self, item: str) -> str:
-        """Retrieve a key from the database.
-
-        Args:
-            item (str): The key to retrieve.
+        If an invalid JSON value is read or the type does not match, it will show a
+            prompt asking the user what to do unless discard_bad_data is set.
 
         Returns:
-            str: The value of the key.
+            JSON_TYPE: The value read from the database
         """
-        return self.get(item)
+        try:
+            read = self.db[self.key]
+        except KeyError:
+            print(f"Database key {self.key} not set, setting it to default value")
+            default = self._default()
+            self.db[self.key] = default
+            return default
 
-    def __setitem__(self, item: str, value: str) -> None:
-        """Set a key in the database.
+        try:
+            data = json.loads(read)
+        except json.JSONDecodeError:
+            return self._error("Invalid JSON data read", read)
+
+        if not self._is_valid_type(data):
+            return self._error(self._type_mismatch_msg(data), read,)
+        return data
+
+    def _error(self, error: str, read: str) -> JSON_TYPE:
+        print(f"Error reading key {self.key!r}: {error}", file=stderr)
+        if self.discard_bad_data:
+            val = self._default()
+            self.db[self.key] = json.dumps(val)
+            print(f"Wrote default to key {self.key!r}")
+            return val
+        return self._should_discard_prompt(error, read)
+
+    def _should_discard_prompt(self, error: str, read: str) -> bool:
+        while True:
+            choice = input(
+                "d to use default, v to view the invalid data, c to insert custom "
+                "value, ^C to exit: "
+            )
+            if choice.startswith("d"):
+                print("Writing default...")
+                val = self._default()
+                self.db[self.key] = val
+                return val
+            elif choice.startswith("v"):
+                print(f"Data read from key: {read!r}")
+            elif choice.startswith("c"):
+                toset = input(
+                    f"Enter data to write, should be of type {self.dtype.__name__!r}"
+                    " (leave blank to return to menu): "
+                )
+                if not toset:
+                    continue
+                try:
+                    data = json.loads(toset)
+                except json.JSONDecodeError:
+                    print("Invalid JSON data!")
+                else:
+                    if not self._is_valid_type(data):
+                        print(self._type_mismatch_msg(data))
+                        continue
+
+                    self.db[self.key] = toset
+                    print("Wrote data to key")
+                    return data
+
+    def set(self, data: JSON_TYPE) -> None:
+        """Set the value of the jsonkey.
 
         Args:
-            item (str): The key to set.
-            value (str): The value to set the key to.
-        """
-        self.set(item, value)
+            data (JSON_TYPE): The value to set it to.
 
-    def __delitem__(self, name: str) -> None:
-        """Delete a key in the database.
+        Raises:
+            TypeError: The type of the value set does not match the datatype.
+        """
+        if not self._is_valid_type(data):
+            raise TypeError(self._type_mismatch_msg(data))
+        self.db[self.key] = json.dumps(data)
+
+
+class ReplitDb(dict):
+    """Interface with the Replit Database."""
+
+    __slots__ = ("db_url", "sess")
+
+    def __init__(self, db_url: str) -> None:
+        """Initialize database. You shouldn't have to do this manually.
 
         Args:
-            name (str): The key to delete.
+            db_url (str): Database url to use.
         """
-        self.delete(name)
+        self.db_url = db_url
+        self.sess = requests.Session()
+
+    def __getitem__(self, key: str) -> str:
+        """Get the value of an item from the database.
+
+        Args:
+            key (str): The key to retreive
+
+        Raises:
+            KeyError: Key is not set
+
+        Returns:
+            str: The value of the key
+        """
+        r = self.sess.get(f"{self.db_url}/{key}")
+        if r.status_code == 404:
+            raise KeyError(key)
+
+        r.raise_for_status()
+        return r.text
+
+    def __setitem__(self, key: str, value: str) -> None:
+        """Set a key in the database to value.
+
+        Args:
+            key (str): The key to set
+            value (str): The value to set it to
+        """
+        r = self.sess.post(self.db_url, data={key: value})
+        r.raise_for_status()
+
+    def __delitem__(self, key: str) -> None:
+        """Delete a key from the database.
+
+        Args:
+            key (str): The key to delete
+        """
+        r = self.sess.delete(f"{self.db_url}/{key}")
+        r.raise_for_status()
+
+    def keys(self, prefix: str = "") -> Tuple[str]:
+        """Return all of the keys in the database.
+
+        Args:
+            prefix (str): The prefix the keys must start with,
+                blank means anything. Defaults to "".
+
+        Returns:
+            Tuple[str]: The keys found.
+        """
+        r = requests.get(f"{self.db_url}", params={"prefix": prefix})
+        r.raise_for_status()
+
+        if not r.text:
+            return tuple()
+        else:
+            return tuple(r.text.split("\n"))
+
+    def to_dict(self, prefix: str = "") -> Dict[str, str]:
+        """Dump all data in the database into a dictionary.
+
+        Args:
+            prefix (str): The prefix the keys must start with,
+                blank means anything. Defaults to "".
+
+        Returns:
+            Dict[str, str]: All keys in the database.
+        """
+        keys = self.keys()
+        data = {}
+        for k in keys:
+            data[k] = self[k]
+        return data
+
+    def values(self) -> Tuple[str]:
+        """Get every value in the database.
+
+        Returns:
+            Tuple[str]: The values in the database.
+        """
+        data = self.to_dict()
+        return tuple(data.values())
+
+    def items(self) -> Tuple[Tuple[str]]:
+        """Convert the database to a dict and return the dict's items().
+
+        Returns:
+            Tuple[Tuple[str]]: The items
+        """
+        return self.to_dict().items()
 
     def jsonkey(
         self,
@@ -402,7 +553,7 @@ class ReplitDb(AsyncReplitDb):
         get_default: Callable = None,
         discard_bad_data: bool = False,
     ) -> JSONKey:
-        """Initialize an JSONKey instance.
+        """Initialize a JSONKey instance.
 
         A JSONKey is used to easily read and set JSON data from the database.
         Arguments are the same as JSONKey constructor.
@@ -420,23 +571,22 @@ class ReplitDb(AsyncReplitDb):
             JSONKey: The initialized JSONKey instance.
         """
         return JSONKey(
-            db=super(),
+            db=self,
             key=key,
             dtype=dtype,
             get_default=get_default,
             discard_bad_data=discard_bad_data,
         )
 
-    get = _async2sync(AsyncReplitDb.get)
-    set = _async2sync(AsyncReplitDb.set)
-    delete = _async2sync(AsyncReplitDb.delete)
-    list = _async2sync(AsyncReplitDb.list)
-    keys = _async2sync(AsyncReplitDb.keys)
-    to_dict = _async2sync(AsyncReplitDb.to_dict)
-    values = _async2sync(AsyncReplitDb.values)
+    def __repr__(self) -> str:
+        """A representation of the database.
+
+        Returns:
+            A string representation of the database object.
+        """
+        return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-nest_asyncio.apply()
 db_url = os.environ.get("REPLIT_DB_URL")
 if db_url:
     db = ReplitDb(db_url)
