@@ -310,7 +310,7 @@ class AsyncReplitDb:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-class JSONKey:
+class JSONKey(AsyncJSONKey):
     """Represents a key in the database that holds a JSON value.
 
     db.jsonkey() will initialize an instance for you,
@@ -347,19 +347,6 @@ class JSONKey:
         self.get_default = get_default
         self.discard_bad_data = discard_bad_data
         self.do_raise = do_raise
-
-    def _default(self) -> JSON_TYPE:
-        get_default_func = self.get_default or self.dtype
-        return get_default_func()
-
-    def _is_valid_type(self, data: JSON_TYPE) -> bool:
-        return self.dtype is Any or isinstance(data, self.dtype)
-
-    def _type_mismatch_msg(self, data: Any) -> str:
-        return (
-            f"Type mismatch: Got type {type(data).__name__},"
-            "expected {self.dtype.__name__}"
-        )
 
     def get(self) -> JSON_TYPE:
         """Get the value of the key.
