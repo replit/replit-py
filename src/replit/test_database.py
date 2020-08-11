@@ -24,3 +24,17 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
         await self.db.delete("test-key")
         with self.assertRaises(KeyError):
             await self.db.get("test-key")
+
+    async def test_list_keys(self):
+        key = "test-list-keys-with\nnewline"
+        await self.db.set(key, "value")
+
+        val = await self.db.get(key)
+        self.assertEqual(val, "value")
+
+        keys = await self.db.list(key)
+        self.assertEqual(keys, (key,))
+
+        await self.db.delete(key)
+        with self.assertRaises(KeyError):
+            await self.db.get(key)

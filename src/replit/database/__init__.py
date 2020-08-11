@@ -3,6 +3,7 @@ import asyncio
 import functools
 import json
 import os
+import urllib
 from sys import stderr
 from typing import Any, Callable, Dict, Tuple, Union
 
@@ -216,14 +217,15 @@ class AsyncReplitDb:
         Returns:
             Tuple[str]: The keys found.
         """
+        params = {"prefix": prefix, "encode": "true"}
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.db_url + "?prefix=" + prefix) as response:
+            async with session.get(self.db_url, params=params) as response:
                 response.raise_for_status()
                 text = await response.text()
                 if not text:
                     return tuple()
                 else:
-                    return tuple(text.split("\n"))
+                    return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
 
     async def to_dict(self, prefix: str = "") -> Dict[str, str]:
         """Dump all data in the database into a dictionary.
