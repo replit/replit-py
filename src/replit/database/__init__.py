@@ -453,7 +453,7 @@ class JSONKey(AsyncJSONKey):
         Args:
             name (str): The key to set.
             value (JSON_TYPE): The value to set it to.
-        
+
         Raises:
             TypeError: The dtype attribute is not dict.
         """
