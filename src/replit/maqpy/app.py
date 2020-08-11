@@ -1,7 +1,8 @@
 """Core of maqpy."""
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Callable, Set
+from pathlib import Path
+from typing import Any, Callable, List, Set
 
 import flask
 
@@ -144,12 +145,49 @@ class App(flask.Flask):
         """
         return super().run(*args, **kwargs)
 
-    def run(self, port: int = 8080, localhost: bool = False) -> None:
+    def run(self, port: int = 8080, localhost: bool = False, **kwargs: Any) -> None:
         """Run the app.
 
         Args:
             port (int): The port to run the app on. Defaults to 8080.
             localhost (bool): Whether to run the app without exposing it on all
                 interfaces. Defaults to False.
+            **kwargs (Any): Extra keyword arguments to be passed to the flask app's run
+                method.
         """
-        super().run(host="localhost" if localhost else "0.0.0.0", port=port)
+        super().run(host="localhost" if localhost else "0.0.0.0", port=port, **kwargs)
+
+    def debug(
+        self,
+        watch_dirs: List[str] = None,
+        watch_files: List[str] = None,
+        port: int = 8080,
+        localhost: bool = False,
+        **kwargs: Any
+    ) -> None:
+        """Run the app in debug mode.
+
+        Args:
+            watch_dirs (List[str]): Directories whose files will be added to
+                watch_files. Defaults to [].
+            watch_files (List[str]): Files to watch, and if changes are detected
+                the server will be restarted. Defaults to [].
+            port (int): The port to run the app on. Defaults to 8080.
+            localhost (bool): Whether to run the app without exposing it on all
+                interfaces. Defaults to False.
+            **kwargs (Any): Extra keyword arguments to be passed to the flask app's run
+                method.
+        """
+        watch_files = list(watch_files)
+
+        for directory in watch_dirs or []:
+            if not isinstance(directory, Path):
+                directory = Path(directory)
+            watch_files += [str(f) for f in directory.iterdir() if f.is_file()]
+
+        super().run(
+            host="localhost" if localhost else "0.0.0.0",
+            port=port,
+            debug=True,
+            extra_files=watch_files,
+        )
