@@ -429,6 +429,42 @@ class JSONKey(AsyncJSONKey):
             raise TypeError(self._type_mismatch_msg(data))
         self.db[self.key] = json.dumps(data)
 
+    def __getitem__(self, name: str) -> JSON_TYPE:
+        """Retrieve a key from the JSONKey's value if it is a dict.
+
+        Args:
+            name (str): The name to retrieve.
+
+        Raises:
+            TypeError: The dtype attribute is not dict.
+
+        Returns:
+            JSON_TYPE: The value of the key.
+        """
+        if self.dtype is not dict:
+            raise TypeError(
+                "Dictionary syntax can only be used if the datatype is dict"
+            )
+        return self.get()[name]
+
+    def __setitem__(self, name: str, value: JSON_TYPE) -> None:
+        """Sets a key inside the JSONKey's value if it is a dict.
+
+        Args:
+            name (str): The key to set.
+            value (JSON_TYPE): The value to set it to.
+        
+        Raises:
+            TypeError: The dtype attribute is not dict.
+        """
+        if self.dtype is not dict:
+            raise TypeError(
+                "Dictionary syntax can only be used if the datatype is dict"
+            )
+        data = self.get()
+        data[name] = value
+        self.set(data)
+
 
 class ReplitDb(dict):
     """Interface with the Replit Database."""
