@@ -1,6 +1,7 @@
 """Pure Python ANSI Color Escape Code generator."""
 import colorsys
 
+
 def clear() -> None:
     """Clear the terminal."""
     print("\033[H\033[2J", end="", flush=True)
@@ -70,16 +71,16 @@ class Color:
 
         Returns:
           color : RGB colors from Hex Value
-        """   
-        try: 
-          r, g, b = colorsys.hsv_to_rgb(h, s, v)
+        """
+        try:
+            r, g, b = colorsys.hsv_to_rgb(h, s, v)
         except:
-          raise ValueError('Converting HSV to RGB ran into an error')
-        
+            raise ValueError("Converting HSV to RGB ran into an error")
+
         return cls(r, g, b)
-    
+
     @classmethod
-    def hls(cls, h, l, s)
+    def hls(cls, h, l, s):
         """
         Convert Hex Value to RGB
         then generate an ANSI escape code
@@ -92,13 +93,14 @@ class Color:
 
         Returns:
           color : RGB colors from Hex Value
-        """   
-        try: 
-          r, g, b = colorsys.hls_to_rgb(h, s, v)
+        """
+        try:
+            r, g, b = colorsys.hls_to_rgb(h, s, v)
         except:
-          raise ValueError('Converting HLS to RGB ran into an error')
-        
+            raise ValueError("Converting HLS to RGB ran into an error")
+
         return cls(r, g, b)
+
 
 class Bit:
     def __init__(self, value: int) -> None:
@@ -151,28 +153,28 @@ class Attr:
             raise ValueError(f"Attributes - {attrib} is not supported.")
 
 
-reset = attr("reset").attr
-bold = attr("bold").attr
-italic = attr("italic").attr
-red = color(255, 0, 0)
-orange = color(255, 165, 0)
-yellow = color(255, 255, 0)
-green = color(0, 255, 0)
-blue = color(0, 0, 255)
-indigo = color(75, 0, 130)
-violet = color(238, 130, 238)
-purple = color(128, 0, 128)
-pink = color(255, 105, 180)
-brown = color(165, 42, 42)
-brightred = color(250, 128, 114)
-brightorange = color(255, 215, 0)
-brightyellow = color(255, 255, 102)
-brightgreen = color(102, 255, 102)
-brightblue = color(102, 178, 255)
-brightpurple = color(178, 102, 255)
-darkred = color(139, 0, 0)
-darkorange = color(255, 140, 0)
-darkyellow = color(204, 204, 0)
-darkgreen = color(0, 153, 0)
-darkblue = color(0, 0, 204)
-darkpurple = color(102, 0, 204)
+reset = Attr("reset").attr
+bold = Attr("bold").attr
+italic = Attr("italic").attr
+red = Color(255, 0, 0)
+orange = Color(255, 165, 0)
+yellow = Color(255, 255, 0)
+green = Color(0, 255, 0)
+blue = Color(0, 0, 255)
+indigo = Color(75, 0, 130)
+violet = Color(238, 130, 238)
+purple = Color(128, 0, 128)
+pink = Color(255, 105, 180)
+brown = Color(165, 42, 42)
+brightred = Color(250, 128, 114)
+brightorange = Color(255, 215, 0)
+brightyellow = Color(255, 255, 102)
+brightgreen = Color(102, 255, 102)
+brightblue = Color(102, 178, 255)
+brightpurple = Color(178, 102, 255)
+darkred = Color(139, 0, 0)
+darkorange = Color(255, 140, 0)
+darkyellow = Color(204, 204, 0)
+darkgreen = Color(0, 153, 0)
+darkblue = Color(0, 0, 204)
+darkpurple = Color(102, 0, 204)
