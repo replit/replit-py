@@ -462,7 +462,7 @@ class JSONKey(AsyncJSONKey):
         """
         if self.dtype is not dict:
             raise TypeError("key() can only be used if the datatype is dict")
-        return self.get().get("name", default)
+        return self.get().get(name, default)
 
     def __setitem__(self, name: str, value: JSON_TYPE) -> None:
         """Sets a key inside the JSONKey's value if it is a dict.
