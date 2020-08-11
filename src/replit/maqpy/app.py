@@ -195,7 +195,7 @@ class App(flask.Flask):
             **kwargs (Any): Extra keyword arguments to be passed to the flask app's run
                 method.
         """
-        watch_files = list(watch_files)
+        watch_files = list(watch_files or [])
 
         for directory in watch_dirs or []:
             if not isinstance(directory, Path):
