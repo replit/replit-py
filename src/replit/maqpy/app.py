@@ -75,7 +75,24 @@ class App(flask.Flask):
 
     request_class = Request
 
-    def login_wall(self, exclude: Set[str] = ("/",), handler: Callable = None) -> None:
+    def __init__(
+        self, import_name: str, nice_jinja: bool = True, **kwargs: Any
+    ) -> None:
+        """Initialize the app.
+
+        Args:
+            import_name (str): The name of the app, usually __name__
+            nice_jinja (bool): Whether to change jinja settings to make them
+                prettier. Defaults to True.
+            **kwargs (Any): Extra keyword arguments to be passed to the flask init
+                function.
+        """
+        super().__init__(import_name, **kwargs)
+        if nice_jinja:
+            self.jinja_env.trim_blocks = True
+            self.jinja_env.lstrip_blocks = True
+
+    def login_wall(self, exclude: Set[str] = ("/",), handler: Callable = None,) -> None:
         """Require users to be logged-in on all pages.
 
         Args:
