@@ -20,7 +20,7 @@ class AsyncJSONKey:
     you don't have to do it manually.
     """
 
-    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data")
+    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data", "do_raise")
 
     def __init__(
         self,
