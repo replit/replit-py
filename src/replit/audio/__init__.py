@@ -372,7 +372,7 @@ class Audio:
         This is an api call, and shouldn't be needed for general usage.
 
         Returns:
-            AudioStauts: The contents of /tmp/audioStatus.json
+            AudioStatus: The contents of /tmp/audioStatus.json
         """
         with open("/tmp/audioStatus.json", "r") as f:
             data = AudioStatus(json.loads(f.read()))
@@ -403,11 +403,8 @@ class Audio:
     def get_sources(self) -> List[Source]:
         """Gets all sources.
 
-        Returns
-        -------
-        List[Source]
-            Every source known to the audio manager, paused or playing.
-
+        Returns:
+            List[Source]: Every source known to the audio manager, paused or playing.
         """
         data = self.read_status()
         sources = data["Sources"]
