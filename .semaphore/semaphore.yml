@@ -14,4 +14,4 @@ blocks:
             - checkout
             - python -m pip install --upgrade poetry
             - poetry install
-            - poetry run python3 -m unittest src/replit/test_database.py
+            - poetry run black --check .
