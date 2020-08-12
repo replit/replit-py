@@ -1,0 +1,17 @@
+version: v1.0
+name: Python
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Test
+    task:
+      jobs:
+        - name: Database
+          commands:
+            - sem-version python 3.8
+            - checkout
+            - python -m pip install --upgrade poetry
+            - poetry install
+            - poetry run python3 -m unittest src/replit/test_database.py
