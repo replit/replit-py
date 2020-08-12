@@ -11,7 +11,7 @@ blocks:
         - name: flake8
           commands:
             - sem-version python 3.8
-            - checkout
+            - checkout --use-cache
             - python -m pip install --upgrade poetry
             - poetry install
-            - poetry run flake8 || true
+            - git diff origin/master | poetry run flake8 --diff
