@@ -483,7 +483,7 @@ class JSONKey(AsyncJSONKey):
         self.set(data)
 
 
-class ReplitDb(dict):
+class ReplitDb(AsyncReplitDb):
     """Interface with the Replit Database."""
 
     __slots__ = ("db_url", "sess")
