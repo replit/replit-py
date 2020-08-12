@@ -187,7 +187,7 @@ def authed_ratelimit(
                 # Make a reponse object so that status can be set
                 if not isinstance(res, flask.Response):
                     res = flask.make_response(res)
-                res.status = "429"
+                res.status = 429
                 return res
 
             num_requests[name] = times_requested + 1
