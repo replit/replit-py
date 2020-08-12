@@ -10,8 +10,7 @@ import aiohttp
 import nest_asyncio
 
 
-JSON_TYPE = Union[str,
-int, float, bool, type(None), dict, list]
+JSON_TYPE = Union[str, int, float, bool, type(None), dict, list]
 
 
 class AsyncJSONKey:
