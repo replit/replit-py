@@ -468,7 +468,7 @@ class JSONKey(AsyncJSONKey):
         Returns:
             Any: The value read or the default.
         """
-        if self.dtype is not dict:
+        if self.dtype is not dict and self.dtype is not Any:
             raise TypeError("read() can only be used if the datatype is dict")
         return self.get().get(key, default)
 
@@ -500,7 +500,7 @@ class JSONKey(AsyncJSONKey):
         Raises:
             TypeError: The dtype attribute is not dict.
         """
-        if self.dtype is not dict:
+        if self.dtype is not dict and self.dtype is not Any:
             raise TypeError(
                 "Dictionary syntax can only be used if the datatype is dict"
             )
