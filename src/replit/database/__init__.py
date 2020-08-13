@@ -474,7 +474,7 @@ class JSONKey(AsyncJSONKey):
             Any: The value accessed from self.get()[k1][k2][kn]
         """
         data = self.get()
-        for key in keys[-1]:
+        for key in keys[:-1]:
             data = type(self)(db=data, key=key)
         check = data[keys[-1]]
         if type(check) is dict:
