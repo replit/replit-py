@@ -87,18 +87,24 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(val, "value")
 
 
-# class TestDatabase(unittest.TestCase):
-#     """Tests for replit.database.ReplitDb."""
+class TestDatabase(unittest.IsolatedAsyncioTestCase):
+    """Tests for replit.database.ReplitDb."""
 
-#     def setUp(self) -> None:
-#         """Grab a JWT for all the tests to share."""
-#         password = os.environ["PASSWORD"]
-#         req = requests.get(
-#             "https://database-test-jwt.kochman.repl.co", auth=("test", password)
-#         )
-#         url = req.text
-#         self.db = ReplitDb(url)
+    def setUp(self) -> None:
+        """Grab a JWT for all the tests to share."""
+        password = os.environ["PASSWORD"]
+        req = requests.get(
+            "https://database-test-jwt.kochman.repl.co", auth=("test", password)
+        )
+        url = req.text
+        self.db = ReplitDb(url)
 
-#     def test_get(self) -> None:
-#         with self.assertRaises(KeyError):
-#             self.db.get("key")
+    def test_get_set_delete(self) -> None:
+        with self.assertRaises(KeyError):
+            self.db.get("key")
+
+        self.db.set("key", "value")
+        val = self.db.get("key")
+        self.assertEqual(val, "value")
+
+        self.db.delete("key")
