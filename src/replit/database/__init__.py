@@ -265,6 +265,7 @@ class AsyncReplitDb:
         dtype: JSON_TYPE,
         get_default: Callable = None,
         discard_bad_data: bool = False,
+        do_raise: bool = False,
     ) -> AsyncJSONKey:
         """Initialize an AsyncJSONKey instance.
 
@@ -289,6 +290,7 @@ class AsyncReplitDb:
             dtype=dtype,
             get_default=get_default,
             discard_bad_data=discard_bad_data,
+            do_raise=do_raise,
         )
 
     def __repr__(self) -> str:
