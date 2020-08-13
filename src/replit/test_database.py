@@ -99,6 +99,11 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
         url = req.text
         self.db = ReplitDb(url)
 
+    async def tearDown(self) -> None:
+        """Nuke whatever the test added."""
+        for k in await self.db.keys():
+            await self.db.delete(k)
+
     def test_get_set_delete(self) -> None:
         with self.assertRaises(KeyError):
             self.db.get("key")
@@ -108,3 +113,16 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(val, "value")
 
         self.db.delete("key")
+
+    def test_dict(self) -> None:
+        print(hash(self.db))
+        with self.assertRaises(KeyError):
+            val = self.db["hi"]
+
+        self.db["hi"] = "there"
+        val = self.db.get("hi")
+        self.assertEqual(val, "there")
+
+        del self.db["hi"]
+        with self.assertRaises(KeyError):
+            val = self.db["hi"]
