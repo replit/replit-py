@@ -3,9 +3,9 @@ import asyncio
 import functools
 import json
 import os
-import urllib
 from sys import stderr
 from typing import Any, Callable, Dict, Tuple, Union
+import urllib
 
 import aiohttp
 import nest_asyncio
@@ -240,7 +240,7 @@ class AsyncReplitDb:
         ret = {}
         keys = await self.list(prefix=prefix)
         for i in keys:
-            ret[i] = await self.view(i)
+            ret[i] = await self.get(i)
         return ret
 
     async def keys(self) -> Tuple[str]:
