@@ -370,10 +370,11 @@ class JSONKey(AsyncJSONKey):
             self.db[self.key] = default
             return default
 
-        try:
-            data = json.loads(read)
-        except json.JSONDecodeError:
-            return self._error("Invalid JSON data read", read)
+        if isinstance(self.db, ReplitDb):
+            try:
+                data = json.loads(read)
+            except json.JSONDecodeError:
+                return self._error("Invalid JSON data read", read)
 
         if not self._is_valid_type(data):
             return self._error(self._type_mismatch_msg(data), read,)
