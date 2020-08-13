@@ -58,22 +58,22 @@ class Link(HTMLElement):
 
 
 class Page(flask.Response):
-  """Represents an HTML page."""
+    """Represents an HTML page."""
 
-  def __init__(self, title: str = None, head: str = "", body: str = "") -> None:
-    """Initialize the class.
+    def __init__(self, title: str = None, head: str = "", body: str = "") -> None:
+        """Initialize the class.
         
     Args:
       title (str): The title of the page. If not provided no title tag will be sent.
       head (str): The HTML to put in the head of the page. Defaults to nothing.
       body (str): The HTML to put in the body of the page. Defaults to nothing.
     """
-    self.title = title
-    self.head = head
-    self.body = body
+        self.title = title
+        self.head = head
+        self.body = body
 
-    title_html = f"<title>{self.title}</title>\n    " if self.title else ""
-    super().__init__(
+        title_html = f"<title>{self.title}</title>\n    " if self.title else ""
+        super().__init__(
             f"""<!DOCTYPE html>
             <html>
             <head>
@@ -83,4 +83,4 @@ class Page(flask.Response):
                 {self.body}
             </body>
             </html>"""
-                    )
+        )
