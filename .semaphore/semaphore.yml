@@ -15,3 +15,14 @@ blocks:
             - python -m pip install --upgrade poetry
             - poetry install
             - git diff origin/master | poetry run flake8 --diff
+  - name: Test
+    task:
+      jobs:
+        - name: unittest
+          commands:
+            - sem-version python 3.8
+            - checkout --use-cache
+            - python -m pip install --upgrade poetry
+            - poetry install
+            - poetry run coverage run -m unittest src/replit/test_database.py
+            - poetry run coverage report -m
