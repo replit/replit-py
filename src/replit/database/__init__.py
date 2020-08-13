@@ -2,7 +2,7 @@
 import json
 import os
 from sys import stderr
-from typing import Any, Callable, Dict, Tuple, Union, Optional
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 import aiohttp
 import requests
@@ -469,7 +469,7 @@ class JSONKey(AsyncJSONKey):
 
         Args:
             *keys (str): The keys to read from the data.
-            default (Any, optional): The default if the final key doesn't exist.
+            default (Any): The default if the final key doesn't exist.
                 Defaults to None.
 
         Returns:
