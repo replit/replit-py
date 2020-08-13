@@ -464,21 +464,23 @@ class JSONKey(AsyncJSONKey):
             raise TypeError("read() can only be used if the datatype is dict")
         return self.get().get(key, default)
 
-    def keys(self, *keys: str, default: Any = None) -> Any:
+    def keys(self, *keys: str) -> Any:
         """Reads multiple keys from the key's value and allows setting.
 
         Args:
             *keys (str): The keys to read from the data.
-            default (Any): The default if the final key doesn't exist.
-                Defaults to None.
 
         Returns:
             Any: The value accessed from self.get()[k1][k2][kn]
         """
         data = self.get()
-        for key in keys[:-1]:
-            data = data[key]
-        return data.get(keys[-1], default=default)
+        for key in keys[-1]:
+            data = type(self)(db=data, key=key)
+        check = data[keys[-1]]
+        if type(check) is dict:
+            return type(self)(db=data, key=keys[-1])
+        else:
+            return check
 
     def __setitem__(self, name: str, value: JSON_TYPE) -> None:
         """Sets a key inside the JSONKey's value if it is a dict.
