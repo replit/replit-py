@@ -5,7 +5,7 @@ agent:
     type: e1-standard-2
     os_image: ubuntu1804
 blocks:
-  - name: Lint
+  - name: Lint and test
     task:
       jobs:
         - name: flake8
@@ -15,9 +15,6 @@ blocks:
             - python -m pip install --upgrade poetry
             - poetry install
             - git diff origin/master | poetry run flake8 --diff
-  - name: Test
-    task:
-      jobs:
         - name: unittest
           commands:
             - sem-version python 3.8
