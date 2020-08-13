@@ -468,7 +468,9 @@ class JSONKey(AsyncJSONKey):
         """Reads multiple keys from the key's value and allows setting.
 
         Args:
-            default (Any, optional): The default if the final key doesn't exist. Defaults to None.
+            *keys (str): The keys to read from the data.
+            default (Any, optional): The default if the final key doesn't exist.
+                Defaults to None.
 
         Returns:
             Any: The value accessed from self.get()[k1][k2][kn]
