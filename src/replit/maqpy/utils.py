@@ -1,7 +1,7 @@
 """Utitilities to make development easier."""
 from functools import wraps
 import time
-from typing import Any, Callable, Union
+from typing import Any, Callable, Iterable, Optional, Union
 
 import flask
 from werkzeug.local import LocalProxy
@@ -196,3 +196,24 @@ def authed_ratelimit(
         return handler
 
     return decorator
+
+
+def find(
+    data: Iterable, cond: Callable[[Any], bool], allow_multiple: bool = False
+) -> Optional[Any]:
+    """Find an item in an iterable.
+
+    Args:
+        data (Iterable): The iterable to search through.
+        cond (Callable[[Any], bool]): The function to call for each item to check if it
+            is a match.
+        allow_multiple (bool): If multiple result are found, return the first one if
+            allow_multiple is True, otherwise return None.
+
+    Returns:
+        Optional[Any]: The item if exactly one match was found, otherwise None.
+    """
+    matches = [item for item in data if cond(item)]
+    if len(matches) > 1:
+        return matches[0] if allow_multiple else None
+    return matches[0] if len(matches) == 1 else None
