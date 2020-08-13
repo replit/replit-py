@@ -60,7 +60,7 @@ class AsyncJSONKey:
     def _type_mismatch_msg(self, data: Any) -> str:
         return (
             f"Type mismatch: Got type {type(data).__name__},"
-            "expected {self.dtype.__name__}"
+            f"expected {self.dtype.__name__}"
         )
 
     async def get(self) -> JSON_TYPE:
