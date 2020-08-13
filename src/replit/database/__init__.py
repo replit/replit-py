@@ -5,6 +5,7 @@ import json
 import os
 from sys import stderr
 from typing import Any, Callable, Dict, Tuple, Union
+import urllib
 
 import aiohttp
 import nest_asyncio
@@ -20,7 +21,7 @@ class AsyncJSONKey:
     you don't have to do it manually.
     """
 
-    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data")
+    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data", "do_raise")
 
     def __init__(
         self,
@@ -216,14 +217,15 @@ class AsyncReplitDb:
         Returns:
             Tuple[str]: The keys found.
         """
+        params = {"prefix": prefix, "encode": "true"}
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.db_url + "?prefix=" + prefix) as response:
+            async with session.get(self.db_url, params=params) as response:
                 response.raise_for_status()
                 text = await response.text()
                 if not text:
                     return tuple()
                 else:
-                    return tuple(text.split("\n"))
+                    return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
 
     async def to_dict(self, prefix: str = "") -> Dict[str, str]:
         """Dump all data in the database into a dictionary.
@@ -238,7 +240,7 @@ class AsyncReplitDb:
         ret = {}
         keys = await self.list(prefix=prefix)
         for i in keys:
-            ret[i] = await self.view(i)
+            ret[i] = await self.get(i)
         return ret
 
     async def keys(self) -> Tuple[str]:
@@ -263,6 +265,7 @@ class AsyncReplitDb:
         dtype: JSON_TYPE,
         get_default: Callable = None,
         discard_bad_data: bool = False,
+        do_raise: bool = False,
     ) -> AsyncJSONKey:
         """Initialize an AsyncJSONKey instance.
 
@@ -277,6 +280,7 @@ class AsyncReplitDb:
                 argument is used.
             discard_bad_data (bool): Don't prompt if bad data is read, overwrite it
                 with the default. Defaults to False.
+            do_raise (bool): Whether to raise exceptions when errors are encountered.
 
         Returns:
             AsyncJSONKey: The initialized AsyncJSONKey instance.
@@ -287,6 +291,7 @@ class AsyncReplitDb:
             dtype=dtype,
             get_default=get_default,
             discard_bad_data=discard_bad_data,
+            do_raise=do_raise,
         )
 
     def __repr__(self) -> str:

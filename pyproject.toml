@@ -16,6 +16,7 @@ flask = "^1.1.2"
 werkzeug = "^1.0.1"
 aiohttp = "^3.6.2"
 nest_asyncio = "^1.4.0"
+coverage = "^5.2.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.3"
