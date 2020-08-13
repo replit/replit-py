@@ -2,13 +2,13 @@
 import json
 import os
 from sys import stderr
-from typing import Any, Callable, Dict, Tuple, Union
+from typing import Any, Callable, Dict, Tuple, Union, Optional
 
 import aiohttp
 import requests
 
 
-JSON_TYPE = Union[str, int, float, bool, type(None), dict, list]
+JSON_TYPE = Optional[Union[str, int, float, bool, dict, list]]
 
 
 class AsyncJSONKey:
@@ -447,11 +447,11 @@ class JSONKey(AsyncJSONKey):
             )
         return self.get()[name]
 
-    def read(self, name: str, default: Any = None) -> Any:
+    def read(self, key: str, default: Any = None) -> Any:
         """Shorthand for self.get().get(name, default) if datatype is dict.
 
         Args:
-            name (str): The name to get.
+            key (str): The name to get.
             default (Any): The default if the key doesn't exist. Defaults to None.
 
         Raises:
@@ -461,8 +461,22 @@ class JSONKey(AsyncJSONKey):
             Any: The value read or the default.
         """
         if self.dtype is not dict:
-            raise TypeError("key() can only be used if the datatype is dict")
-        return self.get().get(name, default)
+            raise TypeError("read() can only be used if the datatype is dict")
+        return self.get().get(key, default)
+
+    def keys(self, *keys: str, default: Any = None) -> Any:
+        """Reads multiple keys from the key's value and allows setting.
+
+        Args:
+            default (Any, optional): The default if the final key doesn't exist. Defaults to None.
+
+        Returns:
+            Any: The value accessed from self.get()[k1][k2][kn]
+        """
+        data = self.get()
+        for key in keys[:-1]:
+            data = data[key]
+        return data.get(keys[-1], default=default)
 
     def __setitem__(self, name: str, value: JSON_TYPE) -> None:
         """Sets a key inside the JSONKey's value if it is a dict.
