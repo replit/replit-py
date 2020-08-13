@@ -483,7 +483,7 @@ class JSONKey(AsyncJSONKey):
         """
         data = self.get()
         for key in keys[:-1]:
-            data = type(self)(db=data, key=key, dtype=dict)
+            data = type(self)(db=data, key=key, dtype=Any)
         check = data[keys[-1]]
         if type(check) is dict:
             return type(self)(db=data, key=keys[-1], dtype=dict)
