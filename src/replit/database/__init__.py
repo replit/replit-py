@@ -375,6 +375,8 @@ class JSONKey(AsyncJSONKey):
                 data = json.loads(read)
             except json.JSONDecodeError:
                 return self._error("Invalid JSON data read", read)
+        else:
+            data = read
 
         if not self._is_valid_type(data):
             return self._error(self._type_mismatch_msg(data), read,)
