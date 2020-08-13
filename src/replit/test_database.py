@@ -70,7 +70,6 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         """Test replit.database.AsyncJSONKey."""
         key = "test-jsonkey"
 
-        # no default
         jk = self.db.jsonkey(key, dtype=str, do_raise=True)
         with self.assertRaises(KeyError):
             await jk.get()
@@ -79,7 +78,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(val, "value")
 
     async def test_jsonkey_default(self) -> None:
-        """Test replit.database.AsyncJSONKey."""
+        """Test replit.database.AsyncJSONKey with a default callable."""
         key = "test-jsonkey"
 
         jk = self.db.jsonkey(key, dtype=str, get_default=lambda: "value")
@@ -105,6 +104,7 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
             await self.db.delete(k)
 
     def test_get_set_delete(self) -> None:
+        """Test get, set, and delete."
         with self.assertRaises(KeyError):
             self.db.get("key")
 
@@ -115,6 +115,7 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
         self.db.delete("key")
 
     def test_dict(self) -> None:
+        """Test using the database as a dict."""
         print(hash(self.db))
         with self.assertRaises(KeyError):
             val = self.db["hi"]

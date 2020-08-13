@@ -280,6 +280,7 @@ class AsyncReplitDb:
                 argument is used.
             discard_bad_data (bool): Don't prompt if bad data is read, overwrite it
                 with the default. Defaults to False.
+            do_raise (bool): Whether to raise exceptions when errors are encountered.
 
         Returns:
             AsyncJSONKey: The initialized AsyncJSONKey instance.
