@@ -1,8 +1,9 @@
+# flake8: noqa
 import time
 import unittest
 import replit
-from replit import audio, types
-from replit.types import WaveType
+from .. import audio
+from . import types
 
 test_file = "../test.mp3"
 
