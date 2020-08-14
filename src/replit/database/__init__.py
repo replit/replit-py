@@ -445,16 +445,9 @@ class JSONKey(AsyncJSONKey):
         Args:
             name (str): The name to retrieve.
 
-        Raises:
-            TypeError: The dtype attribute is not dict.
-
         Returns:
             JSON_TYPE: The value of the key.
         """
-        if self.dtype is not dict and self.dtype is not Any:
-            raise TypeError(
-                "Dictionary syntax can only be used if the datatype is dict"
-            )
         return self.get()[name]
 
     def read(self, key: str, default: Any = None) -> Any:
@@ -464,14 +457,9 @@ class JSONKey(AsyncJSONKey):
             key (str): The name to get.
             default (Any): The default if the key doesn't exist. Defaults to None.
 
-        Raises:
-            TypeError: The datatype is not dict.
-
         Returns:
             Any: The value read or the default.
         """
-        if self.dtype is not dict and self.dtype is not Any:
-            raise TypeError("read() can only be used if the datatype is dict")
         return self.get().get(key, default)
 
     def keys(self, *keys: str) -> Any:
@@ -498,17 +486,19 @@ class JSONKey(AsyncJSONKey):
         Args:
             name (str): The key to set.
             value (JSON_TYPE): The value to set it to.
-
-        Raises:
-            TypeError: The dtype attribute is not dict.
         """
-        if self.dtype is not dict and self.dtype is not Any:
-            raise TypeError(
-                "Dictionary syntax can only be used if the datatype is dict"
-            )
         data = self.get()
         data[name] = value
         self.set(data)
+
+    def append(self, item: JSON_TYPE) -> None:
+        """Append to the JSONKey's value if it is a list.
+
+        Args:
+            item (JSON_TYPE): The item to append.
+        """
+        data = self.get()
+        self.set(data + [item])
 
 
 class ReplitDb(AsyncReplitDb):
