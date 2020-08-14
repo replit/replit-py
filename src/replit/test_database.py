@@ -117,23 +117,12 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
     def test_get_set_delete(self) -> None:
         """Test get, set, and delete."""
         with self.assertRaises(KeyError):
-            self.db.get("key")
+            self.db["key"]
 
-        self.db.set("key", "value")
-        val = self.db.get("key")
+        self.db["key"] = "value"
+        val = self.db["key"]
         self.assertEqual(val, "value")
 
-        self.db.delete("key")
-
-    def test_dict(self) -> None:
-        """Test using the database as a dict."""
+        del self.db["key"]
         with self.assertRaises(KeyError):
-            val = self.db["hi"]
-
-        self.db["hi"] = "there"
-        val = self.db.get("hi")
-        self.assertEqual(val, "there")
-
-        del self.db["hi"]
-        with self.assertRaises(KeyError):
-            val = self.db["hi"]
+            val = self.db["key"]

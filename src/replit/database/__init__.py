@@ -668,20 +668,6 @@ class ReplitDb(AsyncReplitDb):
             discard_bad_data=discard_bad_data,
         )
 
-    get = _async2sync(AsyncReplitDb.get)
-    set = _async2sync(AsyncReplitDb.set)
-    delete = _async2sync(AsyncReplitDb.delete)
-    list = _async2sync(AsyncReplitDb.list)
-    to_dict = _async2sync(AsyncReplitDb.to_dict)
-    values = _async2sync(AsyncReplitDb.values)
-
-    # note: this is intentionally not using _async2sync because _async2sync
-    # does not currently handle async funcs that call other async methods on
-    # self
-    def keys(self):
-        """Get a tuple of all the keys in the database."""
-        return self.list("")
-
     def __repr__(self) -> str:
         """A representation of the database.
 
