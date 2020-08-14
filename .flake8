@@ -1,6 +1,6 @@
 [flake8]
 select = ANN,B,B9,BLK,C,D,DAR,E,F,I,S,W
-ignore = E203,W503,ANN101,ANN102,S322,ANN206
+ignore = E203,W503,ANN101,ANN102,S322,ANN206,S201
 per-file-ignores = 
     src/replit/__init__.py:F401
     src/replit/maqpy/__init__.py:F401

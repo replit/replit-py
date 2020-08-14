@@ -1,7 +1,7 @@
 """Utitilities to make development easier."""
 from functools import wraps
 import time
-from typing import Any, Callable, Union
+from typing import Any, Callable, Iterable, Optional, Union
 
 import flask
 from werkzeug.local import LocalProxy
@@ -196,3 +196,48 @@ def authed_ratelimit(
         return handler
 
     return decorator
+
+
+def find(
+    data: Iterable, cond: Callable[[Any], bool], allow_multiple: bool = False
+) -> Optional[Any]:
+    """Find an item in an iterable.
+
+    Args:
+        data (Iterable): The iterable to search through.
+        cond (Callable[[Any], bool]): The function to call for each item to check if it
+            is a match.
+        allow_multiple (bool): If multiple result are found, return the first one if
+            allow_multiple is True, otherwise return None.
+
+    Returns:
+        Optional[Any]: The item if exactly one match was found, otherwise None.
+    """
+    matches = [item for item in data if cond(item)]
+    if len(matches) > 1:
+        return matches[0] if allow_multiple else None
+    return matches[0] if len(matches) == 1 else None
+
+
+def chain_decorators(*decorators: Callable[[Callable], Any]) -> Callable:
+    """Return a decorator that applies each of the decorators to the function.
+
+    Args:
+        *decorators (Callable[[Callable], Any]): The decorators to apply to the
+            function. They are treated as if they are written in the order they appear.
+
+    Raises:
+        TypeError: If no decorators are passed.
+
+    Returns:
+        Callable: A decorator function.
+    """
+
+    def dec(func: Callable) -> Callable:
+        for decorator in reversed(list(decorators) + [wraps(func)]):
+            func = decorator(func)
+        return func
+
+    if not decorators:
+        raise TypeError("You must provide at least one decorator to chain")
+    return dec
