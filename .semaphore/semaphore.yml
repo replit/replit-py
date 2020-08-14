@@ -1,5 +1,5 @@
 version: v1.0
-name: Python
+name: replit-py
 agent:
   machine:
     type: e1-standard-2
@@ -25,3 +25,10 @@ blocks:
             - poetry install
             - poetry run coverage run -m unittest src/replit/test_database.py
             - poetry run coverage report -m
+        - name: mypy
+          commands:
+            - sem-version python 3.8
+            - checkout --use-cache
+            - python -m pip install --upgrade poetry
+            - poetry install
+            - poetry run mypy src/replit || true

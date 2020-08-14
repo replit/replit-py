@@ -249,7 +249,7 @@ class AsyncReplitDb:
         Returns:
             Tuple[str]: The keys in the database.
         """
-        return tuple(await self.list(""))
+        return await self.list("")
 
     async def values(self) -> Tuple[str]:
         """Get every value in the database.
@@ -303,7 +303,7 @@ class AsyncReplitDb:
         return f"<ReplitDb(db_url={self.db_url!r})>"
 
 
-def _async2sync(coro: Callable) -> None:
+def _async2sync(coro: Callable) -> Callable:
     @functools.wraps(coro)
     def sync_func(self: object, *args: Any, **kwargs: Any) -> Any:
         return asyncio.run(coro(self, *args, **kwargs))
@@ -389,9 +389,15 @@ class ReplitDb(AsyncReplitDb):
     set = _async2sync(AsyncReplitDb.set)
     delete = _async2sync(AsyncReplitDb.delete)
     list = _async2sync(AsyncReplitDb.list)
-    keys = _async2sync(AsyncReplitDb.keys)
     to_dict = _async2sync(AsyncReplitDb.to_dict)
     values = _async2sync(AsyncReplitDb.values)
+
+    # note: this is intentionally not using _async2sync because _async2sync
+    # does not currently handle async funcs that call other async methods on
+    # self
+    def keys(self):
+        """Get a tuple of all the keys in the database."""
+        return self.list("")
 
 
 nest_asyncio.apply()
