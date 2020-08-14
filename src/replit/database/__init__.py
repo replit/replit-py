@@ -500,6 +500,30 @@ class JSONKey(AsyncJSONKey):
         data = self.get()
         self.set(data + [item])
 
+    def __add__(self, item: Any) -> Any:
+        """Add to the JSONKey's value and return the result.
+
+        Args:
+            item (Any): The item to add.
+
+        Returns:
+            Any: The result of adding.
+        """
+        return self.get() + item
+
+    def __iadd__(self, item: Any) -> Any:
+        """Add to the JSONKey's value and set the result.
+
+        Args:
+            item (Any): The item to add.
+
+        Returns:
+            Any: self
+        """
+        r = self.get() + item
+        self.set(r)
+        return self
+
 
 class ReplitDb(AsyncReplitDb):
     """Interface with the Replit Database."""
