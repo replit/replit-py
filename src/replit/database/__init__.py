@@ -435,7 +435,9 @@ class JSONKey(AsyncJSONKey):
         """
         if not self._is_valid_type(data):
             raise TypeError(self._type_mismatch_msg(data))
-        self.db[self.key] = json.dumps(data)
+        if isinstance(self.db, ReplitDb):
+            data = json.dumps(data)
+        self.db[self.key] = data
 
     def __getitem__(self, name: str) -> JSON_TYPE:
         """Retrieve a key from the JSONKey's value if it is a dict.
@@ -481,7 +483,7 @@ class JSONKey(AsyncJSONKey):
         Returns:
             Any: The value accessed from self.get()[k1][k2][kn]
         """
-        data = self.get()
+        data = self
         for key in keys[:-1]:
             data = type(self)(db=data, key=key, dtype=Any)
         check = data[keys[-1]]
