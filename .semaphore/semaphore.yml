@@ -24,7 +24,7 @@ blocks:
             - python -m pip install --upgrade poetry
             - poetry install
             - poetry run coverage run -m unittest
-            - poetry run coverage report -m
+            - poetry run coverage report -m --include='src/*'
         - name: mypy
           commands:
             - sem-version python 3.8
