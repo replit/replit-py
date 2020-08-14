@@ -53,6 +53,9 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         keys = await self.db.keys()
         self.assertEqual(keys, (key,))
 
+        # just to make sure...
+        self.assertEqual(await self.db.keys(), await self.db.list(""))
+
         await self.db.delete(key)
         with self.assertRaises(KeyError):
             await self.db.get(key)
@@ -107,12 +110,12 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
 
         # nuke whatever is already here
         for k in self.db.keys():
-            self.db.delete(k)
+            del self.db[k]
 
-    async def tearDown(self) -> None:
+    def tearDown(self) -> None:
         """Nuke whatever the test added."""
-        for k in await self.db.keys():
-            await self.db.delete(k)
+        for k in self.db.keys():
+            self.db.delete(k)
 
     def test_get_set_delete(self) -> None:
         """Test get, set, and delete."""
