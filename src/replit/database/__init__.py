@@ -252,7 +252,7 @@ class AsyncReplitDb:
         Returns:
             Tuple[str]: The keys in the database.
         """
-        return tuple(await self.list(""))
+        return await self.list("")
 
     async def values(self) -> Tuple[str]:
         """Get every value in the database.

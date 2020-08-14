@@ -19,6 +19,10 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         url = req.text
         self.db = AsyncReplitDb(url)
 
+        # nuke whatever is already here
+        for k in await self.db.keys():
+            await self.db.delete(k)
+
     async def asyncTearDown(self) -> None:
         """Nuke whatever the test added."""
         for k in await self.db.keys():
@@ -45,6 +49,12 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
 
         keys = await self.db.list(key)
         self.assertEqual(keys, (key,))
+
+        keys = await self.db.keys()
+        self.assertEqual(keys, (key,))
+
+        # just to make sure...
+        self.assertEqual(await self.db.keys(), await self.db.list(""))
 
         await self.db.delete(key)
         with self.assertRaises(KeyError):
@@ -98,31 +108,24 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
         url = req.text
         self.db = ReplitDb(url)
 
-    async def tearDown(self) -> None:
+        # nuke whatever is already here
+        for k in self.db.keys():
+            del self.db[k]
+
+    def tearDown(self) -> None:
         """Nuke whatever the test added."""
-        for k in await self.db.keys():
-            await self.db.delete(k)
+        for k in self.db.keys():
+            self.db.delete(k)
 
     def test_get_set_delete(self) -> None:
         """Test get, set, and delete."""
         with self.assertRaises(KeyError):
-            self.db.get("key")
+            self.db["key"]
 
-        self.db.set("key", "value")
-        val = self.db.get("key")
+        self.db["key"] = "value"
+        val = self.db["key"]
         self.assertEqual(val, "value")
 
-        self.db.delete("key")
-
-    def test_dict(self) -> None:
-        """Test using the database as a dict."""
+        del self.db["key"]
         with self.assertRaises(KeyError):
-            val = self.db["hi"]
-
-        self.db["hi"] = "there"
-        val = self.db.get("hi")
-        self.assertEqual(val, "there")
-
-        del self.db["hi"]
-        with self.assertRaises(KeyError):
-            val = self.db["hi"]
+            val = self.db["key"]
