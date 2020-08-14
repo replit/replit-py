@@ -134,7 +134,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "0.4.3"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Code coverage measurement for Python"
 name = "coverage"
 optional = false
@@ -710,7 +710,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "9ceb6e910237c20a8cf4b40b1c12620752f1e9fe3f0417cba404e4ce2ef10752"
+content-hash = "5a1c5a9e4fda7aa289075e235760f5958512df5ed4b21277f1aba79a58df09ef"
 lock-version = "1.0"
 python-versions = "^3.8"
 
