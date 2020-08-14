@@ -449,7 +449,7 @@ class JSONKey(AsyncJSONKey):
         Returns:
             JSON_TYPE: The value of the key.
         """
-        if self.dtype is not dict:
+        if self.dtype is not dict and self.dtype is not Any:
             raise TypeError(
                 "Dictionary syntax can only be used if the datatype is dict"
             )
