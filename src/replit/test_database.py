@@ -19,6 +19,10 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         url = req.text
         self.db = AsyncReplitDb(url)
 
+        # nuke whatever is already here
+        for k in await self.db.keys():
+            await self.db.delete(k)
+
     async def asyncTearDown(self) -> None:
         """Nuke whatever the test added."""
         for k in await self.db.keys():
@@ -97,6 +101,10 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
         )
         url = req.text
         self.db = ReplitDb(url)
+
+        # nuke whatever is already here
+        for k in await self.db.keys():
+            await self.db.delete(k)
 
     async def tearDown(self) -> None:
         """Nuke whatever the test added."""
