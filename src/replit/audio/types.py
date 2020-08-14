@@ -1,3 +1,4 @@
+# flake8: noqa
 from typing import List
 from typing_extensions import TypedDict
 from enum import Enum
