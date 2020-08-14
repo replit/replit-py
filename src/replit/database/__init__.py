@@ -315,14 +315,6 @@ class AsyncReplitDb:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-def _async2sync(coro: Callable) -> Callable:
-    @functools.wraps(coro)
-    def sync_func(self: object, *args: Any, **kwargs: Any) -> Any:
-        return asyncio.run(coro(self, *args, **kwargs))
-
-    return sync_func
-
-
 class JSONKey(AsyncJSONKey):
     """Represents a key in the database that holds a JSON value.
 
