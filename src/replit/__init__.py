@@ -11,3 +11,5 @@ def clear() -> None:
 
 
 audio = Audio()
+
+# TODO: DB convience methods like nuke and a CLI to interact with it?
