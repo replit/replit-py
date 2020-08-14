@@ -439,17 +439,6 @@ class JSONKey(AsyncJSONKey):
             data = json.dumps(data)
         self.db[self.key] = data
 
-    def __getitem__(self, name: str) -> JSON_TYPE:
-        """Retrieve a key from the JSONKey's value if it is a dict.
-
-        Args:
-            name (str): The name to retrieve.
-
-        Returns:
-            JSON_TYPE: The value of the key.
-        """
-        return self.get()[name]
-
     def read(self, key: str, default: Any = None) -> Any:
         """Shorthand for self.get().get(name, default) if datatype is dict.
 
@@ -479,6 +468,17 @@ class JSONKey(AsyncJSONKey):
             return type(self)(db=data, key=keys[-1], dtype=dict)
         else:
             return check
+
+    def __getitem__(self, name: str) -> JSON_TYPE:
+        """Retrieve a key from the JSONKey's value if it is a dict.
+
+        Args:
+            name (str): The name to retrieve.
+
+        Returns:
+            JSON_TYPE: The value of the key.
+        """
+        return self.keys(name)
 
     def __setitem__(self, name: str, value: JSON_TYPE) -> None:
         """Sets a key inside the JSONKey's value if it is a dict.
