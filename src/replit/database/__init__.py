@@ -677,6 +677,7 @@ class ReplitDb:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
+db: Optional[ReplitDb]
 db_url = os.environ.get("REPLIT_DB_URL")
 if db_url:
     db = ReplitDb(db_url)
@@ -686,3 +687,4 @@ else:
         "Database will not function.",
         file=stderr,
     )
+    db = None
