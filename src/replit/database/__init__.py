@@ -26,7 +26,7 @@ class AsyncJSONKey:
         db: Any,
         key: str,
         dtype: JSON_TYPE,
-        get_default: Callable = None,
+        get_default: Callable[[], JSON_TYPE] = None,
         discard_bad_data: bool = False,
         do_raise: bool = False,
     ) -> None:
@@ -51,8 +51,9 @@ class AsyncJSONKey:
         self.do_raise = do_raise
 
     def _default(self) -> JSON_TYPE:
-        get_default_func = self.get_default or self.dtype
-        return get_default_func()
+        if self.get_default:
+            return self.get_default()
+        return self.dtype
 
     def _is_valid_type(self, data: JSON_TYPE) -> bool:
         return self.dtype is Any or isinstance(data, self.dtype)
@@ -211,7 +212,7 @@ class AsyncReplitDb:
             async with session.delete(self.db_url + "/" + key) as response:
                 response.raise_for_status()
 
-    async def list(self, prefix: str) -> Tuple[str]:
+    async def list(self, prefix: str) -> Tuple[str, ...]:
         """List keys in the database which start with prefix.
 
         Args:
@@ -246,7 +247,7 @@ class AsyncReplitDb:
             ret[i] = await self.get(i)
         return ret
 
-    async def keys(self) -> Tuple[str]:
+    async def keys(self) -> Tuple[str, ...]:
         """Get all keys in the database.
 
         Returns:
@@ -254,7 +255,7 @@ class AsyncReplitDb:
         """
         return await self.list("")
 
-    async def values(self) -> Tuple[str]:
+    async def values(self) -> Tuple[str, ...]:
         """Get every value in the database.
 
         Returns:
@@ -263,13 +264,13 @@ class AsyncReplitDb:
         data = await self.to_dict()
         return tuple(data.values())
 
-    async def items(self) -> Tuple[Tuple[str]]:
+    async def items(self) -> Tuple[Tuple[str, str], ...]:
         """Convert the database to a dict and return the dict's items method.
 
         Returns:
             Tuple[Tuple[str]]: The items
         """
-        return (await self.to_dict()).items()
+        return tuple((await self.to_dict()).items())
 
     def jsonkey(
         self,
@@ -449,7 +450,10 @@ class JSONKey(AsyncJSONKey):
         Returns:
             Any: The value read or the default.
         """
-        return self.get().get(key, default)
+        data = self.get()
+        if not isinstance(data, dict):
+            raise TypeError
+        return data.get(key, default)
 
     def keys(self, *keys: str) -> Any:
         """Reads multiple keys from the key's value and allows setting.
@@ -488,6 +492,8 @@ class JSONKey(AsyncJSONKey):
             value (JSON_TYPE): The value to set it to.
         """
         data = self.get()
+        if not isinstance(data, dict):
+            raise TypeError
         data[name] = value
         self.set(data)
 
@@ -498,6 +504,8 @@ class JSONKey(AsyncJSONKey):
             item (JSON_TYPE): The item to append.
         """
         data = self.get()
+        if not isinstance(data, list):
+            raise TypeError
         self.set(data + [item])
 
     def __add__(self, item: Any) -> Any:
@@ -525,7 +533,7 @@ class JSONKey(AsyncJSONKey):
         return self
 
 
-class ReplitDb(AsyncReplitDb):
+class ReplitDb:
     """Interface with the Replit Database."""
 
     __slots__ = ("db_url", "sess")
@@ -577,7 +585,7 @@ class ReplitDb(AsyncReplitDb):
         r = self.sess.delete(f"{self.db_url}/{key}")
         r.raise_for_status()
 
-    def keys(self, prefix: str = "") -> Tuple[str]:
+    def keys(self, prefix: str = "") -> Tuple[str, ...]:
         """Return all of the keys in the database.
 
         Args:
@@ -611,7 +619,7 @@ class ReplitDb(AsyncReplitDb):
             data[k] = self[k]
         return data
 
-    def values(self) -> Tuple[str]:
+    def values(self) -> Tuple[str, ...]:
         """Get every value in the database.
 
         Returns:
@@ -620,13 +628,13 @@ class ReplitDb(AsyncReplitDb):
         data = self.to_dict()
         return tuple(data.values())
 
-    def items(self) -> Tuple[Tuple[str]]:
+    def items(self) -> Tuple[Tuple[str, str], ...]:
         """Convert the database to a dict and return the dict's items method.
 
         Returns:
             Tuple[Tuple[str]]: The items
         """
-        return self.to_dict().items()
+        return tuple(self.to_dict().items())
 
     def jsonkey(
         self,
@@ -678,4 +686,3 @@ else:
         "Database will not function.",
         file=stderr,
     )
-    db = None
