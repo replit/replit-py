@@ -241,3 +241,4 @@ def chain_decorators(*decorators: Callable[[Callable], Any]) -> Callable:
     if not decorators:
         raise TypeError("You must provide at least one decorator to chain")
     return dec
+

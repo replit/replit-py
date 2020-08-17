@@ -76,24 +76,24 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         d = await self.db.to_dict()
         self.assertDictEqual(d, {"key1": "value", "key2": "value"})
 
-    async def test_jsonkey(self) -> None:
-        """Test replit.database.AsyncJSONKey."""
-        key = "test-jsonkey"
+    # async def test_jsonkey(self) -> None:
+    #     """Test replit.database.AsyncJSONKey."""
+    #     key = "test-jsonkey"
 
-        jk = self.db.jsonkey(key, dtype=str, do_raise=True)
-        with self.assertRaises(KeyError):
-            await jk.get()
-        await jk.set("value")
-        val = await jk.get()
-        self.assertEqual(val, "value")
+    #     jk = self.db.jsonkey(key, dtype=str, do_raise=True)
+    #     with self.assertRaises(KeyError):
+    #         await jk.get()
+    #     await jk.set("value")
+    #     val = await jk.get()
+    #     self.assertEqual(val, "value")
 
-    async def test_jsonkey_default(self) -> None:
-        """Test replit.database.AsyncJSONKey with a default callable."""
-        key = "test-jsonkey"
+    # async def test_jsonkey_default(self) -> None:
+    #     """Test replit.database.AsyncJSONKey with a default callable."""
+    #     key = "test-jsonkey"
 
-        jk = self.db.jsonkey(key, dtype=str, get_default=lambda: "value")
-        val = await jk.get()
-        self.assertEqual(val, "value")
+    #     jk = self.db.jsonkey(key, dtype=str, get_default=lambda: "value")
+    #     val = await jk.get()
+    #     self.assertEqual(val, "value")
 
 
 class TestDatabase(unittest.IsolatedAsyncioTestCase):
