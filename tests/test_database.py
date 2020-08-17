@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from replit.database import AsyncReplitDb, AsyncJSONKey, ReplitDb
+from replit.database import AsyncJSONKey, AsyncReplitDb, ReplitDb
 import requests
 
 

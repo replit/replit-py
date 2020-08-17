@@ -20,7 +20,7 @@ from .utils import (
     sign_in_page,
     sign_in_snippet,
 )
-from ..database import db, ReplitDb, AsyncReplitDb, JSONKey, AsyncJSONKey
+from ..database import AsyncJSONKey, AsyncReplitDb, db, JSONKey, ReplitDb
 
 auth = LocalProxy(lambda: flask.request.auth)
 signed_in = LocalProxy(lambda: flask.request.signed_in)
