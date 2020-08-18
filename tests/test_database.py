@@ -3,12 +3,12 @@
 import os
 import unittest
 
-from replit.database import AsyncJSONKey, AsyncReplitDb, ReplitDb
+from replit.database import AsyncDatabase, AsyncJSONKey, Database
 import requests
 
 
 class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
-    """Tests for replit.database.AsyncReplitDb."""
+    """Tests for replit.database.AsyncDatabase."""
 
     async def asyncSetUp(self) -> None:
         """Grab a JWT for all the tests to share."""
@@ -17,7 +17,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
             "https://database-test-jwt.kochman.repl.co", auth=("test", password)
         )
         url = req.text
-        self.db = AsyncReplitDb(url)
+        self.db = AsyncDatabase(url)
 
         # nuke whatever is already here
         for k in await self.db.keys():
@@ -109,7 +109,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
 
 
 class TestDatabase(unittest.TestCase):
-    """Tests for replit.database.ReplitDb."""
+    """Tests for replit.database.Database."""
 
     def setUp(self) -> None:
         """Grab a JWT for all the tests to share."""
@@ -118,7 +118,7 @@ class TestDatabase(unittest.TestCase):
             "https://database-test-jwt.kochman.repl.co", auth=("test", password)
         )
         url = req.text
-        self.db = ReplitDb(url)
+        self.db = Database(url)
 
         # nuke whatever is already here
         for k in self.db.keys():
@@ -150,14 +150,14 @@ class TestDatabase(unittest.TestCase):
         val = self.db[key]
         self.assertEqual(val, "value")
 
-        keys = self.db.keys(key)
+        keys = self.db.prefix(key)
         self.assertEqual(keys, (key,))
 
         keys = self.db.keys()
-        self.assertEqual(keys, (key,))
+        self.assertTupleEqual(tuple(keys), (key,))
 
         # just to make sure...
-        self.assertEqual(self.db.keys(), self.db.keys(""))
+        self.assertTupleEqual(tuple(self.db.keys()), self.db.prefix(""))
 
         del self.db[key]
         with self.assertRaises(KeyError):

@@ -1,13 +1,14 @@
 """Async and dict-like interfaces for interacting with Repl.it Database."""
-from typing import Dict, Tuple
+from collections import abc
+from typing import Dict, Iterator, Tuple
 import urllib
 
 import aiohttp
 import requests
 
 
-class AsyncReplitDb:
-    """Async client interface with the Replit Database."""
+class AsyncDatabase:
+    """Async interface for Repl.it Database."""
 
     __slots__ = ("db_url", "sess")
 
@@ -132,8 +133,8 @@ class AsyncReplitDb:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-class ReplitDb:
-    """Interface with the Replit Database."""
+class Database(abc.MutableMapping):
+    """Dictionary-like interface for Repl.it Database."""
 
     __slots__ = ("db_url", "sess")
 
@@ -190,12 +191,20 @@ class ReplitDb:
 
         r.raise_for_status()
 
-    def keys(self, prefix: str = "") -> Tuple[str, ...]:
-        """Return all of the keys in the database.
+    def __iter__(self) -> Iterator[str]:
+        """Return an iterator for the database."""
+        return iter(self.prefix(""))
+
+    def __len__(self) -> int:
+        """The number of keys in the database."""
+        return len(self.prefix(""))
+
+    def prefix(self, prefix: str) -> Tuple[str, ...]:
+        """Return all of the keys in the database that begin with the prefix.
 
         Args:
             prefix (str): The prefix the keys must start with,
-                blank means anything. Defaults to "".
+                blank means anything.
 
         Returns:
             Tuple[str]: The keys found.
@@ -207,39 +216,6 @@ class ReplitDb:
             return tuple()
         else:
             return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
-
-    def to_dict(self, prefix: str = "") -> Dict[str, str]:
-        """Dump all data in the database into a dictionary.
-
-        Args:
-            prefix (str): The prefix the keys must start with,
-                blank means anything. Defaults to "".
-
-        Returns:
-            Dict[str, str]: All keys in the database.
-        """
-        keys = self.keys()
-        data = {}
-        for k in keys:
-            data[k] = self[k]
-        return data
-
-    def values(self) -> Tuple[str, ...]:
-        """Get every value in the database.
-
-        Returns:
-            Tuple[str]: The values in the database.
-        """
-        data = self.to_dict()
-        return tuple(data.values())
-
-    def items(self) -> Tuple[Tuple[str, str], ...]:
-        """Convert the database to a dict and return the dict's items method.
-
-        Returns:
-            Tuple[Tuple[str]]: The items
-        """
-        return tuple(self.to_dict().items())
 
     def __repr__(self) -> str:
         """A representation of the database.
