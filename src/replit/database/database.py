@@ -1,6 +1,5 @@
-import os
-from sys import stderr
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+"""Async and dict-like interfaces for interacting with Repl.it Database."""
+from typing import Dict, Tuple
 import urllib
 
 import aiohttp
@@ -181,6 +180,9 @@ class ReplitDb:
 
         Args:
             key (str): The key to delete
+
+        Raises:
+            KeyError: Key is not set
         """
         r = self.sess.delete(f"{self.db_url}/{key}")
         if r.status_code == 404:

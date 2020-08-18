@@ -163,7 +163,7 @@ class TestDatabase(unittest.TestCase):
         with self.assertRaises(KeyError):
             val = self.db[key]
 
-    def test_delete_nonexistent_key(self):
+    def test_delete_nonexistent_key(self) -> None:
         """Test that deleting a non-existent key returns 404."""
         key = "this-doesn't-exist"
         with self.assertRaises(KeyError):
