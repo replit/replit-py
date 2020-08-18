@@ -39,6 +39,18 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(KeyError):
             await self.db.get("test-key")
 
+    async def test_get_set_delete_newline(self) -> None:
+        """Test that we can get, set, and delete a key with newline."""
+        key = "test-key-with\nnewline"
+        await self.db.set(key, "value")
+
+        val = await self.db.get(key)
+        self.assertEqual(val, "value")
+
+        await self.db.delete(key)
+        with self.assertRaises(KeyError):
+            await self.db.get(key)
+
     async def test_list_keys(self) -> None:
         """Test that we can list keys."""
         key = "test-list-keys-with\nnewline"
@@ -96,7 +108,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(val, "value")
 
 
-class TestDatabase(unittest.IsolatedAsyncioTestCase):
+class TestDatabase(unittest.TestCase):
     """Tests for replit.database.ReplitDb."""
 
     def setUp(self) -> None:
@@ -115,7 +127,7 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
     def tearDown(self) -> None:
         """Nuke whatever the test added."""
         for k in self.db.keys():
-            self.db.delete(k)
+            del self.db[k]
 
     def test_get_set_delete(self) -> None:
         """Test get, set, and delete."""
@@ -129,3 +141,30 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
         del self.db["key"]
         with self.assertRaises(KeyError):
             val = self.db["key"]
+
+    def test_list_keys(self) -> None:
+        """Test that we can list keys."""
+        key = "test-list-keys-with\nnewline"
+        self.db[key] = "value"
+
+        val = self.db[key]
+        self.assertEqual(val, "value")
+
+        keys = self.db.keys(key)
+        self.assertEqual(keys, (key,))
+
+        keys = self.db.keys()
+        self.assertEqual(keys, (key,))
+
+        # just to make sure...
+        self.assertEqual(self.db.keys(), self.db.keys(""))
+
+        del self.db[key]
+        with self.assertRaises(KeyError):
+            val = self.db[key]
+
+    def test_delete_nonexistent_key(self):
+        """Test that deleting a non-existent key returns 404."""
+        key = "this-doesn't-exist"
+        with self.assertRaises(KeyError):
+            self.db[key]

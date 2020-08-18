@@ -33,7 +33,9 @@ class AsyncReplitDb:
             str: The value of the key
         """
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.db_url + "/" + key) as response:
+            async with session.get(
+                self.db_url + "/" + urllib.parse.quote(key)
+            ) as response:
                 if response.status == 404:
                     raise KeyError(key)
                 response.raise_for_status()
@@ -57,7 +59,9 @@ class AsyncReplitDb:
             key (str): The key to delete
         """
         async with aiohttp.ClientSession() as session:
-            async with session.delete(self.db_url + "/" + key) as response:
+            async with session.delete(
+                self.db_url + "/" + urllib.parse.quote(key)
+            ) as response:
                 response.raise_for_status()
 
     async def list(self, prefix: str) -> Tuple[str, ...]:
@@ -179,6 +183,9 @@ class ReplitDb:
             key (str): The key to delete
         """
         r = self.sess.delete(f"{self.db_url}/{key}")
+        if r.status_code == 404:
+            raise KeyError(key)
+
         r.raise_for_status()
 
     def keys(self, prefix: str = "") -> Tuple[str, ...]:
@@ -191,13 +198,13 @@ class ReplitDb:
         Returns:
             Tuple[str]: The keys found.
         """
-        r = requests.get(f"{self.db_url}", params={"prefix": prefix})
+        r = requests.get(f"{self.db_url}", params={"prefix": prefix, "encode": "true"})
         r.raise_for_status()
 
         if not r.text:
             return tuple()
         else:
-            return tuple(r.text.split("\n"))
+            return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
 
     def to_dict(self, prefix: str = "") -> Dict[str, str]:
         """Dump all data in the database into a dictionary.
