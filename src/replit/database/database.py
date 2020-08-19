@@ -162,7 +162,7 @@ class Database(abc.MutableMapping):
             KeyError: Key is not set
 
         Returns:
-            str: The value of the key
+            Any: The value of the key
         """
         r = self.sess.get(f"{self.db_url}/{key}")
         if r.status_code == 404:
