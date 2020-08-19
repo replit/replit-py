@@ -3,12 +3,12 @@
 import os
 import unittest
 
-from replit.database import AsyncReplitDb, ReplitDb
+from replit.database import AsyncDatabase, AsyncJSONKey, Database
 import requests
 
 
 class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
-    """Tests for replit.database.AsyncReplitDb."""
+    """Tests for replit.database.AsyncDatabase."""
 
     async def asyncSetUp(self) -> None:
         """Grab a JWT for all the tests to share."""
@@ -17,7 +17,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
             "https://database-test-jwt.kochman.repl.co", auth=("test", password)
         )
         url = req.text
-        self.db = AsyncReplitDb(url)
+        self.db = AsyncDatabase(url)
 
         # nuke whatever is already here
         for k in await self.db.keys():
@@ -38,6 +38,18 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         await self.db.delete("test-key")
         with self.assertRaises(KeyError):
             await self.db.get("test-key")
+
+    async def test_get_set_delete_newline(self) -> None:
+        """Test that we can get, set, and delete a key with newline."""
+        key = "test-key-with\nnewline"
+        await self.db.set(key, "value")
+
+        val = await self.db.get(key)
+        self.assertEqual(val, "value")
+
+        await self.db.delete(key)
+        with self.assertRaises(KeyError):
+            await self.db.get(key)
 
     async def test_list_keys(self) -> None:
         """Test that we can list keys."""
@@ -80,7 +92,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         """Test replit.database.AsyncJSONKey."""
         key = "test-jsonkey"
 
-        jk = self.db.jsonkey(key, dtype=str, do_raise=True)
+        jk = AsyncJSONKey(db=self.db, key=key, dtype=str, do_raise=True)
         with self.assertRaises(KeyError):
             await jk.get()
         await jk.set("value")
@@ -91,13 +103,13 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         """Test replit.database.AsyncJSONKey with a default callable."""
         key = "test-jsonkey"
 
-        jk = self.db.jsonkey(key, dtype=str, get_default=lambda: "value")
+        jk = AsyncJSONKey(db=self.db, key=key, dtype=str, get_default=lambda: "value")
         val = await jk.get()
         self.assertEqual(val, "value")
 
 
-class TestDatabase(unittest.IsolatedAsyncioTestCase):
-    """Tests for replit.database.ReplitDb."""
+class TestDatabase(unittest.TestCase):
+    """Tests for replit.database.Database."""
 
     def setUp(self) -> None:
         """Grab a JWT for all the tests to share."""
@@ -106,7 +118,7 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
             "https://database-test-jwt.kochman.repl.co", auth=("test", password)
         )
         url = req.text
-        self.db = ReplitDb(url)
+        self.db = Database(url)
 
         # nuke whatever is already here
         for k in self.db.keys():
@@ -115,7 +127,7 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
     def tearDown(self) -> None:
         """Nuke whatever the test added."""
         for k in self.db.keys():
-            self.db.delete(k)
+            del self.db[k]
 
     def test_get_set_delete(self) -> None:
         """Test get, set, and delete."""
@@ -129,3 +141,39 @@ class TestDatabase(unittest.IsolatedAsyncioTestCase):
         del self.db["key"]
         with self.assertRaises(KeyError):
             val = self.db["key"]
+
+    def test_list_keys(self) -> None:
+        """Test that we can list keys."""
+        key = "test-list-keys-with\nnewline"
+        self.db[key] = "value"
+
+        val = self.db[key]
+        self.assertEqual(val, "value")
+
+        keys = self.db.prefix(key)
+        self.assertEqual(keys, (key,))
+
+        keys = self.db.keys()
+        self.assertTupleEqual(tuple(keys), (key,))
+
+        # just to make sure...
+        self.assertTupleEqual(tuple(self.db.keys()), self.db.prefix(""))
+
+        del self.db[key]
+        with self.assertRaises(KeyError):
+            val = self.db[key]
+
+    def test_delete_nonexistent_key(self) -> None:
+        """Test that deleting a non-existent key returns 404."""
+        key = "this-doesn't-exist"
+        with self.assertRaises(KeyError):
+            self.db[key]
+
+    def test_get_set_fancy_object(self) -> None:
+        """Test that we can get/set/delete something that's more than a string."""
+        key = "big-ol-list"
+        val = ["this", {"is": "a", "complex": "object"}, 1337]
+
+        self.db[key] = val
+        act = self.db[key]
+        self.assertEqual(act, val)
