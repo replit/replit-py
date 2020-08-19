@@ -135,7 +135,11 @@ class AsyncDatabase:
 
 
 class Database(abc.MutableMapping):
-    """Dictionary-like interface for Repl.it Database."""
+    """Dictionary-like interface for Repl.it Database.
+
+    This interface will coerce all values everything to and from JSON. If you
+    don't want this, use AsyncDatabase instead.
+    """
 
     __slots__ = ("db_url", "sess")
 
