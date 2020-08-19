@@ -168,3 +168,12 @@ class TestDatabase(unittest.TestCase):
         key = "this-doesn't-exist"
         with self.assertRaises(KeyError):
             self.db[key]
+
+    def test_get_set_fancy_object(self) -> None:
+        """Test that we can get/set/delete something that's more than a string."""
+        key = "big-ol-list"
+        val = ["this", {"is": "a", "complex": "object"}, 1337]
+
+        self.db[key] = val
+        act = self.db[key]
+        self.assertEqual(act, val)

@@ -1,6 +1,7 @@
 """Async and dict-like interfaces for interacting with Repl.it Database."""
 from collections import abc
-from typing import Dict, Iterator, Tuple
+import json
+from typing import Any, Dict, Iterator, Tuple
 import urllib
 
 import aiohttp
@@ -164,16 +165,17 @@ class Database(abc.MutableMapping):
             raise KeyError(key)
 
         r.raise_for_status()
-        return r.text
+        return json.loads(r.text)
 
-    def __setitem__(self, key: str, value: str) -> None:
+    def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to value.
 
         Args:
             key (str): The key to set
-            value (str): The value to set it to
+            value (Any): The value to set it to. Must be JSON-serializable.
         """
-        r = self.sess.post(self.db_url, data={key: value})
+        j = json.dumps(value, separators=(",", ":"))
+        r = self.sess.post(self.db_url, data={key: j})
         r.raise_for_status()
 
     def __delitem__(self, key: str) -> None:
