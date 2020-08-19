@@ -152,7 +152,7 @@ class Database(abc.MutableMapping):
         self.db_url = db_url
         self.sess = requests.Session()
 
-    def __getitem__(self, key: str) -> str:
+    def __getitem__(self, key: str) -> Any:
         """Get the value of an item from the database.
 
         Args:
