@@ -31,4 +31,4 @@ blocks:
             - checkout --use-cache
             - python -m pip install --upgrade poetry
             - poetry install
-            - ! poetry run mypy src/replit | grep database.py
+            - bash -c '! poetry run mypy src/replit | grep database.py'
