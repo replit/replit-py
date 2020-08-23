@@ -68,10 +68,14 @@ class Color:
         
         Raises:
           ValueError
+          Exception
 
         Returns:
           color : RGB colors from Hex Value
         """
+        
+        raise Exception("HSV Temporarily Disabled.")
+        
         try:
             r, g, b = colorsys.hsv_to_rgb(h, s, v)
         except:
@@ -95,7 +99,7 @@ class Color:
           color : RGB colors from Hex Value
         """
         try:
-            r, g, b = colorsys.hls_to_rgb(h, s, v)
+            r, g, b = colorsys.hls_to_rgb(h, l, s)
         except:
             raise ValueError("Converting HLS to RGB ran into an error")
 
