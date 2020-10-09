@@ -63,7 +63,7 @@ class AsyncDatabase:
             async with session.delete(
                 self.db_url + "/" + urllib.parse.quote(key)
             ) as response:
-                if(response.status_code==404):
+                if response.status == 404:
                     raise KeyError(key)
                 response.raise_for_status()
 
