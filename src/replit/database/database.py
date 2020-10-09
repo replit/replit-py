@@ -58,6 +58,9 @@ class AsyncDatabase:
 
         Args:
             key (str): The key to delete
+        
+        Raises:
+            KeyError: Key does not exist
         """
         async with aiohttp.ClientSession() as session:
             async with session.delete(
