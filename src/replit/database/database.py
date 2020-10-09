@@ -63,6 +63,8 @@ class AsyncDatabase:
             async with session.delete(
                 self.db_url + "/" + urllib.parse.quote(key)
             ) as response:
+                if(response.status_code==404):
+                    raise KeyError(key)
                 response.raise_for_status()
 
     async def list(self, prefix: str) -> Tuple[str, ...]:
