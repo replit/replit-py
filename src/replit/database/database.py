@@ -57,8 +57,7 @@ class AsyncDatabase:
         """Delete a key from the database.
 
         Args:
-            key (str): The key to delete
-        
+            key (str): The key to delete    
         Raises:
             KeyError: Key does not exist
         """
