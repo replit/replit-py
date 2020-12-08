@@ -1,7 +1,21 @@
 import json
 import click
 
+import replit.termutils as term
 from replit import db as database
+
+
+def wrap(color: term.Color, value: str):
+    return color.fg + value + term.reset
+
+
+def success(value: str):
+    return term.brightgreen.fg + value + term.reset
+
+
+def failure(value: str):
+    return term.brightred.fg + value + term.reset
+
 
 def chunk(lst: list, n: int):
     for i in range(0, len(lst), n):
@@ -34,10 +48,10 @@ def find_matches(prefix: str):
     matches = list(database.prefix(prefix))
 
     if matches:
-        click.echo(f"Matches found for '{prefix}':\n")
+        click.echo(success(f"Matches found for '{prefix}':\n"))
         click.echo('\n'.join(matches))
     else:
-        click.echo(f"No matches found for '{prefix}'")
+        click.echo(failure(f"No matches found for '{prefix}'"))
 
 
 @cli.command(name="set")
@@ -50,9 +64,9 @@ def set_value(key: str, val: str):
     try:
         database[key] = val
     except:
-        click.echo(f"An error occured while setting DB[{key}] to '{val}'")
+        click.echo(failure(f"An error occured while setting DB[{key}] to '{val}'"))
 
-    click.echo(f"DB[{key}] was successfully set to '{val}'")
+    click.echo(success(f"DB[{key}] was successfully set to '{val}'"))
 
 
 @cli.command(name="all")
@@ -66,8 +80,8 @@ def list_all(file_path: str):
     
     json.dump(binds, file)
 
-    click.echo(f"Ouput successfully dumped to '{file_path}'")
+    click.echo(success(f"Ouput successfully dumped to '{file_path}'"))
 
 
 if __name__ == "__main__":
-    cli(prog_name="db")
+    cli(prog_name="repldb")
