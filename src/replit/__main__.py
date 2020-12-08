@@ -42,11 +42,11 @@ def list_keys(file_path: str):
         file = open(file_path, 'w+')
     except:
         click.echo(failure(f"No such file or directory '{file_path}'"))
-    
-    keys = list(database.keys())
-    json.dump(keys, file)
+    else:
+        keys = list(database.keys())
+        json.dump(keys, file)
 
-    click.echo(success(f"Ouput successfully dumped to '{file_path}'"))
+        click.echo(success(f"Ouput successfully dumped to '{file_path}'"))
 
 
 @cli.command(name="match")
@@ -104,25 +104,22 @@ def del_value(key: str):
 def nuke_db():
     """Wipes ALL key-value pairs in the DB."""
 
-    if os.getenv("is_admin", default=False):
-        flag = str(input("Are you sure you want to nuke the DB? (y/n):"))
+    flag = str(input("Are you sure you want to nuke the DB? (y/n):"))
+
+    if flag == "y":
+        flag = str(input("Ok, but like, REALLY sure? (y/n):"))
 
         if flag == "y":
-            flag = str(input("Ok, but like, REALLY sure? (y/n):"))
+            click.echo(info("Beginning Nuke operation...\n"))
 
-            if flag == "y":
-                click.echo(info("Beginning Nuke operation...\n"))
+            keys = list(database.keys())
+            for k in keys: del database[k]
 
-                keys = list(database.keys())
-                for k in keys: del database[k]
-
-                click.echo(success("Nuke operation successful."))
-            else:
-                click.echo(info("Nuke operation cancelled. (close one!)"))
+            click.echo(success("Nuke operation successful."))
         else:
-            click.echo(info("Nuke operation cancelled."))        
+            click.echo(info("Nuke operation cancelled. (close one!)"))
     else:
-        click.echo(failure("Only repl owners have access to this command."))
+        click.echo(info("Nuke operation cancelled."))        
 
 
 
