@@ -1,45 +1,39 @@
+"""CLI for interacting with your Repl's DB. Written as top-level script."""
 import json
 
 import click
 
 from replit import db as database
-import replit.termutils as term
+from replit import termutils as term
 
 
-def wrap(color: term.Color, value: str):
-    return color.fg + value + term.reset
-
-
-def info(value: str):
+def info(value: str) -> str:
+    """Wrap given string in a blue color for info contexts."""
     return term.brightblue.fg + value + term.reset
 
 
-def success(value: str):
+def success(value: str) -> str:
+    """Wrap given string in a green color for success contexts."""
     return term.brightgreen.fg + value + term.reset
 
 
-def failure(value: str):
+def failure(value: str) -> str:
+    """Wrap given string in a red color for failure/warning contexts."""
     return term.brightred.fg + value + term.reset
-
-
-def chunk(lst: list, n: int):
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
 
 
 @click.group()
 @click.version_option("0.0.1")
-def cli():
+def cli() -> None:
     """CLI for interacting with your Repl's DB."""
 
 
 @cli.command(name="keys")
 @click.argument("file_path", default="db_keys.json")
-def list_keys(file_path: str):
-    """Writes all keys in the DB to a JSON file."""
-
+def list_keys(file_path: str) -> None:
+    """Save all keys in the DB to a JSON file."""
     try:
-        file = open(file_path, 'w+')
+        file = open(file_path, "w+")
     except FileNotFoundError:
         click.echo(failure(f"No such file or directory '{file_path}'"))
     else:
@@ -51,14 +45,13 @@ def list_keys(file_path: str):
 
 @cli.command(name="match")
 @click.argument("prefix")
-def find_matches(prefix: str):
-    """Finds keys with a given prefix."""
-
+def find_matches(prefix: str) -> None:
+    """List all keys that match the given prefix."""
     matches = list(database.prefix(prefix))
 
     if matches:
         click.echo(success(f"Matches found for '{prefix}':\n"))
-        click.echo('\n'.join(matches))
+        click.echo("\n".join(matches))
     else:
         click.echo(failure(f"No matches found for '{prefix}'"))
 
@@ -66,17 +59,14 @@ def find_matches(prefix: str):
 @cli.command(name="set")
 @click.argument("key")
 @click.argument("val")
-def set_value(key: str, val: str):
-    """Sets a DB key to a given value. (Dynamically Typed)"""
-
+def set_value(key: str, val: str) -> None:
+    """Add a given key-value pair to the DB. (Dynamically Typed)."""
     try:
         val = eval(val, {})
         database[key] = val
     except Exception as e:
-        click.echo(
-            failure(f"An error occured while setting DB[{key}] to '{val}'\n")
-        )
-        click.echo(failure(e))
+        click.echo(failure(f"Error occured while setting DB[{key}] to '{val}'"))
+        click.echo(failure(f"\n{e}"))
     else:
         click.echo(success(f"DB[{key}] was successfully set to '{val}'"))
         click.echo(info(f"Dynamically typed to {type(val)}"))
@@ -84,16 +74,16 @@ def set_value(key: str, val: str):
 
 @cli.command(name="del")
 @click.argument("key")
-def del_value(key: str):
-    """Deletes the key-value pair of the given key."""
-
+def del_value(key: str) -> None:
+    """Delete the key-value pair located at the given key."""
     try:
         val = database[key]
     except KeyError:
         click.echo(failure(f"The key '{key}' was not found in the DB."))
     else:
         click.echo(success(f"The value '{val}' was found at db['{key}']"))
-        flag = str(input("Confirm delete? (y/n): "))
+        flag = click.prompt(failure("Confirm delete? (y/n)"))
+        flag = str(flag)
         click.echo()
 
         if flag == "y":
@@ -104,13 +94,14 @@ def del_value(key: str):
 
 
 @cli.command(name="nuke")
-def nuke_db():
-    """Wipes ALL key-value pairs in the DB."""
-
-    flag = str(input("Are you sure you want to nuke the DB? (y/n):"))
+def nuke_db() -> None:
+    """Wipe ALL key-value pairs in the DB."""
+    flag = click.prompt(failure("Are you sure you want to nuke the DB? (y/n)"))
+    flag = str(flag)
 
     if flag == "y":
-        flag = str(input("Ok, but like, REALLY sure? (y/n):"))
+        flag = click.prompt(failure("Ok, but like, REALLY sure? (y/n)"))
+        flag = str(flag)
 
         if flag == "y":
             click.echo(info("Beginning Nuke operation...\n"))
@@ -128,11 +119,10 @@ def nuke_db():
 
 @cli.command(name="all")
 @click.argument("file_path", default="db_all.json")
-def list_all(file_path: str):
-    """Writes all keys and values in the DB to a JSON file."""
-
+def list_all(file_path: str) -> None:
+    """Write all keys and values in the DB to a JSON file."""
     try:
-        file = open(file_path, 'w+')
+        file = open(file_path, "w+")
     except FileNotFoundError:
         click.echo(failure(f"No such file or directory '{file_path}'"))
     else:
