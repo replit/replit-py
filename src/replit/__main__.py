@@ -2,7 +2,6 @@
 import json
 
 import click
-
 from replit import db as database
 from replit import termutils as term
 
