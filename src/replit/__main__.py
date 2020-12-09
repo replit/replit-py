@@ -1,9 +1,9 @@
-import os
 import json
+
 import click
 
-import replit.termutils as term
 from replit import db as database
+import replit.termutils as term
 
 
 def wrap(color: term.Color, value: str):
@@ -40,7 +40,7 @@ def list_keys(file_path: str):
 
     try:
         file = open(file_path, 'w+')
-    except:
+    except FileNotFoundError:
         click.echo(failure(f"No such file or directory '{file_path}'"))
     else:
         keys = list(database.keys())
@@ -68,12 +68,15 @@ def find_matches(prefix: str):
 @click.argument("val")
 def set_value(key: str, val: str):
     """Sets a DB key to a given value. (Dynamically Typed)"""
-        
+
     try:
         val = eval(val, {})
         database[key] = val
-    except:
-        click.echo(failure(f"An error occured while setting DB[{key}] to '{val}'"))
+    except Exception as e:
+        click.echo(
+            failure(f"An error occured while setting DB[{key}] to '{val}'\n")
+        )
+        click.echo(failure(e))
     else:
         click.echo(success(f"DB[{key}] was successfully set to '{val}'"))
         click.echo(info(f"Dynamically typed to {type(val)}"))
@@ -97,7 +100,7 @@ def del_value(key: str):
             del database[key]
             click.echo(success(f"db['{key}'] was successfully deleted."))
         else:
-            click.echo(info(f"Delete operation cancelled."))
+            click.echo(info("Delete operation cancelled."))
 
 
 @cli.command(name="nuke")
@@ -111,16 +114,16 @@ def nuke_db():
 
         if flag == "y":
             click.echo(info("Beginning Nuke operation...\n"))
-
             keys = list(database.keys())
-            for k in keys: del database[k]
+
+            for k in keys:
+                del database[k]
 
             click.echo(success("Nuke operation successful."))
         else:
             click.echo(info("Nuke operation cancelled. (close one!)"))
     else:
-        click.echo(info("Nuke operation cancelled."))        
-
+        click.echo(info("Nuke operation cancelled."))
 
 
 @cli.command(name="all")
@@ -130,12 +133,12 @@ def list_all(file_path: str):
 
     try:
         file = open(file_path, 'w+')
-    except:
+    except FileNotFoundError:
         click.echo(failure(f"No such file or directory '{file_path}'"))
     else:
         keys = list(database.keys())
         binds = dict([(k, database[k]) for k in keys])
-        
+
         json.dump(binds, file)
 
         click.echo(success(f"Output successfully dumped to '{file_path}'"))
