@@ -8,7 +8,7 @@ blocks:
   - name: Lint and test
     task:
       secrets:
-        - name: Repl.it Database
+        - name: replit-database
       jobs:
         - name: flake8
           commands:
