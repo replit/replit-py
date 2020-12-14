@@ -1,4 +1,4 @@
-"""CLI for interacting with your Repl's DB. Written as top-level script."""
+"""CLI for interacting with your Repl's DB. Written as top-level script to be run from a shell."""
 import json
 
 import click
