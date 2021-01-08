@@ -14,7 +14,7 @@ def expand(topic):
         return "replit.community.{}.{}.{}".format(
             os.environ['REPL_OWNER'].lower(),
             os.environ['REPL_SLUG'],
-            topic
+            topic[1:],
         )
 
     # Otherwise, don't change the topic 
