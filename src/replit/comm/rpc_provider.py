@@ -2,7 +2,7 @@ import zmq
 
 from . import context as context
 from . import logger as log
-from .serialization import pack, unpack, topic_pack
+from .serialization import pack, unpack, pack_topic
 from .polling import _register
 
 
@@ -12,7 +12,7 @@ def rpc(callback):
 
     # Listen on a ZMQ port
     socket = context.socket(zmq.ROUTER)
-    socket.setsockopt(zmq.IDENTITY, topic_pack(name.encode))
+    socket.setsockopt(zmq.IDENTITY, pack_topic(name.encode))
     log.debug("Connecting to /tmp/router")
     socket.connect("ipc:///tmp/router")
 

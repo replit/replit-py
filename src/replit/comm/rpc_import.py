@@ -1,7 +1,7 @@
 import sys
 
 from . import logger as log
-from .rpc_provider import RPCProxy
+from .rpc_proxy import RPCProxy
 
 
 class ReplitImport(object):
