@@ -18,4 +18,4 @@ def publish(topic, message):
 
     log.debug("Publishing message %s to %s", message, topic)
     socket.send_multipart([pack_topic(topic), pack(message)])
-
+    publish_sockets[topic] = socket

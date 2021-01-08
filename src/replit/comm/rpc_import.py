@@ -7,7 +7,7 @@ from .rpc_proxy import RPCProxy
 class ReplitImport(object):
     # Only try and dynamically import modules starting with replit.community
     def find_module(self, fullname, path):
-        if fullname.startswith('replit.community'):
+        if fullname.startswith('replit.comm.community'):
             log.debug("Using ReplitImport for %s", fullname)
             return self
 
