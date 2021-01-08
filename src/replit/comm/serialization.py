@@ -13,5 +13,6 @@ def pack_topic(t):
 def unpack_topic(s):
     return s.decode('ascii')
 
-def pack_service_name(s):
-    base64.b64encode(s.encode('ascii')).decode('ascii')
+# Turn a unicode string into a base64 string representing the bytes
+def pack_bytes(s):
+    return base64.b64encode(s.encode('utf-8')).decode('ascii')
