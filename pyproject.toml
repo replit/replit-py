@@ -15,6 +15,7 @@ typing_extensions = "^3.7.4"
 flask = "^1.1.2"
 werkzeug = "^1.0.1"
 aiohttp = "^3.6.2"
+zmq = "^0.0.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.3"
