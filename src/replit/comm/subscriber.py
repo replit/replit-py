@@ -1,15 +1,16 @@
 import zmq
 
-from replit.comm import context as context
-from replit.comm import logger as log
-from replit.comm.serialization import pack, unpack
+from . import context as context
+from . import logger as log
+from .polling import _register
+from .serialization import unpack, pack_topic
 
 def subscribe(topic):
     def decorator(callback):
         # Listen on a ZMQ port
         socket = context.socket(zmq.SUB)
         socket.connect("ipc:///tmp/pub")
-        socket.setsockopt(zmq.SUBSCRIBE, topic.encode('ascii'))
+        socket.setsockopt(zmq.SUBSCRIBE, pack_topic(topic))
 
         # Call the callback and write the response to the stream
         def callback_wrapper(message):
@@ -23,7 +24,7 @@ def subscribe(topic):
                       payload)
     
         log.debug("Subscribed to %s", topic)
-        replit._register(socket, callback_wrapper)
+        _register(socket, callback_wrapper)
     
         return callback
 

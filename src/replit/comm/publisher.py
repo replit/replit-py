@@ -1,8 +1,8 @@
 import zmq
 
-from replit.comm import context as context
-from replit.comm import logger as log
-from replit.comm.serialization import pack, unpack
+from . import context as context
+from . import logger as log
+from .serialization import pack, pack_topic
 
 publish_sockets = {}
 
@@ -17,5 +17,5 @@ def publish(topic, message):
         socket.connect("ipc:///tmp/sub")
 
     log.debug("Publishing message %s to %s", message, topic)
-    socket.send_multipart([topic.encode('ascii'), pack(message)])
+    socket.send_multipart([pack_topic(topic), pack(message)])
 

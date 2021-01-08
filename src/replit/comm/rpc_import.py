@@ -1,8 +1,7 @@
 import sys
 
-from replit.comm import context as context
-from replit.comm import logger as log
-from replit.comm.serialization import pack, unpack
+from . import logger as log
+from .rpc_provider import RPCProxy
 
 
 class ReplitImport(object):
@@ -26,7 +25,7 @@ class ReplitImport(object):
         # access something in the package
         def get_attr(attribute):
             log.debug("Accessing dynamic RPC %s.%s", name, attribute)
-            return replit.rpc.RPCProxy(spec.name, attribute)
+            return RPCProxy(spec.name, attribute)
         setattr(package, '__getattr__', get_attr)
 
         return package

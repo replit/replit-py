@@ -1,9 +1,10 @@
 import zmq
+import base64
 
-from replit.comm import context as context
-from replit.comm import logger as log
-from replit.comm.serialization import pack, unpack
-from replit.comm.rns import get_rid
+from . import context as context
+from . import logger as log
+from .serialization import pack, unpack
+from .rns import get_rid
 
 
 class RPCProxy():
@@ -24,14 +25,14 @@ class RPCProxy():
         }
 
         header = {
-            'dest': repl_id = get_rid(self.repl)
+            'dest': get_rid(self.repl),
             'destService': base64.b64encode(self.service.encode('ascii')).decode('ascii'),
         }
 
         log.debug("Calling RPC at %s.%s", self.repl, self.service)
-        socket.send_multipart([ b'', pack(header), pack(data) ])
+        self.socket.send_multipart([ b'', pack(header), pack(data) ])
 
-        [_, header, response] = socket.recv_multipart()
+        [_, header, response] = self.socket.recv_multipart()
         response = unpack(response)
 
         log.debug("RPC response from %s.%s", self.repl, self.service, response)
