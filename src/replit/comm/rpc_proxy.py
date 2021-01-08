@@ -1,9 +1,8 @@
 import zmq
-import base64
 
 from . import context as context
 from . import logger as log
-from .serialization import pack, unpack
+from .serialization import pack, unpack, pack_topic
 
 
 class RPCProxy():
@@ -25,7 +24,7 @@ class RPCProxy():
 
         header = {
             'dest': self.repl,
-            'destService': base64.b64encode(self.service.encode('ascii')).decode('ascii'),
+            'destService': pack_topic(self.service),
         }
 
         log.debug("Calling RPC at %s.%s", self.repl, self.service)
