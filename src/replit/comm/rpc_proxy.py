@@ -2,7 +2,7 @@ import zmq
 
 from . import context as context
 from . import logger as log
-from .serialization import pack, unpack, pack_topic
+from .serialization import pack, unpack, pack_service_name
 
 
 class RPCProxy():
@@ -24,7 +24,7 @@ class RPCProxy():
 
         header = {
             'dest': self.repl,
-            'destService': pack_topic(self.service),
+            'destService': pack_service_name(self.service),
         }
 
         log.debug("Calling RPC at %s.%s", self.repl, self.service)

@@ -1,4 +1,5 @@
 import json
+import base64
 
 def pack(o):
     return json.dumps(o).encode('utf-8')
@@ -11,3 +12,6 @@ def pack_topic(t):
 
 def unpack_topic(s):
     return s.decode('ascii')
+
+def pack_service_name(s):
+    base64.b64encode(s.encode('ascii')).decode('ascii')
