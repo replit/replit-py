@@ -4,7 +4,6 @@ import base64
 from . import context as context
 from . import logger as log
 from .serialization import pack, unpack
-from .rns import get_rid
 
 
 class RPCProxy():
@@ -25,7 +24,7 @@ class RPCProxy():
         }
 
         header = {
-            'dest': get_rid(self.repl),
+            'dest': self.repl,
             'destService': base64.b64encode(self.service.encode('ascii')).decode('ascii'),
         }
 

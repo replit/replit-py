@@ -3,18 +3,20 @@ import sys
 from . import logger as log
 from .rpc_proxy import RPCProxy
 
+# TODO Figure this out dynamically
+package_name = 'replit.comm'
 
 class ReplitImport(object):
     # Only try and dynamically import modules starting with replit.community
     def find_module(self, fullname, path):
-        if fullname.startswith('replit.comm.community'):
+        if fullname.startswith(package_name + '.community'):
             log.debug("Using ReplitImport for %s", fullname)
             return self
 
     def create_module(self, spec):
         name = spec.name.split('.')[-1]
 
-        log.debug("Creating dynamic RPC module for %s", name)
+        log.debug("Creating dynamic RPC module for %s", spec.name)
 
         # Module is a package so we can get rpcs from it
         package = type(sys)(name)
@@ -25,7 +27,7 @@ class ReplitImport(object):
         # access something in the package
         def get_attr(attribute):
             log.debug("Accessing dynamic RPC %s.%s", name, attribute)
-            return RPCProxy(spec.name, attribute)
+            return RPCProxy('replit' + spec.name[len(package_name):], attribute)
         setattr(package, '__getattr__', get_attr)
 
         return package
