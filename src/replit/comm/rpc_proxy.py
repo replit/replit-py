@@ -33,5 +33,5 @@ class RPCProxy():
         [_, header, response] = self.socket.recv_multipart()
         response = unpack(response)
 
-        log.debug("RPC response from %s.%s", self.repl, self.service, response)
+        log.debug("RPC response from %s.%s %s", self.repl, self.service, response)
         return response

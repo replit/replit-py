@@ -2,7 +2,7 @@ import zmq
 
 from . import context as context
 from . import logger as log
-from .serialization import pack, unpack, pack_bytes
+from .serialization import pack, unpack
 from .polling import _register
 
 
@@ -12,8 +12,8 @@ def rpc(callback):
 
     # Listen on a ZMQ port
     socket = context.socket(zmq.ROUTER)
-    socket.setsockopt_string(zmq.IDENTITY, pack_bytes(name))
-    log.debug("Connecting to /tmp/router")
+    socket.setsockopt(zmq.IDENTITY, name.encode('ascii'))
+    log.debug("Connecting to /tmp/router %s", name)
     socket.connect("ipc:///tmp/router")
 
     # Call the callback and write the response to the stream
@@ -21,12 +21,18 @@ def rpc(callback):
         # Decode the message to get the RPC arguments
         [session, _, routing, payload] = message
 
-        payload = unpack(message[-1])
+        routing = unpack(routing)
+        payload = unpack(payload)
         args = payload['args']
         kwargs = payload['kwargs']
 
+        log.info("Recieved RPC call to %s with args (%s, %s) from %s",
+                 name,
+                 args,
+                 kwargs,
+                 routing['source'])
+
         # Call the RPC provider
-        log.info("Recieved RPC call to %s with %s", name, args, kwargs)
         try:
             response = callback(*args, **kwargs)
         except Exception as e:
@@ -34,11 +40,11 @@ def rpc(callback):
             response = e
 
         # Update the routing information to use for reply
-        routing = unpack(routing)
         routing['dest'] = routing['source']
         routing['destService'] = routing['sourceService']
         routing = pack(routing)
 
+        # Send the reply
         log.info("Sending RPC response from %s with %s", name, response)
         socket.send_multipart(message[:2] + [routing, pack(response)])
 
