@@ -4,10 +4,12 @@ from . import context as context
 from . import logger as log
 from .polling import _register
 from .serialization import unpack, pack_topic
+from .topic_tools import expand
 
 def subscribe(topic):
     def decorator(callback):
         # Listen on a ZMQ port
+        topic = expand(topic)
         socket = context.socket(zmq.SUB)
         socket.connect("ipc:///tmp/pub")
         socket.setsockopt(zmq.SUBSCRIBE, pack_topic(topic))
