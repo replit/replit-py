@@ -12,7 +12,7 @@ def rpc(callback):
 
     # Listen on a ZMQ port
     socket = context.socket(zmq.ROUTER)
-    socket.setsockopt(zmq.IDENTITY, pack_topic(name.encode))
+    socket.setsockopt(zmq.IDENTITY, pack_topic(name))
     log.debug("Connecting to /tmp/router")
     socket.connect("ipc:///tmp/router")
 
