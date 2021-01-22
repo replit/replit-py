@@ -1,4 +1,5 @@
-"""Make apps quickly in python."""
+"""Make apps quickly using Python."""
+
 import os
 
 import flask
@@ -6,20 +7,10 @@ from werkzeug.local import LocalProxy
 
 from . import files
 from . import html
-from .app import App
+from .app import ReplitApp
 from .files import File
 from .html import HTMLElement, Link, Page, Paragraph
-from .utils import (
-    authed_ratelimit,
-    chain_decorators,
-    find,
-    local_redirect,
-    needs_params,
-    needs_sign_in,
-    sign_in,
-    sign_in_page,
-    sign_in_snippet,
-)
+from .utils import *
 from ..database import AsyncDatabase, AsyncJSONKey, Database, db, JSONKey
 
 auth = LocalProxy(lambda: flask.request.auth)
@@ -41,4 +32,7 @@ def user_data(username: str) -> JSONKey:
     return db.jsonkey(username, dict)
 
 
-current_user_data = LocalProxy(lambda: user_data(flask.request.auth.name))
+current_user_data = LocalProxy(lambda: user_data(flask.request.user_info.name))
+
+# Syntax sugar.
+App = ReplitApp
