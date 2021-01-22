@@ -5,6 +5,7 @@ import time
 from typing import Any, Callable, Iterable, Optional, Union
 
 import flask
+from flask.wrappers import Request
 from werkzeug.local import LocalProxy
 
 from .html import Page
@@ -16,7 +17,7 @@ authentication_snippet = (
 )
 
 
-def whoami():
+def whoami() -> flask.Request:
     """Returns the username of the authenticated Replit user, else None."""
     return flask.request.headers.get("X-Replit-User-Name")
 
