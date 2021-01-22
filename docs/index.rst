@@ -15,12 +15,7 @@ provides:
 -  A fully-featured database client for `Replit DB`_.
 -  A Flask–based application framework for accellerating development on the platform.
 -  Replit user profile metadata retreival (more coming here!).
-
-& other helpful toys and utilities, like…
-
 -  A simple audio library that can play tones and audio files!
--  Some helpful functions for displaying ANSI colors within interactive
-   terminal sessions.
 
 
 .. figure:: https://github.com/kennethreitz42/replit-py/blob/kr-cleanup/ext/readme.gif?raw=true

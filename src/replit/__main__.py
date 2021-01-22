@@ -3,7 +3,7 @@ import json
 
 import click
 from replit import db as database
-from replit import termutils as term
+from replit import _termutils as term
 
 
 def info(value: str) -> str:
