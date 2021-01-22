@@ -1,4 +1,6 @@
+# flake8: noqa
 """Pure Python ANSI Color Escape Code generator."""
+
 import colorsys
 
 
@@ -41,14 +43,13 @@ class Color:
 
         Args:
           hexvalue (str): The color's hex value
-        
+
         Raises:
           ValueError
 
         Returns:
           color : RGB colors from Hex Value
         """
-
         try:
             hexvalue = hexvalue.lstrip("#")
             r, g, b = tuple(int(hexvalue[i : i + 2], 16) for i in (0, 2, 4))
@@ -65,7 +66,7 @@ class Color:
 
         Args:
           hexvalue (str): The color's hex value
-        
+
         Raises:
           ValueError
 
@@ -74,7 +75,7 @@ class Color:
         """
         try:
             r, g, b = colorsys.hsv_to_rgb(h, s, v)
-        except:
+        except Exception:
             raise ValueError("Converting HSV to RGB ran into an error")
 
         return cls(r, g, b)
@@ -87,7 +88,7 @@ class Color:
 
         Args:
           hexvalue (str): The color's hex value
-        
+
         Raises:
           ValueError
 
@@ -95,8 +96,8 @@ class Color:
           color : RGB colors from Hex Value
         """
         try:
-            r, g, b = colorsys.hls_to_rgb(h, s, v)
-        except:
+            r, g, b = colorsys.hls_to_rgb(h, s, l)
+        except Exception:
             raise ValueError("Converting HLS to RGB ran into an error")
 
         return cls(r, g, b)
@@ -114,7 +115,6 @@ class Bit:
         Raises:
           ValueError
         """
-
         if value > 255:
             raise ValueError("8 Bit Pallete - No Color Support for Colors over 255")
         if value < 0:
@@ -124,14 +124,16 @@ class Bit:
         self.bg = f"\033[48;5;{value}m"
 
 
-attributes = {  # use only repl.it supported ansi codes. Codes such as blink do not work.
-    "reset": 0,
-    "bold": 1,
-    "faint": 2,
-    "italic": 3,
-    "underline": 4,
-    "highlight": 7,
-}
+attributes = (
+    {  # use only repl.it supported ansi codes. Codes such as blink do not work.
+        "reset": 0,
+        "bold": 1,
+        "faint": 2,
+        "italic": 3,
+        "underline": 4,
+        "highlight": 7,
+    }
+)
 
 
 class Attr:
@@ -146,7 +148,6 @@ class Attr:
         Raises:
           ValueError
         """
-
         if attrib in attributes:
             self.attr = f"\033[{attributes[attrib]}m"
         else:
