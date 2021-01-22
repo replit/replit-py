@@ -1,4 +1,5 @@
 """Python object representations of HTML."""
+
 from abc import ABC
 
 import flask
