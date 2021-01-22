@@ -331,7 +331,11 @@ class Audio:
             LoopCount=loop_count,
             Volume=volume,
             Type=str(ReaderType.tone),
-            Args=RequestArgs(WaveType=wave_type, Pitch=pitch, Seconds=duration,),
+            Args=RequestArgs(
+                WaveType=wave_type,
+                Pitch=pitch,
+                Seconds=duration,
+            ),
         )
 
         with open("/tmp/audio", "w") as f:

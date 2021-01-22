@@ -78,7 +78,6 @@ class ReplitUser:
     def __extract_bio(self, html):
         return html.find(".Linkify", first=True).text
 
-
     def __extract_avatar_url(self, html):
         e = html.find(".profile-icon > span", first=True)
         style_str = e.attrs["style"]

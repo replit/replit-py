@@ -92,7 +92,11 @@ class ReplitApp(flask.Flask):
             self.jinja_env.trim_blocks = True
             self.jinja_env.lstrip_blocks = True
 
-    def login_wall(self, exclude: Set[str] = ("/",), handler: Callable = None,) -> None:
+    def login_wall(
+        self,
+        exclude: Set[str] = ("/",),
+        handler: Callable = None,
+    ) -> None:
         """Require users to be logged-in on all pages.
 
         Args:

@@ -193,7 +193,10 @@ class JSONKey(AsyncJSONKey):
             data = read
 
         if not self._is_valid_type(data):
-            return self._error(self._type_mismatch_msg(data), read,)
+            return self._error(
+                self._type_mismatch_msg(data),
+                read,
+            )
         return data
 
     def _error(self, error: str, read: str) -> JSON_TYPE:
