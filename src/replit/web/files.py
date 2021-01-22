@@ -1,4 +1,5 @@
-"""Utitilities for interacting with static files."""
+"""Utilities for interacting with static files."""
+
 import flask
 
 
