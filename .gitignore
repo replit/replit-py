@@ -1,3 +1,5 @@
+.
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -130,3 +132,8 @@ dmypy.json
 
 # Vscode settings
 .vscode
+Pipfile
+Pipfile.lock
+t.py
+repl-tweet.py
+.DS_Store

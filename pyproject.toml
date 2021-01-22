@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "replit"
-version = "2.0.0"
+version = "3.0.0"
 description = "A library for interacting with features of repl.it"
-authors = ["mat <pypi@matdoes.dev>", "Scoder12 <pypi@scoder12.ml>", "AllAwesome497", "Repl.it <contact@repl.it>"]
-license = "MIT"
+authors = ["Repl.it <contact@repl.it>", "mat <pypi@matdoes.dev>", "kennethreitz <me@kennethreitz.org>", "Scoder12 <pypi@scoder12.ml>", "AllAwesome497", ]
+license = "ISC"
 readme = "README.md"
 repository = "https://github.com/replit/replit-py"
 homepage = "https://github.com/replit/replit-py"
-documentation = "https://replit-python-docs.scoder12.repl.co"
+documentation = "https://replit-py.readthedocs.org/"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -15,6 +15,7 @@ typing_extensions = "^3.7.4"
 flask = "^1.1.2"
 werkzeug = "^1.0.1"
 aiohttp = "^3.6.2"
+requests-html = "^0.10.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.3"
@@ -31,6 +32,7 @@ sphinx-autodoc-typehints = "^1.11.0"
 sphinx-rtd-theme = "^0.5.0"
 coverage = "^5.2.1"
 mypy = "^0.782"
+Flask = "^1.1.2"
 
 [build-system]
 requires = ["poetry>=0.12"]
