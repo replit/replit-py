@@ -1,3 +1,4 @@
+# flake8: noqa
 """A library to play audio in a repl."""
 from datetime import datetime, timedelta
 import json

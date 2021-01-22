@@ -1,11 +1,10 @@
-"""Utitilities to make development easier."""
+"""Utilities to make development easier."""
 
 from functools import wraps
 import time
 from typing import Any, Callable, Iterable, Optional, Union
 
 import flask
-from flask.wrappers import Request
 from werkzeug.local import LocalProxy
 
 from .html import Page
