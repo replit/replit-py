@@ -1,0 +1,4 @@
+- DB: convience methods like nuke and a CLI to interact with it?
+- User: GraphQL changes on backend to formalize gathering profile information.
+- User: Add Repl class and info to user
+- Proper "Warning: REPLIT_DB_URL does not exist"
