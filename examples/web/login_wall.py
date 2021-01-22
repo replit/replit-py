@@ -1,4 +1,7 @@
+# flake8: noqa
 """An example of the app.login_wall() feature."""
+
+from replit import web
 from replit.web import ReplitApp, Link
 from replit.web import auth_info
 

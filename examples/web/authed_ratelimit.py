@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from replit import web
 
 app = web.App(__name__)

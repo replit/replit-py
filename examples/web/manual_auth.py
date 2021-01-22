@@ -1,4 +1,7 @@
+# flake8: noqa
+
 """A basic example of repl auth."""
+
 from replit import web
 
 app = web.App(__name__)
