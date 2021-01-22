@@ -38,8 +38,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
-
-
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -62,15 +60,18 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "conf.py"]
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_theme_options = {
-    'show_powered_by': False
-}
+html_theme_options = {"show_powered_by": False}
 
 html_sidebars = {
-    'index':    ['sidebarintro.html', 'sourcelink.html', 'searchbox.html',
-                 'hacks.html'],
-    '**':       ['sidebarintro.html', 'localtoc.html', 'relations.html',
-                 'sourcelink.html', 'searchbox.html', 'hacks.html']
+    "index": ["sidebarintro.html", "sourcelink.html", "searchbox.html", "hacks.html"],
+    "**": [
+        "sidebarintro.html",
+        "localtoc.html",
+        "relations.html",
+        "sourcelink.html",
+        "searchbox.html",
+        "hacks.html",
+    ],
 }
 
 # Custom css
