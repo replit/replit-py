@@ -8,7 +8,6 @@ from replit.database import AsyncDatabase, AsyncJSONKey, Database
 import requests
 
 
-
 class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
     """Tests for replit.database.AsyncDatabase."""
 

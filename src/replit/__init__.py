@@ -1,3 +1,5 @@
+# flake8: noqa
+
 """The Replit Python module."""
 
 from . import web

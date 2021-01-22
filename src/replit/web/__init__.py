@@ -1,3 +1,4 @@
+# flake8: noqa
 """Make apps quickly using Python."""
 
 import os

@@ -1,3 +1,4 @@
+# flake8: noqa
 from dataclasses import dataclass
 from functools import wraps
 from pathlib import Path
