@@ -11,13 +11,12 @@ class AsyncJSONKey:
     you don't have to do it manually.
     """
 
-    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data", "do_raise")
+    __slots__ = ("db", "key", "get_default", "discard_bad_data", "do_raise")
 
     def __init__(
         self,
         db: Any,
         key: str,
-        dtype: JSON_TYPE,
         get_default: Callable[[], JSON_TYPE] = None,
         discard_bad_data: bool = False,
         do_raise: bool = False,
@@ -26,17 +25,15 @@ class AsyncJSONKey:
         Args:
             db (Any): An instance of ReplitDb
             key (str): The key to read
-            dtype (JSON_TYPE): The datatype the key should be, can be typing.Any.
             get_default (Callable): A function that returns the default
-                value if the key is not set. If it is None (the default) the dtype
-                argument is used.
+                value if the key is not set. If it is None (the default) then the
+                default will be None as well.
             discard_bad_data (bool): Don't prompt if bad data is read, overwrite it
                 with the default. Defaults to False.
             do_raise (bool): Whether to raise exceptions when errors are encountered.
         """
         self.db = db
         self.key = key
-        self.dtype = dtype
         self.get_default = get_default
         self.discard_bad_data = discard_bad_data
         self.do_raise = do_raise
@@ -44,16 +41,7 @@ class AsyncJSONKey:
     def _default(self) -> JSON_TYPE:
         if self.get_default:
             return self.get_default()
-        return self.dtype
-
-    def _is_valid_type(self, data: JSON_TYPE) -> bool:
-        return self.dtype is Any or isinstance(data, self.dtype)
-
-    def _type_mismatch_msg(self, data: Any) -> str:
-        return (
-            f"Type mismatch: Got type {type(data).__name__},"
-            f"expected {self.dtype.__name__}"
-        )
+        return None
 
     async def get(self) -> JSON_TYPE:
         """Get the value of the key.
@@ -83,8 +71,6 @@ class AsyncJSONKey:
                 raise
             return await self._error("Invalid JSON data read", read)
 
-        if not self._is_valid_type(data):
-            return await self._error(self._type_mismatch_msg(data), read,)
         return data
 
     async def _error(self, error: str, read: str) -> JSON_TYPE:
@@ -114,7 +100,7 @@ class AsyncJSONKey:
                 print(f"Data read from key: {read!r}")
             elif choice.startswith("c"):
                 toset = input(
-                    f"Enter data to write, should be of type {self.dtype.__name__!r}"
+                    f"Enter data to write"
                     " (leave blank to return to menu): "
                 )
                 if not toset:
@@ -152,13 +138,12 @@ class JSONKey(AsyncJSONKey):
     you don't have to do it manually.
     """
 
-    __slots__ = ("db", "key", "dtype", "get_default", "discard_bad_data", "do_raise")
+    __slots__ = ("db", "key", "get_default", "discard_bad_data", "do_raise")
 
     def __init__(
         self,
         db: Any,
         key: str,
-        dtype: JSON_TYPE,
         get_default: Callable = None,
         discard_bad_data: bool = False,
         do_raise: bool = False,
@@ -168,17 +153,15 @@ class JSONKey(AsyncJSONKey):
         Args:
             db (Any): An instance of ReplitDb
             key (str): The key to read
-            dtype (JSON_TYPE): The datatype the key should be, can be typing.Any.
             get_default (Callable): A function that returns the default
-                value if the key is not set. If it is None (the default) the dtype
-                argument is used.
+                value if the key is not set. If it is None (the default) then the
+                default will be None.
             discard_bad_data (bool): Don't prompt if bad data is read, overwrite it
                 with the default. Defaults to False.
             do_raise (bool): Whether to raise exceptions when errors are encountered.
         """
         self.db = db
         self.key = key
-        self.dtype = dtype
         self.get_default = get_default
         self.discard_bad_data = discard_bad_data
         self.do_raise = do_raise
@@ -200,6 +183,7 @@ class JSONKey(AsyncJSONKey):
             self.db[self.key] = default
             return default
 
+        # TODO: ReplitDb isn't defined here, so this will throw an exception.
         if isinstance(self.db, ReplitDb):
             try:
                 data = json.loads(read)
@@ -236,7 +220,7 @@ class JSONKey(AsyncJSONKey):
                 print(f"Data read from key: {read!r}")
             elif choice.startswith("c"):
                 toset = input(
-                    f"Enter data to write, should be of type {self.dtype.__name__!r}"
+                    f"Enter data to write"
                     " (leave blank to return to menu): "
                 )
                 if not toset:
@@ -295,10 +279,10 @@ class JSONKey(AsyncJSONKey):
         """
         data = self
         for key in keys[:-1]:
-            data = type(self)(db=data, key=key, dtype=Any)
+            data = type(self)(db=data, key=key)
         check = data[keys[-1]]
         if type(check) is dict:
-            return type(self)(db=data, key=keys[-1], dtype=dict)
+            return type(self)(db=data, key=keys[-1])
         else:
             return check
 
