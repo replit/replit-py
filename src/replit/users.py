@@ -1,4 +1,5 @@
 # TODO: provide a way to list repls.
+# flake8: noqa
 
 import os
 
@@ -76,6 +77,7 @@ class ReplitUser:
 
     def __extract_bio(self, html):
         return html.find(".Linkify", first=True).text
+
 
     def __extract_avatar_url(self, html):
         e = html.find(".profile-icon > span", first=True)
