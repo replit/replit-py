@@ -1,4 +1,6 @@
+# flake8: noqa
 """Pure Python ANSI Color Escape Code generator."""
+
 import colorsys
 
 
@@ -9,7 +11,6 @@ def clear() -> None:
 
 class Color:
     """Dynamic Color: Accepts RGB Color."""
-
     def __init__(self, r: int, g: int, b: int) -> None:
 
         """
@@ -41,14 +42,13 @@ class Color:
 
         Args:
           hexvalue (str): The color's hex value
-        
+
         Raises:
           ValueError
 
         Returns:
           color : RGB colors from Hex Value
         """
-
         try:
             hexvalue = hexvalue.lstrip("#")
             r, g, b = tuple(int(hexvalue[i : i + 2], 16) for i in (0, 2, 4))
@@ -65,7 +65,7 @@ class Color:
 
         Args:
           hexvalue (str): The color's hex value
-        
+
         Raises:
           ValueError
 
@@ -74,7 +74,7 @@ class Color:
         """
         try:
             r, g, b = colorsys.hsv_to_rgb(h, s, v)
-        except:
+        except Exception:
             raise ValueError("Converting HSV to RGB ran into an error")
 
         return cls(r, g, b)
@@ -87,7 +87,7 @@ class Color:
 
         Args:
           hexvalue (str): The color's hex value
-        
+
         Raises:
           ValueError
 
@@ -95,8 +95,8 @@ class Color:
           color : RGB colors from Hex Value
         """
         try:
-            r, g, b = colorsys.hls_to_rgb(h, s, v)
-        except:
+            r, g, b = colorsys.hls_to_rgb(h, s, l)
+        except Exception:
             raise ValueError("Converting HLS to RGB ran into an error")
 
         return cls(r, g, b)
@@ -114,7 +114,6 @@ class Bit:
         Raises:
           ValueError
         """
-
         if value > 255:
             raise ValueError("8 Bit Pallete - No Color Support for Colors over 255")
         if value < 0:
@@ -146,7 +145,6 @@ class Attr:
         Raises:
           ValueError
         """
-
         if attrib in attributes:
             self.attr = f"\033[{attributes[attrib]}m"
         else:
