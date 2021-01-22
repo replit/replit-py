@@ -1,8 +1,9 @@
 """Async and dict-like interfaces for interacting with Repl.it Database."""
-from collections import abc
+
 import json
-from typing import Any, Dict, Iterator, Tuple
 import urllib
+from collections import abc
+from typing import Any, Dict, Iterator, Tuple
 
 import aiohttp
 import requests
