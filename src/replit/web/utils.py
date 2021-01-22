@@ -1,4 +1,5 @@
 """Utitilities to make development easier."""
+
 from functools import wraps
 import time
 from typing import Any, Callable, Iterable, Optional, Union
@@ -9,11 +10,14 @@ from werkzeug.local import LocalProxy
 from .html import Page
 
 
-sign_in_snippet = (
+authentication_snippet = (
     '<script authed="location.reload()" '
     'src="https://auth.turbio.repl.co/script.js"></script>'
 )
 
+def whoami():
+    """Returns the username of the authenticated Replit user, else None."""
+    return flask.request.headers.get('X-Replit-User-Name')
 
 def sign_in(title: str = "Please Sign In") -> Page:
     """Return a sign-in page.
@@ -24,7 +28,7 @@ def sign_in(title: str = "Please Sign In") -> Page:
     Returns:
         Page: The sign-in page.
     """
-    return Page(title=title, body=sign_in_snippet)
+    return Page(title=title, body=authentication_snippet)
 
 
 sign_in_page = sign_in()
@@ -46,7 +50,7 @@ def needs_sign_in(func: Callable = None, login_res: str = sign_in_page) -> Calla
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def handler(*args: Any, **kwargs: Any) -> flask.Response:
-            if flask.request.signed_in:
+            if flask.request.is_authenticated:
                 return func(*args, **kwargs)
             else:
                 return login_res
@@ -174,7 +178,7 @@ def authed_ratelimit(
             nonlocal last_reset
             nonlocal num_requests
 
-            name = flask.request.auth.name
+            name = flask.request.user_info.name
             now = time.time()
 
             if now - last_reset >= period:
@@ -241,3 +245,7 @@ def chain_decorators(*decorators: Callable[[Callable], Any]) -> Callable:
     if not decorators:
         raise TypeError("You must provide at least one decorator to chain")
     return dec
+
+# Syntax sugar.
+sign_in_snippet = authentication_snippet
+login_snippet = authentication_snippet

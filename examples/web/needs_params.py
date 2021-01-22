@@ -1,6 +1,6 @@
-from replit import maqpy
+from replit import web
 
-app = maqpy.App(__name__)
+app = web.App(__name__)
 
 
 @app.route("/")
@@ -29,14 +29,14 @@ def onerror(missing):
 
 
 @app.route("/form", methods=["POST"])
-@maqpy.needs_params("param", onerror=onerror)
+@web.needs_params("param", onerror=onerror)
 def form(param):
     return f"The value of param is: {param}"
 
 
 @app.route("/query")
 # source can be form, query, or a dictionary
-@maqpy.needs_params("q", src="query", onerror=(lambda p: f"Need query param {p}"))
+@web.needs_params("q", src="query", onerror=(lambda p: f"Need query param {p}"))
 def query(q):
     return f"The query param is: {q}"
 

@@ -3,8 +3,8 @@
 import os
 import unittest
 
-from replit.database import AsyncDatabase, AsyncJSONKey, Database
 import requests
+from replit.database import AsyncDatabase, AsyncJSONKey, Database
 
 
 class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
