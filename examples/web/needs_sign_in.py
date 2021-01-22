@@ -1,17 +1,17 @@
-from replit import maqpy
+from replit import web
 
-app = maqpy.App(__name__)
+app = web.App(__name__)
 
 
 @app.route("/")
-@maqpy.needs_sign_in(login_res=f"Hello! {maqpy.sign_in_snippet}")
+@web.needs_sign_in(login_res=f"Hello! {web.sign_in_snippet}")
 def index():
     return "Index function"
 
 
 # needs_signin can also be called with no args
 @app.route("/test")
-@maqpy.needs_sign_in
+@web.needs_sign_in
 def test():
     return "Test function"
 
