@@ -1,8 +1,6 @@
 # flake8: noqa
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 import json
-from sys import stderr
-from .database import ReplitDb
 
 JSON_TYPE = Optional[Union[str, int, float, bool, dict, list]]
 
@@ -178,6 +176,7 @@ class JSONKey(AsyncJSONKey):
             self.db[self.key] = default
             return default
 
+        # TODO: ReplitDb isn't defined here, so this will throw an exception.
         if isinstance(self.db, ReplitDb):
             try:
                 data = json.loads(read)
