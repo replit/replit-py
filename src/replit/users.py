@@ -15,6 +15,7 @@ html_http = HTMLSession()
 
 class ReplitUser:
     """A Replit user's petadata."""
+
     def __init__(self, username=None):
         #: The profile's username.
         self.username = username

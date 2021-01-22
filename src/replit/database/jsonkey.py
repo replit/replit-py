@@ -100,8 +100,7 @@ class AsyncJSONKey:
                 print(f"Data read from key: {read!r}")
             elif choice.startswith("c"):
                 toset = input(
-                    f"Enter data to write"
-                    " (leave blank to return to menu): "
+                    f"Enter data to write" " (leave blank to return to menu): "
                 )
                 if not toset:
                     continue
@@ -221,8 +220,7 @@ class JSONKey(AsyncJSONKey):
                 print(f"Data read from key: {read!r}")
             elif choice.startswith("c"):
                 toset = input(
-                    f"Enter data to write"
-                    " (leave blank to return to menu): "
+                    f"Enter data to write" " (leave blank to return to menu): "
                 )
                 if not toset:
                     continue

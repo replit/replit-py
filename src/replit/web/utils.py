@@ -15,9 +15,11 @@ authentication_snippet = (
     'src="https://auth.turbio.repl.co/script.js"></script>'
 )
 
+
 def whoami():
     """Returns the username of the authenticated Replit user, else None."""
-    return flask.request.headers.get('X-Replit-User-Name')
+    return flask.request.headers.get("X-Replit-User-Name")
+
 
 def sign_in(title: str = "Please Sign In") -> Page:
     """Return a sign-in page.
@@ -245,6 +247,7 @@ def chain_decorators(*decorators: Callable[[Callable], Any]) -> Callable:
     if not decorators:
         raise TypeError("You must provide at least one decorator to chain")
     return dec
+
 
 # Syntax sugar.
 sign_in_snippet = authentication_snippet
