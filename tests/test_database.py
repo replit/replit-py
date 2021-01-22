@@ -92,7 +92,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         """Test replit.database.AsyncJSONKey."""
         key = "test-jsonkey"
 
-        jk = AsyncJSONKey(db=self.db, key=key, dtype=str, do_raise=True)
+        jk = AsyncJSONKey(db=self.db, key=key, do_raise=True)
         with self.assertRaises(KeyError):
             await jk.get()
         await jk.set("value")
@@ -103,7 +103,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         """Test replit.database.AsyncJSONKey with a default callable."""
         key = "test-jsonkey"
 
-        jk = AsyncJSONKey(db=self.db, key=key, dtype=str, get_default=lambda: "value")
+        jk = AsyncJSONKey(db=self.db, key=key, get_default=lambda: "value")
         val = await jk.get()
         self.assertEqual(val, "value")
 
