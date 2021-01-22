@@ -144,6 +144,7 @@ class JSONKey(AsyncJSONKey):
         self,
         db: Any,
         key: str,
+        dtype: Any,
         get_default: Callable = None,
         discard_bad_data: bool = False,
         do_raise: bool = False,
