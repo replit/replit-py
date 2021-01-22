@@ -1,15 +1,11 @@
-"""The replit python module."""
-from . import maqpy
-from . import termutils
+"""The Replit Python module."""
+
+from . import web
 from .audio import Audio
-from .database import db
+from .database import db, Database
+from .users import get_profile, User
 
-
-def clear() -> None:
-    """Clear the terminal."""
-    print("\033[H\033[2J", end="", flush=True)
-
+# Backwards compatibility.
+from .termutils import clear
 
 audio = Audio()
-
-# TODO: DB convience methods like nuke and a CLI to interact with it?

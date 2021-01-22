@@ -1,9 +1,11 @@
 """Pure Python ANSI Color Escape Code generator."""
+
 import colorsys
 
 
 def clear() -> None:
     """Clear the terminal."""
+
     print("\033[H\033[2J", end="", flush=True)
 
 
@@ -41,7 +43,7 @@ class Color:
 
         Args:
           hexvalue (str): The color's hex value
-        
+
         Raises:
           ValueError
 
@@ -65,7 +67,7 @@ class Color:
 
         Args:
           hexvalue (str): The color's hex value
-        
+
         Raises:
           ValueError
 
@@ -87,7 +89,7 @@ class Color:
 
         Args:
           hexvalue (str): The color's hex value
-        
+
         Raises:
           ValueError
 
@@ -95,7 +97,7 @@ class Color:
           color : RGB colors from Hex Value
         """
         try:
-            r, g, b = colorsys.hls_to_rgb(h, s, v)
+            r, g, b = colorsys.hls_to_rgb(h, s, l)
         except:
             raise ValueError("Converting HLS to RGB ran into an error")
 
