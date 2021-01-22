@@ -1,3 +1,4 @@
+# flake8: noqa# flake8: noqa
 """Tests for replit.database."""
 
 import os

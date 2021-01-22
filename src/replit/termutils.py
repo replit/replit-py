@@ -1,3 +1,4 @@
+# flake8: noqa
 """Pure Python ANSI Color Escape Code generator."""
 
 import colorsys

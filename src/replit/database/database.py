@@ -3,8 +3,8 @@
 
 import json
 from collections import abc
-import urllib
 from typing import Any, Dict, Iterator, Tuple
+import urllib
 
 import aiohttp
 import requests
