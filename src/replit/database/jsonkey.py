@@ -45,8 +45,8 @@ class AsyncJSONKey:
 
     async def get(self) -> JSON_TYPE:
         """Get the value of the key.
-        If an invalid JSON value is read or the type does not match, it will show a
-            prompt asking the user what to do unless discard_bad_data is set.
+        If an invalid JSON value is read, it will show a prompt asking the user what to
+            do unless discard_bad_data is set.
         Raises:
             KeyError: If do_raise is true and the key does not exist.
             json.JSONDecodeError: If do_raise is true and invalid JSON data is read
@@ -109,10 +109,6 @@ class AsyncJSONKey:
                 except json.JSONDecodeError:
                     print("Invalid JSON data!")
                 else:
-                    if not self._is_valid_type(data):
-                        print(self._type_mismatch_msg(data))
-                        continue
-
                     await self.db.set(self.key, toset)
                     print("Wrote data to key")
                     return data
@@ -124,9 +120,6 @@ class AsyncJSONKey:
         Raises:
             TypeError: The type of the value set does not match the datatype.
         """
-        if not self._is_valid_type(data):
-            raise TypeError(self._type_mismatch_msg(data))
-
         await self.db.set(self.key, json.dumps(data))
 
 
@@ -169,8 +162,8 @@ class JSONKey(AsyncJSONKey):
     def get(self) -> JSON_TYPE:
         """Get the value of the key.
 
-        If an invalid JSON value is read or the type does not match, it will show a
-            prompt asking the user what to do unless discard_bad_data is set.
+        If an invalid JSON value is read, it will show a prompt asking the user what to
+            do unless discard_bad_data is set.
 
         Returns:
             JSON_TYPE: The value read from the database
@@ -192,11 +185,6 @@ class JSONKey(AsyncJSONKey):
         else:
             data = read
 
-        if not self._is_valid_type(data):
-            return self._error(
-                self._type_mismatch_msg(data),
-                read,
-            )
         return data
 
     def _error(self, error: str, read: str) -> JSON_TYPE:
@@ -232,10 +220,6 @@ class JSONKey(AsyncJSONKey):
                 except json.JSONDecodeError:
                     print("Invalid JSON data!")
                 else:
-                    if not self._is_valid_type(data):
-                        print(self._type_mismatch_msg(data))
-                        continue
-
                     self.db[self.key] = toset
                     print("Wrote data to key")
                     return data
@@ -245,12 +229,7 @@ class JSONKey(AsyncJSONKey):
 
         Args:
             data (JSON_TYPE): The value to set it to.
-
-        Raises:
-            TypeError: The type of the value set does not match the datatype.
         """
-        if not self._is_valid_type(data):
-            raise TypeError(self._type_mismatch_msg(data))
         if isinstance(self.db, ReplitDb):
             data = json.dumps(data)
         self.db[self.key] = data
