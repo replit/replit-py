@@ -5,6 +5,7 @@ import urllib
 from collections import abc
 from typing import Any, Dict, Iterator, Tuple
 
+import aiohttp
 import requests
 
 
