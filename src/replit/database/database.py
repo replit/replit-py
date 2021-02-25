@@ -232,7 +232,8 @@ def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
     """Takes a JSON value and recursively converts it into an Observed value."""
     # Bind on_mutate to the item it was called on.
     # If this is a recursive call, item will be ignored (passed into the _ param)
-    cb = lambda _: on_mutate(item)
+    def cb(_: Any) -> None:
+        on_mutate(item)
 
     if isinstance(item, str) or isinstance(item, int) or item is None:
         return item
