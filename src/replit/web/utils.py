@@ -65,6 +65,9 @@ def authenticated(func: Callable = None, login_res: str = sign_in_page) -> Calla
         return decorator
 
 
+needs_sign_in = authenticated
+
+
 def params(
     *param_names: str,
     src: Union[str, dict] = "form",
