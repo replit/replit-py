@@ -2,44 +2,34 @@
 import json
 
 import click
-from replit import _termutils as term
 from replit import db as database
+
+
+reset = "\u001b[0m"
 
 
 def info(value: str) -> str:
     """Wrap given string in a blue color for info contexts."""
-    return term.brightblue.fg + value + term.reset
+    # Bright blue foreground
+    return "\u001b[34;1m" + value + reset
 
 
 def success(value: str) -> str:
     """Wrap given string in a green color for success contexts."""
-    return term.brightgreen.fg + value + term.reset
+    # Bright green foreground
+    return "\u001b[32;1m" + value + reset
 
 
 def failure(value: str) -> str:
     """Wrap given string in a red color for failure/warning contexts."""
-    return term.brightred.fg + value + term.reset
+    # Bright red foreground
+    return "\u001b[31;1m" + value + reset
 
 
 @click.group()
 @click.version_option("0.0.1")
 def cli() -> None:
     """CLI for interacting with your Repl's DB."""
-
-
-@cli.command(name="keys")
-@click.argument("file_path", default="db_keys.json")
-def list_keys(file_path: str) -> None:
-    """Save all keys in the DB to a JSON file."""
-    try:
-        file = open(file_path, "w+")
-    except FileNotFoundError:
-        click.echo(failure(f"No such file or directory '{file_path}'"))
-    else:
-        keys = list(database.keys())
-        json.dump(keys, file)
-
-        click.echo(success(f"Ouput successfully dumped to '{file_path}'"))
 
 
 @cli.command(name="match")
@@ -60,14 +50,8 @@ def find_matches(prefix: str) -> None:
 @click.argument("val")
 def set_value(key: str, val: str) -> None:
     """Add a given key-value pair to the DB."""
-    try:
-        database[key] = val
-    except Exception as e:
-        click.echo(failure(f"Error occured while setting DB[{key}] to '{val}'"))
-        click.echo(failure(f"\n{e}"))
-    else:
-        click.echo(success(f"DB[{key}] was successfully set to '{val}'"))
-        click.echo(info(f"Dynamically typed to {type(val)}"))
+    database[key] = val
+    click.echo(success(f"DB[{key}] was successfully set to '{val}'"))
 
 
 @cli.command(name="del")
@@ -75,59 +59,44 @@ def set_value(key: str, val: str) -> None:
 def del_value(key: str) -> None:
     """Delete the key-value pair located at the given key."""
     try:
-        val = database[key]
+        del database[key]
     except KeyError:
         click.echo(failure(f"The key '{key}' was not found in the DB."))
     else:
-        click.echo(success(f"The value '{val}' was found at db['{key}']"))
-        flag = click.prompt(failure("Confirm delete? (y/n)"))
-        flag = str(flag)
-        click.echo()
-
-        if flag == "y":
-            del database[key]
-            click.echo(success(f"db['{key}'] was successfully deleted."))
-        else:
-            click.echo(info("Delete operation cancelled."))
+        del database[key]
+        click.echo(success(f"db['{key}'] was successfully deleted."))
 
 
 @cli.command(name="nuke")
-def nuke_db() -> None:
+@cli.option("--i-am-sure", is_flag=True)
+def nuke_db(i_am_sure: bool) -> None:
     """Wipe ALL key-value pairs in the DB."""
-    flag = click.prompt(failure("Are you sure you want to nuke the DB? (y/n)"))
-    flag = str(flag)
+    if i_am_sure:
+        click.echo(info("Beginning Nuke operation...\n"))
+        keys = list(database.keys())
 
-    if flag == "y":
-        flag = click.prompt(failure("Ok, but like, REALLY sure? (y/n)"))
-        flag = str(flag)
+        for k in keys:
+            del database[k]
 
-        if flag == "y":
-            click.echo(info("Beginning Nuke operation...\n"))
-            keys = list(database.keys())
-
-            for k in keys:
-                del database[k]
-
-            click.echo(success("Nuke operation successful."))
-        else:
-            click.echo(info("Nuke operation cancelled. (close one!)"))
+        click.echo(success("Nuke operation successful."))
     else:
-        click.echo(info("Nuke operation cancelled."))
+        click.echo(
+            failure(
+                "If you REALLY want to delete everything in your database, "
+                "run again with the --i-am-sure flag."
+            )
+        )
 
 
-@cli.command(name="all")
-@click.argument("file_path", default="db_all.json")
+@cli.command(name="dump")
+@click.argument("file_path")
 def list_all(file_path: str) -> None:
     """Write all keys and values in the DB to a JSON file."""
-    try:
-        file = open(file_path, "w+")
-    except FileNotFoundError:
-        click.echo(failure(f"No such file or directory '{file_path}'"))
-    else:
+    with open(file_path, "w+") as f:
         keys = list(database.keys())
         binds = dict([(k, database[k]) for k in keys])
 
-        json.dump(binds, file)
+        json.dump(binds, f)
 
         click.echo(success(f"Output successfully dumped to '{file_path}'"))
 

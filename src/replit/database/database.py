@@ -221,7 +221,7 @@ class Database(abc.MutableMapping):
         Returns:
             Tuple[str]: The keys found.
         """
-        r = requests.get(f"{self.db_url}", params={"prefix": prefix, "encode": "true"})
+        r = self.sess.get(f"{self.db_url}", params={"prefix": prefix, "encode": "true"})
         r.raise_for_status()
 
         if not r.text:
@@ -252,3 +252,7 @@ class Database(abc.MutableMapping):
             A string representation of the database object.
         """
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
+
+    def close(self) -> None:
+        """Closes the database client connection."""
+        self.sess.close()
