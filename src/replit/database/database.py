@@ -221,7 +221,7 @@ class Database(abc.MutableMapping):
         Returns:
             Tuple[str]: The keys found.
         """
-        r = requests.get(f"{self.db_url}", params={"prefix": prefix, "encode": "true"})
+        r = self.sess.get(f"{self.db_url}", params={"prefix": prefix, "encode": "true"})
         r.raise_for_status()
 
         if not r.text:
