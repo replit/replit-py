@@ -176,6 +176,9 @@ class ObservedList(abc.MutableSequence):
         self.value = value
         self.on_mutate(self.value)
 
+    def __repr__(self) -> str:
+        return f"{self.__name__}({self.value!r})"
+
 
 class ObservedDict(abc.MutableMapping):
     """A list that calls a function every time it is mutated."""
@@ -210,6 +213,9 @@ class ObservedDict(abc.MutableMapping):
         """Sets the value attribute and triggers the mutation function."""
         self.value = value
         self.on_mutate(self.value)
+
+    def __repr__(self) -> str:
+        return f"{self.__name__}({self.value!r})"
 
 
 class Database(abc.MutableMapping):
