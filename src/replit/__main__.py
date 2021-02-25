@@ -115,7 +115,7 @@ def nuke_db() -> None:
         click.echo(info("Nuke operation cancelled."))
 
 
-@cli.command(name="all")
+@cli.command(name="dump")
 @click.argument("file_path", default="db_all.json")
 def list_all(file_path: str) -> None:
     """Write all keys and values in the DB to a JSON file."""
