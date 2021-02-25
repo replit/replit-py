@@ -69,7 +69,7 @@ def del_value(key: str) -> None:
 
 @cli.command(name="nuke")
 @cli.option("--i-am-sure", is_flag=True)
-def nuke_db(i_am_sure) -> None:
+def nuke_db(i_am_sure: bool) -> None:
     """Wipe ALL key-value pairs in the DB."""
     if i_am_sure:
         click.echo(info("Beginning Nuke operation...\n"))
