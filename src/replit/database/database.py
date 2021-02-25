@@ -151,49 +151,57 @@ class AsyncDatabase:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-class ObservedList(abc.MutableSequence):
+class ObservedList(list):
     """A list that calls a function every time it is mutated."""
 
-    __slots__ = ("on_mutate", "value")
+    __slots__ = ("_on_mutate_handler",)
 
-    def __init__(
-        self, on_mutate: Callable[[List], None], value: Optional[List] = None
-    ) -> None:
-        self.on_mutate = on_mutate
-        if value is None:
-            self.value = []
+    def __init__(self, on_mutate: Callable[[List], None], *args, **kwargs) -> None:
+        self._on_mutate_handler = on_mutate
+        super().__init__(*args, **kwargs)
+
+    def on_mutate(self) -> None:
+        """Called whenever the list is mutated."""
+        self._on_mutate_handler(self)
+
+    def _reinit(self, v: Any) -> Any:
+        """Re-initializes the class."""
+        # Convert lists into our own class
+        if isinstance(v, ObservedList):
+            return v
         else:
-            self.value = value
+            return self.__class__(self._on_mutate_handler, v)
+
+    def __getslice__(self, i: Any, j: Any) -> Any:
+        return self._reinit(self._on_mutate_handler, super().__getslice__(i, j))
 
     def __getitem__(self, i: Union[int, slice]) -> Any:
-        return self.value[i]
+        result = super().__getitem__(i)
+        try:
+            return self._reinit(result)
+        except TypeError:
+            return result
 
     def __setitem__(self, i: Union[int, slice], val: Any) -> None:
-        self.value[i] = val
-        self.on_mutate(self.value)
+        super().__setitem__(i, val)
+        self.on_mutate()
 
     def __delitem__(self, i: Union[int, slice]) -> None:
-        del self.value[i]
-        self.on_mutate(self.value)
+        super().__delitem__(i)
+        self.on_mutate()
 
-    def __len__(self) -> int:
-        return len(self.value)
+    # def insert(self, i: int, elem: Any) -> None:
+    #    """Inserts a value into the underlying list."""
+    #    self.value.insert(i, elem)
+    #    self.on_mutate(self.value)
 
-    def __iter__(self) -> Iterator[Any]:
-        return iter(self.value)
+    # def set_value(self, value: List) -> None:
+    #    """Sets the value attribute and triggers the mutation function."""
+    #    self.value = value
+    #    self.on_mutate(self.value)
 
-    def insert(self, i: int, elem: Any) -> None:
-        """Inserts a value into the underlying list."""
-        self.value.insert(i, elem)
-        self.on_mutate(self.value)
-
-    def set_value(self, value: List) -> None:
-        """Sets the value attribute and triggers the mutation function."""
-        self.value = value
-        self.on_mutate(self.value)
-
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}(value={self.value!r})"
+    def __repr__(self):
+        return "{0}({1})".format(type(self).__name__, super().__repr__())
 
 
 _RaiseKeyError = object()  # singleton for no-default behavior
@@ -288,9 +296,15 @@ def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
         d._on_mutate_handler = on_mutate
         return d
     elif isinstance(item, list):
+        # no-op handler so we don't call on_mutate in the loop below
+        l = ObservedList((lambda _: None), item)
+        cb = _get_cb(l)
+
         for i, v in enumerate(item):
-            item[i] = item_to_observed(cb, v)
-        return ObservedList(cb, item)
+            l[i] = item_to_observed(cb, v)
+
+        l._on_mutate_handler = on_mutate
+        return l
     else:
         raise TypeError(f"Unexpected type {type(item).__name__!r}")
 
