@@ -254,4 +254,5 @@ class Database(abc.MutableMapping):
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
     def close(self) -> None:
+        """Closes the database client connection."""
         self.sess.close()
