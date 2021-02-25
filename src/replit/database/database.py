@@ -2,7 +2,17 @@
 
 from collections import abc
 import json
-from typing import AbstractSet, Any, Callable, Dict, Iterator, List, Optional, Tuple
+from typing import (
+    AbstractSet,
+    Any,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 import urllib
 
 import aiohttp
@@ -154,14 +164,14 @@ class ObservedList(abc.MutableSequence):
         else:
             self.value = value
 
-    def __getitem__(self, i: int) -> Any:
+    def __getitem__(self, i: Union[int, slice]) -> Any:
         return self.value[i]
 
-    def __setitem__(self, i: int, val: Any) -> None:
+    def __setitem__(self, i: Union[int, slice], val: Any) -> None:
         self.value[i] = val
         self.on_mutate(self.value)
 
-    def __delitem__(self, i: int) -> None:
+    def __delitem__(self, i: Union[int, slice]) -> None:
         del self.value[i]
         self.on_mutate(self.value)
 
@@ -191,11 +201,11 @@ class ObservedDict(abc.MutableMapping):
     __slots__ = ("on_mutate", "value")
 
     def __init__(
-        self, on_mutate: Callable[[List], None], value: Optional[Dict] = None
+        self, on_mutate: Callable[[Dict], None], value: Optional[Dict] = None
     ) -> None:
         self.on_mutate = on_mutate
         if value is None:
-            self.value = []
+            self.value = {}
         else:
             self.value = value
 
@@ -219,7 +229,7 @@ class ObservedDict(abc.MutableMapping):
     def __len__(self) -> int:
         return len(self.value)
 
-    def set_value(self, value: List) -> None:
+    def set_value(self, value: Dict) -> None:
         """Sets the value attribute and triggers the mutation function."""
         self.value = value
         self.on_mutate(self.value)
