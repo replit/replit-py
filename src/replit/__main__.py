@@ -119,15 +119,11 @@ def nuke_db() -> None:
 @click.argument("file_path", default="db_all.json")
 def list_all(file_path: str) -> None:
     """Write all keys and values in the DB to a JSON file."""
-    try:
-        file = open(file_path, "w+")
-    except FileNotFoundError:
-        click.echo(failure(f"No such file or directory '{file_path}'"))
-    else:
+    with open(file_path, "w+") as f:
         keys = list(database.keys())
         binds = dict([(k, database[k]) for k in keys])
 
-        json.dump(binds, file)
+        json.dump(binds, f)
 
         click.echo(success(f"Output successfully dumped to '{file_path}'"))
 
