@@ -150,7 +150,7 @@ class AsyncDatabase:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-class ObservedList(abc.MutableSequence):
+class ObservedList(abc.MutableSequence, json.JSONEncoder):
     """A list that calls a function every time it is mutated."""
 
     __slots__ = ("on_mutate", "value")
@@ -191,11 +191,15 @@ class ObservedList(abc.MutableSequence):
         self.value = value
         self.on_mutate(self.value)
 
+    def default(self, o: Any) -> List:
+        """Used by JSONEncoder to encode the class as JSON."""
+        return o.value
+
     def __repr__(self) -> str:
         return f"{type(self).__name__}(value={self.value!r})"
 
 
-class ObservedDict(abc.MutableMapping):
+class ObservedDict(abc.MutableMapping, json.JSONEncoder):
     """A list that calls a function every time it is mutated."""
 
     __slots__ = ("on_mutate", "value")
@@ -233,6 +237,10 @@ class ObservedDict(abc.MutableMapping):
         """Sets the value attribute and triggers the mutation function."""
         self.value = value
         self.on_mutate(self.value)
+
+    def default(self, o: Any) -> Dict:
+        """Used by JSONEncoder to encode the class as JSON."""
+        return o.value
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(value={self.value!r})"
