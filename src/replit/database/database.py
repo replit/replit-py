@@ -218,6 +218,26 @@ class ObservedDict(abc.MutableMapping):
         return f"{type(self).__name__}(value={self.value!r})"
 
 
+def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
+    """Takes a JSON value and recursively converts it into an Observed value."""
+    # Bind on_mutate to the item it was called on.
+    # If this is a recursive call, item will be ignored (passed into the _ param)
+    cb = lambda _: on_mutate(item)
+
+    if isinstance(item, str) or isinstance(item, int) or item is None:
+        return item
+    elif isinstance(item, dict):
+        for k, v in item.items():
+            item[k] = item_to_observed(cb, v)
+        return ObservedDict(cb, item)
+    elif isinstance(item, list):
+        for i, v in enumerate(item):
+            item[i] = item_to_observed(cb, v)
+        return ObservedList(cb, item)
+    else:
+        raise TypeError(f"Unexpected type {type(item).__name__!r}")
+
+
 class Database(abc.MutableMapping):
     """Dictionary-like interface for Repl.it Database.
 
