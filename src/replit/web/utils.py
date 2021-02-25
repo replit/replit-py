@@ -177,7 +177,7 @@ def per_user_ratelimit(
         num_requests = {}
 
         # Checks for signin first, before checking ratelimit
-        @needs_sign_in(login_res=login_res)
+        @authenticated(login_res=login_res)
         @wraps(func)
         def handler(*args: Any, **kwargs: Any) -> flask.Response:
             nonlocal last_reset
