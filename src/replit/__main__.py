@@ -59,7 +59,7 @@ def set_value(key: str, val: str) -> None:
 def del_value(key: str) -> None:
     """Delete the key-value pair located at the given key."""
     try:
-        val = database[key]
+        del database[key]
     except KeyError:
         click.echo(failure(f"The key '{key}' was not found in the DB."))
     else:
