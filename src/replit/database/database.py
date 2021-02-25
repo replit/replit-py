@@ -140,7 +140,7 @@ class AsyncDatabase:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-class DatabaseList(abc.MutableSequence):
+class ObservedList(abc.MutableSequence):
     """A list that calls a function every time it is mutated."""
 
     __slots__ = ("on_mutate", "value")
@@ -177,7 +177,7 @@ class DatabaseList(abc.MutableSequence):
         self.on_mutate(self.value)
 
 
-class DatabaseDict(abc.MutableMapping):
+class ObservedDict(abc.MutableMapping):
     """A list that calls a function every time it is mutated."""
 
     __slots__ = ("on_mutate", "value")
