@@ -2,7 +2,7 @@
 
 from collections import abc
 import json
-from typing import Any, Dict, Iterator, Tuple
+from typing import AbstractSet, Any, Dict, Iterator, Tuple
 import urllib
 
 import aiohttp
@@ -228,6 +228,22 @@ class Database(abc.MutableMapping):
             return tuple()
         else:
             return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
+
+    def keys(self) -> AbstractSet[str]:
+        """Returns all of the keys in the database.
+
+        Returns:
+            List[str]: The keys.
+        """
+        # Rationale for this method:
+        # This is implemented for free from our superclass using iter, but when you
+        #  db.keys() in the console, you should see the keys immediately. Without this,
+        #  it will just print an ugly repr that doesn't show the data within.
+        # By implementing this method we get pretty output in the console when you
+        #  type db.keys() in an interactive prompt.
+
+        # TODO: Return a set from prefix since keys are guaranteed unique
+        return set(self.prefix(""))
 
     def __repr__(self) -> str:
         """A representation of the database.
