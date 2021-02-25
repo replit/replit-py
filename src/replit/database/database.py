@@ -59,11 +59,16 @@ class AsyncDatabase:
 
         Args:
             key (str): The key to delete
+
+        Raises:
+            KeyError: Key does not exist
         """
         async with aiohttp.ClientSession() as session:
             async with session.delete(
                 self.db_url + "/" + urllib.parse.quote(key)
             ) as response:
+                if response.status == 404:
+                    raise KeyError(key)
                 response.raise_for_status()
 
     async def list(self, prefix: str) -> Tuple[str, ...]:
