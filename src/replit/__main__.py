@@ -79,16 +79,8 @@ def del_value(key: str) -> None:
     except KeyError:
         click.echo(failure(f"The key '{key}' was not found in the DB."))
     else:
-        click.echo(success(f"The value '{val}' was found at db['{key}']"))
-        flag = click.prompt(failure("Confirm delete? (y/n)"))
-        flag = str(flag)
-        click.echo()
-
-        if flag == "y":
-            del database[key]
-            click.echo(success(f"db['{key}'] was successfully deleted."))
-        else:
-            click.echo(info("Delete operation cancelled."))
+        del database[key]
+        click.echo(success(f"db['{key}'] was successfully deleted."))
 
 
 @cli.command(name="nuke")
