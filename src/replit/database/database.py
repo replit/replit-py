@@ -163,6 +163,9 @@ class DatabaseList(abc.MutableSequence):
     def __len__(self) -> int:
         return len(self.value)
 
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self.value)
+
     def insert(self, i: int, elem: Any) -> None:
         """Inserts a value into the underlying list."""
         self.value.insert(i, elem)
