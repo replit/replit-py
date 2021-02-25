@@ -149,7 +149,7 @@ class ObservedList(abc.MutableSequence):
         self, on_mutate: Callable[[List], None], value: Optional[List] = None
     ) -> None:
         self.on_mutate = on_mutate
-        if self.value is None:
+        if value is None:
             self.value = []
         else:
             self.value = value
@@ -194,7 +194,7 @@ class ObservedDict(abc.MutableMapping):
         self, on_mutate: Callable[[List], None], value: Optional[Dict] = None
     ) -> None:
         self.on_mutate = on_mutate
-        if self.value is None:
+        if value is None:
             self.value = []
         else:
             self.value = value
