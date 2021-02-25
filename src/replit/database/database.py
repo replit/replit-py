@@ -145,7 +145,9 @@ class ObservedList(abc.MutableSequence):
 
     __slots__ = ("on_mutate", "value")
 
-    def __init__(self, on_mutate: Callable[List], value: List = []) -> DatabaseList:
+    def __init__(
+        self, on_mutate: Callable[[List], None], value: List = []
+    ) -> DatabaseList:
         self.on_mutate = on_mutate
         self.value = value
 
@@ -182,7 +184,9 @@ class ObservedDict(abc.MutableMapping):
 
     __slots__ = ("on_mutate", "value")
 
-    def __init__(self, on_mutate: Callable[Dict], value: Dict = {}) -> DatabaseList:
+    def __init__(
+        self, on_mutate: Callable[[List], None], value: Dict = {}
+    ) -> DatabaseList:
         self.on_mutate = on_mutate
         self.value = value
 
