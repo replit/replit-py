@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from replit.database import AsyncDatabase, AsyncJSONKey, Database
+from replit.database import AsyncDatabase, Database
 
 import requests
 
@@ -89,25 +89,6 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         await self.db.set("key2", "value")
         d = await self.db.to_dict()
         self.assertDictEqual(d, {"key1": "value", "key2": "value"})
-
-    async def test_jsonkey(self) -> None:
-        """Test replit.database.AsyncJSONKey."""
-        key = "test-jsonkey"
-
-        jk = AsyncJSONKey(db=self.db, key=key, do_raise=True)
-        with self.assertRaises(KeyError):
-            await jk.get()
-        await jk.set("value")
-        val = await jk.get()
-        self.assertEqual(val, "value")
-
-    async def test_jsonkey_default(self) -> None:
-        """Test replit.database.AsyncJSONKey with a default callable."""
-        key = "test-jsonkey"
-
-        jk = AsyncJSONKey(db=self.db, key=key, get_default=lambda: "value")
-        val = await jk.get()
-        self.assertEqual(val, "value")
 
 
 class TestDatabase(unittest.TestCase):
