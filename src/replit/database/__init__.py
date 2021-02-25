@@ -1,6 +1,5 @@
 """Interface with the Replit Database."""
 import os
-from sys import stderr
 from typing import Optional
 
 from .database import AsyncDatabase, Database
