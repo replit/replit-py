@@ -4,7 +4,6 @@ from sys import stderr
 from typing import Optional
 
 from .database import AsyncDatabase, Database
-from .jsonkey import AsyncJSONKey, JSONKey
 
 __all__ = ["AsyncDatabase", "Database", "AsyncJSONKey", "JSONKey"]
 
