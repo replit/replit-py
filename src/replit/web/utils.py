@@ -36,7 +36,7 @@ def sign_in(title: str = "Please Sign In") -> str:
 sign_in_page = sign_in()
 
 
-def needs_sign_in(func: Callable = None, login_res: str = sign_in_page) -> Callable:
+def authenticated(func: Callable = None, login_res: str = sign_in_page) -> Callable:
     """A decorator that enforces that the user is signed in before accessing the page.
 
     Args:
@@ -65,7 +65,7 @@ def needs_sign_in(func: Callable = None, login_res: str = sign_in_page) -> Calla
         return decorator
 
 
-def needs_params(
+def params(
     *param_names: str,
     src: Union[str, dict] = "form",
     onerror: Callable[[str], flask.Response] = None,
@@ -143,7 +143,7 @@ def local_redirect(location: str, code: int = 302) -> flask.Response:
     )
 
 
-def authed_ratelimit(
+def per_user_ratelimit(
     max_requests: int,
     period: float,
     login_res: str = sign_in_page,
