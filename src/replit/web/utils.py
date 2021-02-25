@@ -7,9 +7,6 @@ from typing import Any, Callable, Iterable, Optional, Union
 import flask
 from werkzeug.local import LocalProxy
 
-from .html import Page
-
-
 authentication_snippet = (
     '<script authed="location.reload()" '
     'src="https://auth.turbio.repl.co/script.js"></script>'
@@ -21,22 +18,25 @@ def whoami() -> flask.Request:
     return flask.request.headers.get("X-Replit-User-Name")
 
 
-def sign_in(title: str = "Please Sign In") -> Page:
+def sign_in(title: str = "Please Sign In") -> str:
     """Return a sign-in page.
 
     Args:
         title (str): The title of the sign in page. Defaults to "Please Sign In".
 
     Returns:
-        Page: The sign-in page.
+        str: The sign-in page HTML.
     """
-    return Page(title=title, body=authentication_snippet)
+    return (
+        f"<!DOCTYPE html><html><head><title>{title}</title></head>"
+        f"<body>{authentication_snippet}</body></html>"
+    )
 
 
 sign_in_page = sign_in()
 
 
-def needs_sign_in(func: Callable = None, login_res: str = sign_in_page) -> Callable:
+def authenticated(func: Callable = None, login_res: str = sign_in_page) -> Callable:
     """A decorator that enforces that the user is signed in before accessing the page.
 
     Args:
@@ -65,7 +65,7 @@ def needs_sign_in(func: Callable = None, login_res: str = sign_in_page) -> Calla
         return decorator
 
 
-def needs_params(
+def params(
     *param_names: str,
     src: Union[str, dict] = "form",
     onerror: Callable[[str], flask.Response] = None,
@@ -143,7 +143,7 @@ def local_redirect(location: str, code: int = 302) -> flask.Response:
     )
 
 
-def authed_ratelimit(
+def per_user_ratelimit(
     max_requests: int,
     period: float,
     login_res: str = sign_in_page,
