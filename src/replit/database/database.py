@@ -224,6 +224,20 @@ class Database(abc.MutableMapping):
         else:
             return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
 
+    def keys(self) -> Tuple[str, ...]:
+        """Returns all of the keys in the database.
+
+        Returns:
+            List[str]: The keys.
+        """
+        # Rationale for this method:
+        # This is implemented for free from our superclass using iter, but when you
+        #  db.keys() in the console, you should see the keys immediately. Without this,
+        #  it will just print an ugly repr that doesn't show the data within.
+        # By implementing this method we get pretty output in the console when you
+        #  type db.keys() in an interactive prompt.
+        return self.prefix("")
+
     def __repr__(self) -> str:
         """A representation of the database.
 
