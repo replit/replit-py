@@ -25,7 +25,7 @@ def sign_in(title: str = "Please Sign In") -> str:
         title (str): The title of the sign in page. Defaults to "Please Sign In".
 
     Returns:
-        Page: The sign-in page.
+        str: The sign-in page HTML.
     """
     return (
         f"<!DOCTYPE html><html><head><title>{title}</title></head>"
