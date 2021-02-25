@@ -140,6 +140,40 @@ class AsyncDatabase:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
+class DatabaseList(abc.MutableSequence):
+    """A list that calls a function every time it is mutated."""
+
+    __slots__ = ("on_mutate", "value")
+
+    def __init__(self, on_mutate: Callable[List], value: List = []) -> DatabaseList:
+        self.on_mutate = on_mutate
+        self.value = value
+
+    def __getitem__(self, i: int) -> Any:
+        return self.value[i]
+
+    def __setitem__(self, i: int, val: Any) -> None:
+        self.value[i] = val
+        self.on_mutate(self.value)
+
+    def __delitem__(self, i: int) -> None:
+        del self.value[i]
+        self.on_mutate(self.value)
+
+    def __len__(self) -> int:
+        return len(self.value)
+
+    def insert(self, i: int, elem: Any) -> None:
+        """Inserts a value into the underlying list."""
+        self.value.insert(i, elem)
+        self.on_mutate(self.value)
+
+    def set_value(self, value: List) -> None:
+        """Sets the value attribute and triggers the mutation function."""
+        self.value = value
+        self.on_mutate(self.value)
+
+
 class Database(abc.MutableMapping):
     """Dictionary-like interface for Repl.it Database.
 
