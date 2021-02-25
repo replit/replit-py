@@ -14,6 +14,7 @@ from typing import (
     Union,
 )
 import urllib
+from itertools import chain
 
 import aiohttp
 import requests
@@ -150,7 +151,7 @@ class AsyncDatabase:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-class ObservedList(abc.MutableSequence, json.JSONEncoder):
+class ObservedList(abc.MutableSequence):
     """A list that calls a function every time it is mutated."""
 
     __slots__ = ("on_mutate", "value")
@@ -191,74 +192,101 @@ class ObservedList(abc.MutableSequence, json.JSONEncoder):
         self.value = value
         self.on_mutate(self.value)
 
-    def default(self, o: Any) -> List:
-        """Used by JSONEncoder to encode the class as JSON."""
-        return o.value
-
     def __repr__(self) -> str:
         return f"{type(self).__name__}(value={self.value!r})"
 
 
-class ObservedDict(abc.MutableMapping, json.JSONEncoder):
-    """A list that calls a function every time it is mutated."""
+_RaiseKeyError = object()  # singleton for no-default behavior
 
-    __slots__ = ("on_mutate", "value")
+
+# Inheriting from dict is far from ideal, but it must be done in order to make the
+#  class JSON-serializable. See: https://stackoverflow.com/a/39375731/9196137
+class ObservedDict(dict):
+    """A dictionary that calls a function every time it is mutated.
+
+    When the method is called, the value may not have actually changed.
+    It is the handler's responsible to check this if necessary."""
+
+    __slots__ = ("_on_mutate_handler",)  # no __dict__ - that would be redundant
 
     def __init__(
-        self, on_mutate: Callable[[Dict], None], value: Optional[Dict] = None
+        self, on_mutate: Callable[[Dict], None], mapping: Any = (), **kwargs
     ) -> None:
-        self.on_mutate = on_mutate
-        if value is None:
-            self.value = {}
-        else:
-            self.value = value
+        self._on_mutate_handler = on_mutate
+        super().__init__(mapping, **kwargs)
 
-    def __contains__(self, k: Any) -> bool:
-        return k in self.value
+    def on_mutate(self) -> None:
+        """Called whenever the dictionary is mutated."""
+        self._on_mutate_handler(self)
 
     def __getitem__(self, k: Any) -> Any:
-        return self.value[k]
+        return super().__getitem__(k)
 
     def __setitem__(self, k: Any, v: Any) -> None:
-        self.value[k] = v
-        self.on_mutate(self.value)
+        super().__setitem__(k, v)
+        self.on_mutate()
 
     def __delitem__(self, k: Any) -> None:
-        del self.value[k]
-        self.on_mutate(self.value)
+        super().__delitem__(k)
+        self.on_mutate()
 
-    def __iter__(self) -> Iterator[Any]:
-        return iter(self.value)
+    def get(self, k: Any, default: Any = None) -> None:
+        return super().get(k, default)
 
-    def __len__(self) -> int:
-        return len(self.value)
+    def setdefault(self, k: Any, default: Any = None) -> Any:
+        val = super().setdefault(k, default)
+        self.on_mutate()
+        return val
 
-    def set_value(self, value: Dict) -> None:
-        """Sets the value attribute and triggers the mutation function."""
-        self.value = value
-        self.on_mutate(self.value)
+    def pop(self, k, v=_RaiseKeyError):
+        if v is _RaiseKeyError:
+            val = super().pop(k)
+        else:
+            val = super().pop(k, v)
+        self.on_mutate()
+        return val
 
-    def default(self, o: Any) -> Dict:
-        """Used by JSONEncoder to encode the class as JSON."""
-        return o.value
+    def update(self, mapping=(), **kwargs):
+        super().update(self._process_args(mapping, **kwargs))
+        self.on_mutate()
 
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}(value={self.value!r})"
+    def __contains__(self, k):
+        return super().__contains__(k)
+
+    def copy(self):  # don't delegate w/ super - dict.copy() -> dict
+        return type(self)(self)
+
+    @classmethod
+    def fromkeys(cls, keys, v=None):
+        return super().fromkeys((k for k in keys), v)
+
+    def __repr__(self):
+        return "{0}({1})".format(type(self).__name__, super().__repr__())
+
+
+# By putting this outside we save some memory
+def _get_cb(d: Any) -> Callable[[Any], None]:
+    def cb(_: Any) -> None:
+        d.on_mutate()
+
+    return cb
 
 
 def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
     """Takes a JSON value and recursively converts it into an Observed value."""
-    # Bind on_mutate to the item it was called on.
-    # If this is a recursive call, item will be ignored (passed into the _ param)
-    def cb(_: Any) -> None:
-        on_mutate(item)
 
     if isinstance(item, str) or isinstance(item, int) or item is None:
         return item
     elif isinstance(item, dict):
+        # no-op handler so we don't call on_mutate in the loop below
+        d = ObservedDict((lambda _: None), item)
+        cb = _get_cb(d)
+
         for k, v in item.items():
-            item[k] = item_to_observed(cb, v)
-        return ObservedDict(cb, item)
+            d[k] = item_to_observed(cb, v)
+
+        d._on_mutate_handler = on_mutate
+        return d
     elif isinstance(item, list):
         for i, v in enumerate(item):
             item[i] = item_to_observed(cb, v)
