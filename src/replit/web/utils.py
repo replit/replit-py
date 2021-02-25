@@ -18,7 +18,7 @@ def whoami() -> flask.Request:
     return flask.request.headers.get("X-Replit-User-Name")
 
 
-def sign_in(title: str = "Please Sign In") -> Page:
+def sign_in(title: str = "Please Sign In") -> str:
     """Return a sign-in page.
 
     Args:
