@@ -92,27 +92,24 @@ def del_value(key: str) -> None:
 
 
 @cli.command(name="nuke")
-def nuke_db() -> None:
+@cli.option("--i-am-sure", is_flag=True)
+def nuke_db(i_am_sure) -> None:
     """Wipe ALL key-value pairs in the DB."""
-    flag = click.prompt(failure("Are you sure you want to nuke the DB? (y/n)"))
-    flag = str(flag)
+    if i_am_sure:
+        click.echo(info("Beginning Nuke operation...\n"))
+        keys = list(database.keys())
 
-    if flag == "y":
-        flag = click.prompt(failure("Ok, but like, REALLY sure? (y/n)"))
-        flag = str(flag)
+        for k in keys:
+            del database[k]
 
-        if flag == "y":
-            click.echo(info("Beginning Nuke operation...\n"))
-            keys = list(database.keys())
-
-            for k in keys:
-                del database[k]
-
-            click.echo(success("Nuke operation successful."))
-        else:
-            click.echo(info("Nuke operation cancelled. (close one!)"))
+        click.echo(success("Nuke operation successful."))
     else:
-        click.echo(info("Nuke operation cancelled."))
+        click.echo(
+            failure(
+                "If you REALLY want to delete everything in your database, "
+                "run again with the --i-am-sure flag."
+            )
+        )
 
 
 @cli.command(name="dump")
