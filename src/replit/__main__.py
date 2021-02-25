@@ -2,23 +2,28 @@
 import json
 
 import click
-from replit import _termutils as term
 from replit import db as database
+
+
+reset = "\u001b[0m"
 
 
 def info(value: str) -> str:
     """Wrap given string in a blue color for info contexts."""
-    return term.brightblue.fg + value + term.reset
+    # Bright blue foreground
+    return "\u001b[34;1m" + value + reset
 
 
 def success(value: str) -> str:
     """Wrap given string in a green color for success contexts."""
-    return term.brightgreen.fg + value + term.reset
+    # Bright green foreground
+    return "\u001b[32;1m" + value + reset
 
 
 def failure(value: str) -> str:
     """Wrap given string in a red color for failure/warning contexts."""
-    return term.brightred.fg + value + term.reset
+    # Bright red foreground
+    return "\u001b[31;1m" + value + reset
 
 
 @click.group()
