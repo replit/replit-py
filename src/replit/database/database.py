@@ -200,7 +200,7 @@ class ObservedDict(abc.MutableMapping):
         del self.value[k]
         self.on_mutate(self.value)
 
-    def __iter__(self) -> Iterable[Any]:
+    def __iter__(self) -> Iterator[Any]:
         return iter(self.value)
 
     def __len__(self) -> int:
