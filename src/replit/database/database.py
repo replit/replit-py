@@ -2,7 +2,7 @@
 
 from collections import abc
 import json
-from typing import AbstractSet, Any, Dict, Iterator, Tuple
+from typing import AbstractSet, Any, Callable, Dict, Iterator, Tuple
 import urllib
 
 import aiohttp
