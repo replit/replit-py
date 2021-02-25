@@ -92,67 +92,6 @@ class ReplitApp(flask.Flask):
             self.jinja_env.trim_blocks = True
             self.jinja_env.lstrip_blocks = True
 
-    def login_wall(
-        self,
-        exclude: Set[str] = ("/",),
-        handler: Callable = None,
-    ) -> None:
-        """Require users to be logged-in on all pages.
-
-        Args:
-            exclude (Tuple[str]): The routes that should not require sign in.
-                Defaults to just /.
-            handler (Callable): The handler to call when the user is not signed in. If
-                not provided, defaults to maqpy.signin()
-        """
-        self._lw_exclude = set(exclude) or set()
-        self._lw_handler = handler or (lambda: sign_in())
-
-    def _request_handler(self, rule: str, view_func: Callable) -> Callable:
-        """Return a handler for a given request.
-
-        This enables the all_pages_sign_in feature.
-
-        Args:
-            rule (str): The url that the route will be matched to
-            view_func (Callable): The original view function that will be called.
-
-        Returns:
-            Callable: A handler that runs the middleware and calls the original function
-        """
-
-        @wraps(view_func)
-        def handler(*args: Any, **kwargs: Any) -> Any:
-            if (
-                hasattr(self, "_lw_exclude")
-                and self._lw_exclude is not None
-                and rule not in self._lw_exclude
-                and not flask.request.signed_in
-            ):
-                return self._lw_handler(*args, **kwargs)
-            return view_func(*args, **kwargs)
-
-        return handler
-
-    def add_url_rule(
-        self,
-        rule: str,
-        endpoint: str = None,
-        view_func: Callable = None,
-        provide_automatic_options: bool = None,
-        **options: Any
-    ) -> None:
-        """Replaces view function with custom handler."""
-        return super().add_url_rule(
-            rule,
-            endpoint=endpoint,
-            view_func=self._request_handler(rule, view_func)
-            if view_func is not None
-            else view_func,
-            provide_automatic_options=provide_automatic_options,
-            **options
-        )
-
     def _run(self, *args: Any, **kwargs: Any) -> Any:
         """Interface with the underlying Flask instance's run function.
 
