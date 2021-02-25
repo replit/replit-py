@@ -177,7 +177,7 @@ class ObservedList(abc.MutableSequence):
         self.on_mutate(self.value)
 
     def __repr__(self) -> str:
-        return f"{self.__name__}(value={self.value!r})"
+        return f"{type(self).__name__}(value={self.value!r})"
 
 
 class ObservedDict(abc.MutableMapping):
@@ -215,7 +215,7 @@ class ObservedDict(abc.MutableMapping):
         self.on_mutate(self.value)
 
     def __repr__(self) -> str:
-        return f"{self.__name__}(value={self.value!r})"
+        return f"{type(self).__name__}(value={self.value!r})"
 
 
 class Database(abc.MutableMapping):
