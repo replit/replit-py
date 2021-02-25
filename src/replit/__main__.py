@@ -60,14 +60,8 @@ def find_matches(prefix: str) -> None:
 @click.argument("val")
 def set_value(key: str, val: str) -> None:
     """Add a given key-value pair to the DB."""
-    try:
-        database[key] = val
-    except Exception as e:
-        click.echo(failure(f"Error occured while setting DB[{key}] to '{val}'"))
-        click.echo(failure(f"\n{e}"))
-    else:
-        click.echo(success(f"DB[{key}] was successfully set to '{val}'"))
-        click.echo(info(f"Dynamically typed to {type(val)}"))
+    database[key] = val
+    click.echo(success(f"DB[{key}] was successfully set to '{val}'"))
 
 
 @cli.command(name="del")
