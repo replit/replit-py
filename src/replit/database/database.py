@@ -2,7 +2,7 @@
 
 from collections import abc
 import json
-from typing import AbstractSet, Any, Callable, Dict, Iterator, List, Tuple
+from typing import AbstractSet, Any, Callable, Dict, Iterator, List, Optional, Tuple
 import urllib
 
 import aiohttp
@@ -145,9 +145,14 @@ class ObservedList(abc.MutableSequence):
 
     __slots__ = ("on_mutate", "value")
 
-    def __init__(self, on_mutate: Callable[[List], None], value: List = []) -> None:
+    def __init__(
+        self, on_mutate: Callable[[List], None], value: Optional[List] = None
+    ) -> None:
         self.on_mutate = on_mutate
-        self.value = value
+        if self.value is None:
+            self.value = []
+        else:
+            self.value = value
 
     def __getitem__(self, i: int) -> Any:
         return self.value[i]
@@ -185,9 +190,14 @@ class ObservedDict(abc.MutableMapping):
 
     __slots__ = ("on_mutate", "value")
 
-    def __init__(self, on_mutate: Callable[[List], None], value: Dict = {}) -> None:
+    def __init__(
+        self, on_mutate: Callable[[List], None], value: Optional[Dict] = None
+    ) -> None:
         self.on_mutate = on_mutate
-        self.value = value
+        if self.value is None:
+            self.value = []
+        else:
+            self.value = value
 
     def __contains__(self, k: Any) -> bool:
         return k in self.value
