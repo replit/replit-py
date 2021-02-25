@@ -27,21 +27,6 @@ def cli() -> None:
     """CLI for interacting with your Repl's DB."""
 
 
-@cli.command(name="keys")
-@click.argument("file_path", default="db_keys.json")
-def list_keys(file_path: str) -> None:
-    """Save all keys in the DB to a JSON file."""
-    try:
-        file = open(file_path, "w+")
-    except FileNotFoundError:
-        click.echo(failure(f"No such file or directory '{file_path}'"))
-    else:
-        keys = list(database.keys())
-        json.dump(keys, file)
-
-        click.echo(success(f"Ouput successfully dumped to '{file_path}'"))
-
-
 @cli.command(name="match")
 @click.argument("prefix")
 def find_matches(prefix: str) -> None:
