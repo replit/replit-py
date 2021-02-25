@@ -170,7 +170,7 @@ class Database(abc.MutableMapping):
         Returns:
             Any: The value of the key
         """
-        r = self.sess.get(f"{self.db_url}/{key}")
+        r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
         if r.status_code == 404:
             raise KeyError(key)
 
@@ -197,7 +197,7 @@ class Database(abc.MutableMapping):
         Raises:
             KeyError: Key is not set
         """
-        r = self.sess.delete(f"{self.db_url}/{key}")
+        r = self.sess.delete(self.db_url + "/" + urllib.parse.quote(key))
         if r.status_code == 404:
             raise KeyError(key)
 
