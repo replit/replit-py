@@ -252,3 +252,6 @@ class Database(abc.MutableMapping):
             A string representation of the database object.
         """
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
+
+    def close(self) -> None:
+        self.sess.close()
