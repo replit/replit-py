@@ -7,9 +7,6 @@ from typing import Any, Callable, Iterable, Optional, Union
 import flask
 from werkzeug.local import LocalProxy
 
-from .html import Page
-
-
 authentication_snippet = (
     '<script authed="location.reload()" '
     'src="https://auth.turbio.repl.co/script.js"></script>'
@@ -30,7 +27,10 @@ def sign_in(title: str = "Please Sign In") -> Page:
     Returns:
         Page: The sign-in page.
     """
-    return Page(title=title, body=authentication_snippet)
+    return (
+        f"<!DOCTYPE html><html><head><title>{title}</title></head>"
+        f"<body>{authentication_snippet}</body></html>"
+    )
 
 
 sign_in_page = sign_in()
