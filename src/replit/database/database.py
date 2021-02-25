@@ -177,6 +177,41 @@ class DatabaseList(abc.MutableSequence):
         self.on_mutate(self.value)
 
 
+class DatabaseDict(abc.MutableMapping):
+    """A list that calls a function every time it is mutated."""
+
+    __slots__ = ("on_mutate", "value")
+
+    def __init__(self, on_mutate: Callable[Dict], value: Dict = {}) -> DatabaseList:
+        self.on_mutate = on_mutate
+        self.value = value
+
+    def __contains__(self, k: Any) -> bool:
+        return k in self.value
+
+    def __getitem__(self, k: Any) -> Any:
+        return self.value[k]
+
+    def __setitem__(self, k: Any, v: Any) -> None:
+        self.value[k] = v
+        self.on_mutate(self.value)
+
+    def __delitem__(self, k: Any) -> None:
+        del self.value[k]
+        self.on_mutate(self.value)
+
+    def __iter__(self) -> Iterable[Any]:
+        return iter(self.value)
+
+    def __len__(self) -> int:
+        return len(self.value)
+
+    def set_value(self, value: List) -> None:
+        """Sets the value attribute and triggers the mutation function."""
+        self.value = value
+        self.on_mutate(self.value)
+
+
 class Database(abc.MutableMapping):
     """Dictionary-like interface for Repl.it Database.
 
