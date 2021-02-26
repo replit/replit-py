@@ -105,6 +105,12 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         await self.db.set(k, {"key": "val"})
         self.assertEqual(await self.db.get_raw(k), '{"key": "val"}')
 
+    async def test_bulk(self) -> None:
+        """Test that bulk setting works."""
+        await self.db.set_bulk({"bulk1": "val1", "bulk2": "val2"})
+        self.assertEqual(await self.db.get("bulk1"), "val1")
+        self.assertEqual(await self.db.get("bulk2"), "val2")
+
 
 class TestDatabase(unittest.TestCase):
     """Tests for replit.database.Database."""
@@ -220,3 +226,9 @@ class TestDatabase(unittest.TestCase):
 
         self.db.set(k, {"key": "val"})
         self.assertEqual(self.db.get_raw(k), '{"key": "val"}')
+
+    def test_bulk(self) -> None:
+        """Test that bulk setting works."""
+        self.db.set_bulk({"bulk1": "val1", "bulk2": "val2"})
+        self.assertEqual(self.db["bulk1"], "val1")
+        self.assertEqual(self.db["bulk2"], "val2")
