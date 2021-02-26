@@ -93,6 +93,18 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         d = await self.db.to_dict()
         self.assertDictEqual(d, {"key1": "value", "key2": "value"})
 
+    async def test_raw(self) -> None:
+        """Test that get_raw and set_raw do not use JSON."""
+        k = "raw_test"
+        await self.db.set(k, "asdf")
+        self.assertEqual(await self.db.get_raw(k), '"asdf"')
+
+        await self.db.set_raw(k, "asdf")
+        self.assertEqual(await self.db.get_raw(k), "asdf")
+
+        await self.db.set(k, {"key": "val"})
+        self.assertEqual(await self.db.get_raw(k), '{"key": "val"}')
+
 
 class TestDatabase(unittest.TestCase):
     """Tests for replit.database.Database."""
@@ -196,3 +208,15 @@ class TestDatabase(unittest.TestCase):
         db[key] += [[2, [3, 4]]]
         db[key][1][1][1] *= 2
         self.assertEqual(db[key], [1, [2, [3, 8]]])
+
+    def test_raw(self) -> None:
+        """Test that get_raw and set_raw do not use JSON."""
+        k = "raw_test"
+        self.db.set(k, "asdf")
+        self.assertEqual(self.db.get_raw(k), '"asdf"')
+
+        self.db.set_raw(k, "asdf")
+        self.assertEqual(self.db.get_raw(k), "asdf")
+
+        self.db.set(k, {"key": "val"})
+        self.assertEqual(self.db.get_raw(k), '{"key": "val"}')
