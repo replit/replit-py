@@ -32,6 +32,20 @@ class AsyncDatabase:
         self.db_url = db_url
 
     async def get(self, key: str) -> str:
+        """Return the value for key if key is in the database.
+
+        This method will JSON decode the value. To disable this behavior, use the
+        `get_raw` method instead.
+
+        Args:
+            key (str): The key to retreive
+
+        Returns:
+            str: The the value for key if key is in the database.
+        """
+        return json.loads(await self.get_raw(key))
+
+    async def get_raw(self, key: str) -> str:
         """Get the value of an item from the database.
 
         Args:
@@ -52,15 +66,41 @@ class AsyncDatabase:
                 response.raise_for_status()
                 return await response.text()
 
-    async def set(self, key: str, value: str) -> None:
+    async def set(self, key: str, value: Any) -> None:
+        """Set a key in the database to the result of JSON encoding value.
+
+        Args:
+            key (str): The key to set
+            value (Any): The value to set it to. Must be JSON-serializable.
+        """
+        await self.set_raw(key, json.dumps(value))
+
+    async def set_raw(self, key: str, value: str) -> None:
         """Set a key in the database to value.
 
         Args:
             key (str): The key to set
             value (str): The value to set it to
         """
+        await self.set_bulk_raw({key: value})
+
+    async def set_bulk(self, values: Dict[str, Any]) -> None:
+        """Set multiple values in the database, JSON encoding them.
+
+        Args:
+            values (Dict[str, Any]): A dictionary of values to put into the dictionary.
+                Values must be JSON serializeable.
+        """
+        await self.set_bulk_raw({k: json.dumps(v) for k, v in values.items()})
+
+    async def set_bulk_raw(self, values: Dict[str, str]) -> None:
+        """Set multiple values in the database.
+
+        Args:
+            values (Dict[str, str]): The key-value pairs to set.
+        """
         async with aiohttp.ClientSession() as session:
-            async with session.post(self.db_url, data={key: value}) as response:
+            async with session.post(self.db_url, data=values) as response:
                 response.raise_for_status()
 
     async def delete(self, key: str) -> None:
@@ -413,7 +453,8 @@ class Database(abc.MutableMapping):
 
         Will replace the mutable JSON types of dict and list with subclasses that
         enable nested setting. These classes will block to request the DB on every
-        mutation. To disable this behavior, use the `get` method instead.
+        mutation, which can have performance implications. To disable this, use the
+        `get_raw` method instead.
 
         This method will JSON decode the value. To disable this behavior, use the
         `get_raw` method instead.
@@ -421,30 +462,97 @@ class Database(abc.MutableMapping):
         Args:
             key (str): The key to retreive
 
-        Raises:
-            KeyError: Key is not set
-
         Returns:
             Any: The value of the key
+        """
+        raw_val = self.get_raw(key)
+        val = json.loads(raw_val)
+        return item_to_observed(_get_set_cb(self, key), val)
+
+    # This should be posititional only but flake8 doesn't like that
+    def get(self, key: str, default: Any = None) -> Any:
+        """Return the value for key if key is in the database, else default.
+
+        Will replace the mutable JSON types of dict and list with subclasses that
+        enable nested setting. These classes will block to request the DB on every
+        mutation, which can have performance implications. To disable this, use the
+        `get_raw` method instead.
+
+        This method will JSON decode the value. To disable this behavior, use the
+        `get_raw` method instead.
+
+        Args:
+            key (str): The key to retreive
+            default (Any): The default to return if the key is not the database.
+                Defaults to None.
+
+        Returns:
+            Any: The the value for key if key is in the database, else default.
+        """
+        return super().get(key, item_to_observed(_get_set_cb(self, key), default))
+
+    def get_raw(self, key: str) -> str:
+        """Look up the given key in the database and return the corresponding value.
+
+        Args:
+            key (str): The key to look up
+
+        Raises:
+            KeyError: The key is not in the database.
+
+        Returns:
+            str: The value of the key in the database.
         """
         r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
         if r.status_code == 404:
             raise KeyError(key)
 
         r.raise_for_status()
-
-        val = json.loads(r.text)
-        return item_to_observed(_get_set_cb(self, key), val)
+        return r.text
 
     def __setitem__(self, key: str, value: Any) -> None:
-        """Set a key in the database to value.
+        """Set a key in the database to the result of JSON encoding value.
 
         Args:
             key (str): The key to set
             value (Any): The value to set it to. Must be JSON-serializable.
         """
-        j = json.dumps(value, separators=(",", ":"))
-        r = self.sess.post(self.db_url, data={key: j})
+        self.set(key, value)
+
+    def set(self, key: str, value: Any) -> None:
+        """Set a key in the database to value, JSON encoding it.
+
+        Args:
+            key (str): The key to set
+            value (Any): The value to set.
+        """
+        self.set_raw(key, json.dumps(value))
+
+    def set_raw(self, key: str, value: str) -> None:
+        """Set a key in the database to value.
+
+        Args:
+            key (str): The key to set
+            value (str): The value to set.
+        """
+        self.set_bulk_raw({key: value})
+
+    def set_bulk(self, values: Dict[str, Any]) -> None:
+        """Set multiple values in the database, JSON encoding them.
+
+        Args:
+            values (Dict[str, Any]): A dictionary of values to put into the dictionary.
+                Values must be JSON serializeable.
+        """
+        self.set_bulk_raw({k: json.dumps(v) for k, v in values.items()})
+
+    def set_bulk_raw(self, values: Dict[str, str]) -> None:
+        """Set multiple values in the database.
+
+        Args:
+            values (Dict[str, str]): The key-value pairs to set.
+        """
+        r = self.sess.post(self.db_url, data=values)
         r.raise_for_status()
 
     def __delitem__(self, key: str) -> None:
