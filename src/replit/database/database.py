@@ -517,8 +517,7 @@ class Database(abc.MutableMapping):
             key (str): The key to set
             value (Any): The value to set it to. Must be JSON-serializable.
         """
-        j = json.dumps(value, separators=(",", ":"))
-        self.set(key, j)
+        self.set(key, value)
 
     def set(self, key: str, value: Any) -> None:
         """Set a key in the database to value, JSON encoding it.
