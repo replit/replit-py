@@ -32,18 +32,16 @@ class AsyncDatabase:
         self.db_url = db_url
 
     async def get(self, key: str) -> str:
-        """Return the value for key if key is in the database, else default.
+        """Return the value for key if key is in the database.
 
         This method will JSON decode the value. To disable this behavior, use the
         `get_raw` method instead.
 
         Args:
             key (str): The key to retreive
-            default (Any): The default to return if the key is not the database.
-            Defaults to None.
 
         Returns:
-            Any: The the value for key if key is in the database, else default.
+            str: The the value for key if key is in the database.
         """
         return json.loads(await self.get_raw(key))
 
@@ -91,7 +89,7 @@ class AsyncDatabase:
 
         Args:
             values (Dict[str, Any]): A dictionary of values to put into the dictionary.
-            Values must be JSON serializeable.
+                Values must be JSON serializeable.
         """
         await self.set_bulk_raw({k: json.dumps(v) for k, v in values.items()})
 
@@ -464,9 +462,6 @@ class Database(abc.MutableMapping):
         Args:
             key (str): The key to retreive
 
-        Raises:
-            KeyError: Key is not set
-
         Returns:
             Any: The value of the key
         """
@@ -474,7 +469,8 @@ class Database(abc.MutableMapping):
         val = json.loads(raw_val)
         return item_to_observed(_get_set_cb(self, key), val)
 
-    def get(self, key: str, default: Any = None, /) -> Any:
+    # This should be posititional only but flake8 doesn't like that
+    def get(self, key: str, default: Any = None) -> Any:
         """Return the value for key if key is in the database, else default.
 
         Will replace the mutable JSON types of dict and list with subclasses that
@@ -488,7 +484,7 @@ class Database(abc.MutableMapping):
         Args:
             key (str): The key to retreive
             default (Any): The default to return if the key is not the database.
-            Defaults to None.
+                Defaults to None.
 
         Returns:
             Any: The the value for key if key is in the database, else default.
@@ -522,14 +518,14 @@ class Database(abc.MutableMapping):
             value (Any): The value to set it to. Must be JSON-serializable.
         """
         j = json.dumps(value, separators=(",", ":"))
-        self.set(key, value)
-    
+        self.set(key, j)
+
     def set(self, key: str, value: Any) -> None:
         """Set a key in the database to value, JSON encoding it.
 
         Args:
             key (str): The key to set
-            value (str): The value to set.
+            value (Any): The value to set.
         """
         self.set_raw(key, json.dumps(value))
 
@@ -547,7 +543,7 @@ class Database(abc.MutableMapping):
 
         Args:
             values (Dict[str, Any]): A dictionary of values to put into the dictionary.
-            Values must be JSON serializeable.
+                Values must be JSON serializeable.
         """
         self.set_bulk_raw({k: json.dumps(v) for k, v in values.items()})
 
