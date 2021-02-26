@@ -339,7 +339,7 @@ def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
     elif isinstance(item, dict):
         # no-op handler so we don't call on_mutate in the loop below
         d = ObservedDict((lambda _: None), item)
-        cb = _get_cb(d)
+        cb = _get_on_mutate_cb(d)
 
         for k, v in item.items():
             d[k] = item_to_observed(cb, v)
