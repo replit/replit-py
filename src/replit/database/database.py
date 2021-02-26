@@ -68,7 +68,16 @@ class AsyncDatabase:
                 response.raise_for_status()
                 return await response.text()
 
-    async def set(self, key: str, value: str) -> None:
+    async def set(self, key: str, value: Any) -> None:
+        """Set a key in the database to the result of JSON encoding value.
+
+        Args:
+            key (str): The key to set
+            value (Any): The value to set it to. Must be JSON-serializable.
+        """
+        await self.set_raw(key, json.dumps(value))
+
+    async def set_raw(self, key: str, value: str) -> None:
         """Set a key in the database to value.
 
         Args:
