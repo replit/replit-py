@@ -172,15 +172,19 @@ class ObservedList(list):
         else:
             return self.__class__(self._on_mutate_handler, v)
 
+    def _try_reinit(self, result) -> Any:
+        """Tries to iterate over every element in result, recursing on each item.
+        If a type-error is raised, returns result unmodified."""
+        try:
+            return self._reinit([self._try_reinit(i) for i in result])
+        except TypeError:
+            return result
+
     def __getslice__(self, i: Any, j: Any) -> Any:
         return self._reinit(self._on_mutate_handler, super().__getslice__(i, j))
 
     def __getitem__(self, i: Union[int, slice]) -> Any:
-        result = super().__getitem__(i)
-        try:
-            return self._reinit(result)
-        except TypeError:
-            return result
+        return self._try_reinit(super().__getitem__(i))
 
     def __setitem__(self, i: Union[int, slice], val: Any) -> None:
         super().__setitem__(i, val)
@@ -190,15 +194,55 @@ class ObservedList(list):
         super().__delitem__(i)
         self.on_mutate()
 
-    # def insert(self, i: int, elem: Any) -> None:
-    #    """Inserts a value into the underlying list."""
-    #    self.value.insert(i, elem)
-    #    self.on_mutate(self.value)
+    def __iadd__(self, rhs: Any) -> Any:
+        # same as extend
+        super().__iadd__(self._try_reinit(rhs))
+        self.on_mutate()
+        return self
 
-    # def set_value(self, value: List) -> None:
-    #    """Sets the value attribute and triggers the mutation function."""
-    #    self.value = value
-    #    self.on_mutate(self.value)
+    def __imul__(self, rhs: Any) -> Any:
+        super().__imul__(self._try_reinit(rhs))
+        self.on_mutate()
+        return self
+
+    def append(self, item: Any) -> None:
+        super().append(self._try_reinit(item))
+        self.on_mutate()
+
+    def clear(self) -> None:
+        super().clear()
+        self.on_mutate()
+
+    def copy(self) -> Any:
+        return self._reinit(self.copy())
+
+    def extend(self, t: Any) -> None:
+        # same as __iadd__
+        super().extend(self._try_reinit(t))
+        self.on_mutate()
+
+    def insert(self, i: Any, x: Any) -> None:
+        super().insert(i, self._try_reinit(x))
+        self.on_mutate()
+
+    def pop(self, i: Any) -> Any:
+        val = super().pop(i)
+        self.on_mutate()
+        return val
+
+    def remove(self, x: Any) -> None:
+        # No need to reinit here because ObservableList([1]) == [1]
+        super().remove(x)
+        self.on_mutate()
+
+    def reverse(self) -> None:
+        super().reverse()
+        self.on_mutate()
+
+    def insert(self, i: int, elem: Any) -> None:
+        """Inserts a value into the underlying list."""
+        self.value.insert(i, self._try_reinit(elem))
+        self.on_mutate(self.value)
 
     def __repr__(self):
         return "{0}({1})".format(type(self).__name__, super().__repr__())
