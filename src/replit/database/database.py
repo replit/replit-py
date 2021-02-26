@@ -437,6 +437,27 @@ class Database(abc.MutableMapping):
         val = json.loads(r.text)
         return item_to_observed(_get_set_cb(self, key), val)
 
+    def get(self, key: str, default: Any = None, /) -> Any:
+        """Return the value for key if key is in the database, else default.
+
+        Will replace the mutable JSON types of dict and list with subclasses that
+        enable nested setting. These classes will block to request the DB on every
+        mutation, which can have performance implications. To disable this, use the
+        `get_raw` method instead.
+
+        This method will JSON decode the value. To disable this behavior, use the
+        `get_raw` method instead.
+
+        Args:
+            key (str): The key to retreive
+            default (Any): The default to return if the key is not the database.
+            Defaults to None.
+
+        Returns:
+            Any: The the value for key if key is in the database, else default.
+        """
+        return super().get(key, item_to_observed(default))
+
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to value.
 
