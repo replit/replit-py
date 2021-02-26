@@ -6,6 +6,7 @@ from typing import Any, Callable, List, Set
 
 import flask
 
+from ..database.database import ObservedDict, ObservedList
 from .utils import sign_in
 
 
@@ -70,10 +71,18 @@ class ReplitRequest(flask.Request):
         return self.user_info.is_authenticated
 
 
+class JSONEncoder(flask.json.JSONEncoder):
+    def default(self, o: Any) -> Any:
+        if isinstance(o, ObservedDict) or isinstance(o, ObservedList):
+            return o.value
+        return super().default(o)
+
+
 class ReplitApp(flask.Flask):
     """Represents a web application."""
 
     request_class = ReplitRequest
+    json_encoder = JSONEncoder
 
     def __init__(
         self, import_name: str, nice_jinja: bool = True, **kwargs: Any
