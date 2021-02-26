@@ -428,13 +428,8 @@ class Database(abc.MutableMapping):
         Returns:
             Any: The value of the key
         """
-        r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
-        if r.status_code == 404:
-            raise KeyError(key)
-
-        r.raise_for_status()
-
-        val = json.loads(r.text)
+        raw_val = self.get_raw(key)
+        val = json.loads(raw_val)
         return item_to_observed(_get_set_cb(self, key), val)
 
     def get(self, key: str, default: Any = None, /) -> Any:
@@ -457,6 +452,25 @@ class Database(abc.MutableMapping):
             Any: The the value for key if key is in the database, else default.
         """
         return super().get(key, item_to_observed(default))
+
+    def get_raw(self, key: str) -> str:
+        """Look up the given key in the database and return the corresponding value.
+
+        Args:
+            key (str): The key to look up
+
+        Raises:
+            KeyError: The key is not in the database.
+
+        Returns:
+            str: The value of the key in the database.
+        """
+        r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
+        if r.status_code == 404:
+            raise KeyError(key)
+
+        r.raise_for_status()
+        return r.text
 
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to value.
