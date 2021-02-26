@@ -175,10 +175,15 @@ class ObservedList(list):
     def _try_reinit(self, result) -> Any:
         """Tries to iterate over every element in result, recursing on each item.
         If a type-error is raised, returns result unmodified."""
-        try:
-            return self._reinit([self._try_reinit(i) for i in result])
-        except TypeError:
+        if isinstance(result, ObservedList):
+            # We assume that all sublists are also ObservedLists.
+            # If this condition is not true, bad things will happen
             return result
+        else:
+            try:
+                return self._reinit([self._try_reinit(i) for i in result])
+            except TypeError:
+                return result
 
     def __getslice__(self, i: Any, j: Any) -> Any:
         return self._reinit(self._on_mutate_handler, super().__getslice__(i, j))
@@ -187,7 +192,7 @@ class ObservedList(list):
         return self._try_reinit(super().__getitem__(i))
 
     def __setitem__(self, i: Union[int, slice], val: Any) -> None:
-        super().__setitem__(i, val)
+        super().__setitem__(i, self._try_reinit(val))
         self.on_mutate()
 
     def __delitem__(self, i: Union[int, slice]) -> None:
