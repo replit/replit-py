@@ -9,12 +9,10 @@ from typing import (
     Dict,
     Iterator,
     List,
-    Optional,
     Tuple,
     Union,
 )
 import urllib
-from itertools import chain
 
 import aiohttp
 import requests
@@ -156,7 +154,9 @@ class ObservedList(list):
 
     __slots__ = ("_on_mutate_handler",)
 
-    def __init__(self, on_mutate: Callable[[List], None], *args, **kwargs) -> None:
+    def __init__(
+        self, on_mutate: Callable[[List], None], *args: Any, **kwargs: Any
+    ) -> None:
         self._on_mutate_handler = on_mutate
         super().__init__(*args, **kwargs)
 
@@ -172,9 +172,18 @@ class ObservedList(list):
         else:
             return self.__class__(self._on_mutate_handler, v)
 
-    def _try_reinit(self, result) -> Any:
+    def _try_reinit(self, result: Any) -> Any:
         """Tries to iterate over every element in result, recursing on each item.
-        If a type-error is raised, returns result unmodified."""
+
+        If a type-error is raised while calling the constructor in _reinit, returns
+        result unmodified.
+
+        Args:
+            result (Any): The result to reinitialize.
+
+        Returns:
+            Any: The reinitialized result.
+        """
         if (
             isinstance(result, ObservedList)
             or isinstance(result, ObservedDict)
@@ -221,45 +230,48 @@ class ObservedList(list):
         return self
 
     def append(self, item: Any) -> None:
+        """Refer to the list documentation for information this method."""
         super().append(self._try_reinit(item))
         self.on_mutate()
 
     def clear(self) -> None:
+        """Refer to the list documentation for information this method."""
         super().clear()
         self.on_mutate()
 
     def copy(self) -> Any:
+        """Refer to the list documentation for information this method."""
         return self._reinit(self.copy())
 
     def extend(self, t: Any) -> None:
+        """Refer to the list documentation for information this method."""
         # same as __iadd__
         super().extend(self._try_reinit(t))
         self.on_mutate()
 
     def insert(self, i: Any, x: Any) -> None:
+        """Refer to the list documentation for information this method."""
         super().insert(i, self._try_reinit(x))
         self.on_mutate()
 
     def pop(self, i: Any) -> Any:
+        """Refer to the list documentation for information this method."""
         val = super().pop(i)
         self.on_mutate()
         return val
 
     def remove(self, x: Any) -> None:
+        """Refer to the list documentation for information this method."""
         # No need to reinit here because ObservedList([1]) == [1]
         super().remove(x)
         self.on_mutate()
 
     def reverse(self) -> None:
+        """Refer to the list documentation for information this method."""
         super().reverse()
         self.on_mutate()
 
-    def insert(self, i: int, elem: Any) -> None:
-        """Inserts a value into the underlying list."""
-        self.value.insert(i, self._try_reinit(elem))
-        self.on_mutate(self.value)
-
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{0}({1})".format(type(self).__name__, super().__repr__())
 
 
@@ -272,12 +284,13 @@ class ObservedDict(dict):
     """A dictionary that calls a function every time it is mutated.
 
     When the method is called, the value may not have actually changed.
-    It is the handler's responsible to check this if necessary."""
+    It is the handler's responsible to check this if necessary.
+    """
 
     __slots__ = ("_on_mutate_handler",)  # no __dict__ - that would be redundant
 
     def __init__(
-        self, on_mutate: Callable[[Dict], None], mapping: Any = (), **kwargs
+        self, on_mutate: Callable[[Dict], None], mapping: Any = (), **kwargs: Any
     ) -> None:
         self._on_mutate_handler = on_mutate
         super().__init__(mapping, **kwargs)
@@ -298,14 +311,17 @@ class ObservedDict(dict):
         self.on_mutate()
 
     def get(self, k: Any, default: Any = None) -> None:
+        """Refer to the dictionary documentation for information this method."""
         return super().get(k, default)
 
     def setdefault(self, k: Any, default: Any = None) -> Any:
+        """Refer to the dictionary documentation for information this method."""
         val = super().setdefault(k, default)
         self.on_mutate()
         return val
 
-    def pop(self, k, v=_RaiseKeyError):
+    def pop(self, k: Any, v: Any = _RaiseKeyError) -> Any:
+        """Refer to the dictionary documentation for information this method."""
         if v is _RaiseKeyError:
             val = super().pop(k)
         else:
@@ -313,21 +329,24 @@ class ObservedDict(dict):
         self.on_mutate()
         return val
 
-    def update(self, mapping=(), **kwargs):
+    def update(self, mapping: Any = (), **kwargs: Any) -> None:
+        """Refer to the dictionary documentation for information this method."""
         super().update(self._process_args(mapping, **kwargs))
         self.on_mutate()
 
-    def __contains__(self, k):
+    def __contains__(self, k: Any) -> bool:
         return super().__contains__(k)
 
-    def copy(self):  # don't delegate w/ super - dict.copy() -> dict
+    def copy(self) -> Any:  # don't delegate w/ super - dict.copy() -> dict
+        """Refer to the dictionary documentation for information this method."""
         return type(self)(self)
 
     @classmethod
-    def fromkeys(cls, keys, v=None):
+    def fromkeys(cls, keys: Any, v: Any = None) -> Any:
+        """Refer to the dictionary documentation for information this method."""
         return super().fromkeys((k for k in keys), v)
 
-    def __repr__(self):
+    def __repr__(self) -> Any:
         return "{0}({1})".format(type(self).__name__, super().__repr__())
 
 
@@ -348,29 +367,28 @@ def _get_set_cb(db: Any, k: str) -> Callable[[Any], None]:
 
 def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
     """Takes a JSON value and recursively converts it into an Observed value."""
-
     if isinstance(item, str) or isinstance(item, int) or item is None:
         return item
     elif isinstance(item, dict):
         # no-op handler so we don't call on_mutate in the loop below
-        d = ObservedDict((lambda _: None), item)
-        cb = _get_on_mutate_cb(d)
+        observed_dict = ObservedDict((lambda _: None), item)
+        cb = _get_on_mutate_cb(observed_dict)
 
         for k, v in item.items():
-            d[k] = item_to_observed(cb, v)
+            observed_dict[k] = item_to_observed(cb, v)
 
-        d._on_mutate_handler = on_mutate
-        return d
+        observed_dict._on_mutate_handler = on_mutate
+        return observed_dict
     elif isinstance(item, list):
         # no-op handler so we don't call on_mutate in the loop below
-        l = ObservedList((lambda _: None), item)
-        cb = _get_on_mutate_cb(l)
+        observed_list = ObservedList((lambda _: None), item)
+        cb = _get_on_mutate_cb(observed_list)
 
         for i, v in enumerate(item):
-            l[i] = item_to_observed(cb, v)
+            observed_list[i] = item_to_observed(cb, v)
 
-        l._on_mutate_handler = on_mutate
-        return l
+        observed_list._on_mutate_handler = on_mutate
+        return observed_list
     else:
         raise TypeError(f"Unexpected type {type(item).__name__!r}")
 
