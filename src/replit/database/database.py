@@ -175,8 +175,11 @@ class ObservedList(list):
     def _try_reinit(self, result) -> Any:
         """Tries to iterate over every element in result, recursing on each item.
         If a type-error is raised, returns result unmodified."""
-        print("_try_reinit", type(result), result)
-        if isinstance(result, ObservedList) or isinstance(result, str):
+        if (
+            isinstance(result, ObservedList)
+            or isinstance(result, ObservedDict)
+            or isinstance(result, str)
+        ):
             # We assume that all sublists are also ObservedLists.
             # If this condition is not true, bad things will happen
 
@@ -184,11 +187,13 @@ class ObservedList(list):
             #  TypeError when passed to the constructor, causing an infinite loop,
             #  so we must catch them.
             return result
-        else:
-            try:
-                return self._reinit([self._try_reinit(i) for i in result])
-            except TypeError:
-                return result
+        if isinstance(result, dict):  # and not instance of ObservedDict as shown above
+            return ObservedDict(_get_on_mutate_cb(self), result)
+
+        try:
+            return self._reinit([self._try_reinit(i) for i in result])
+        except TypeError:
+            return result
 
     def __getslice__(self, i: Any, j: Any) -> Any:
         return self._reinit(self._on_mutate_handler, super().__getslice__(i, j))
