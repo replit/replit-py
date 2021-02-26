@@ -34,11 +34,6 @@ class AsyncDatabase:
     async def get(self, key: str) -> str:
         """Return the value for key if key is in the database, else default.
 
-        Will replace the mutable JSON types of dict and list with subclasses that
-        enable nested setting. These classes will block to request the DB on every
-        mutation, which can have performance implications. To disable this, use the
-        `get_raw` method instead.
-
         This method will JSON decode the value. To disable this behavior, use the
         `get_raw` method instead.
 
