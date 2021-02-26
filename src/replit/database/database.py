@@ -84,8 +84,25 @@ class AsyncDatabase:
             key (str): The key to set
             value (str): The value to set it to
         """
+        await self.set_bulk_raw({key: value})
+    
+    async def set_bulk(self, values: Dict[str, Any]) -> None:
+        """Set multiple values in the database, JSON encoding them.
+
+        Args:
+            values (Dict[str, Any]): A dictionary of values to put into the dictionary.
+            Values must be JSON serializeable.
+        """
+        await self.set_bulk_raw({k: json.dumps(v) for k, v in values.items()})
+
+    async def set_bulk_raw(self, values: Dict[str, str]) -> None:
+        """Set multiple values in the database.
+
+        Args:
+            values (Dict[str, str]): The key-value pairs to set.
+        """
         async with aiohttp.ClientSession() as session:
-            async with session.post(self.db_url, data={key: value}) as response:
+            async with session.post(self.db_url, data=values) as response:
                 response.raise_for_status()
 
     async def delete(self, key: str) -> None:
