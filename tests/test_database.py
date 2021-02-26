@@ -14,17 +14,15 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self) -> None:
         """Grab a JWT for all the tests to share."""
-        self.db = AsyncDatabase(os.environ["REPLIT_DB_URL"])
-        for k in await self.db.keys():
-            await self.db.delete(k)
-        return
-
-        password = os.environ["PASSWORD"]
-        req = requests.get(
-            "https://database-test-jwt.kochman.repl.co", auth=("test", password)
-        )
-        url = req.text
-        self.db = AsyncDatabase(url)
+        if "REPLIT_DB_URL" in os.environ:
+            self.db = AsyncDatabase(os.environ["REPLIT_DB_URL"])
+        else:
+            password = os.environ["PASSWORD"]
+            req = requests.get(
+                "https://database-test-jwt.kochman.repl.co", auth=("test", password)
+            )
+            url = req.text
+            self.db = AsyncDatabase(url)
 
         # nuke whatever is already here
         for k in await self.db.keys():
@@ -101,15 +99,15 @@ class TestDatabase(unittest.TestCase):
 
     def setUp(self) -> None:
         """Grab a JWT for all the tests to share."""
-        self.db = Database(os.environ["REPLIT_DB_URL"])
-        return
-
-        password = os.environ["PASSWORD"]
-        req = requests.get(
-            "https://database-test-jwt.kochman.repl.co", auth=("test", password)
-        )
-        url = req.text
-        self.db = Database(url)
+        if "REPLIT_DB_URL" in os.environ:
+            self.db = Database(os.environ["REPLIT_DB_URL"])
+        else:
+            password = os.environ["PASSWORD"]
+            req = requests.get(
+                "https://database-test-jwt.kochman.repl.co", auth=("test", password)
+            )
+            url = req.text
+            self.db = Database(url)
 
         # nuke whatever is already here
         for k in self.db.keys():
