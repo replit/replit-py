@@ -196,5 +196,5 @@ class TestDatabase(unittest.TestCase):
 
         db[key] = [1]
         db[key] += [[2, [3, 4]]]
-        db[1][1][1] *= 2
-        self.assertEqual(db[key], [1, [[3, 8]]])
+        db[key][1][1][1] *= 2
+        self.assertEqual(db[key], [1, [2, [3, 8]]])
