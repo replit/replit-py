@@ -404,7 +404,7 @@ class Database(abc.MutableMapping):
         r.raise_for_status()
 
         val = json.loads(r.text)
-        return item_to_observed(_get_set_cb(self, k), val)
+        return item_to_observed(_get_set_cb(self, key), val)
 
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to value.
