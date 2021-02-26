@@ -175,9 +175,14 @@ class ObservedList(list):
     def _try_reinit(self, result) -> Any:
         """Tries to iterate over every element in result, recursing on each item.
         If a type-error is raised, returns result unmodified."""
-        if isinstance(result, ObservedList):
+        print("_try_reinit", type(result), result)
+        if isinstance(result, ObservedList) or isinstance(result, str):
             # We assume that all sublists are also ObservedLists.
             # If this condition is not true, bad things will happen
+
+            # strings are a special case: they are iterable but also don't raise a
+            #  TypeError when passed to the constructor, causing an infinite loop,
+            #  so we must catch them.
             return result
         else:
             try:
