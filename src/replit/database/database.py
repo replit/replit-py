@@ -473,14 +473,23 @@ class Database(abc.MutableMapping):
         return r.text
 
     def __setitem__(self, key: str, value: Any) -> None:
-        """Set a key in the database to value.
+        """Set a key in the database to the result of JSON encoding value.
 
         Args:
             key (str): The key to set
             value (Any): The value to set it to. Must be JSON-serializable.
         """
         j = json.dumps(value, separators=(",", ":"))
-        r = self.sess.post(self.db_url, data={key: j})
+        self.set_raw(key, value)
+
+    def set_raw(self, key: str, value: str) -> None:
+        """Set a key in the database to value.
+
+        Args:
+            key (str): The key to set
+            value (str): The value to set.
+        """
+        r = self.sess.post(self.db_url, data={key: value})
         r.raise_for_status()
 
     def __delitem__(self, key: str) -> None:
