@@ -489,7 +489,15 @@ class Database(abc.MutableMapping):
             key (str): The key to set
             value (str): The value to set.
         """
-        r = self.sess.post(self.db_url, data={key: value})
+        self.set_bulk_raw({key: value})
+
+    def set_bulk_raw(self, values: Dict[str, Any]) -> None:
+        """Set multiple values in the database.
+
+        Args:
+            values (Dict[str, Any]): The key-value pairs to set.
+        """
+        r = self.sess.post(self.db_url, data=values)
         r.raise_for_status()
 
     def __delitem__(self, key: str) -> None:
