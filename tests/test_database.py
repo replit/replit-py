@@ -14,12 +14,15 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self) -> None:
         """Grab a JWT for all the tests to share."""
-        password = os.environ["PASSWORD"]
-        req = requests.get(
-            "https://database-test-jwt.kochman.repl.co", auth=("test", password)
-        )
-        url = req.text
-        self.db = AsyncDatabase(url)
+        if "REPLIT_DB_URL" in os.environ:
+            self.db = AsyncDatabase(os.environ["REPLIT_DB_URL"])
+        else:
+            password = os.environ["PASSWORD"]
+            req = requests.get(
+                "https://database-test-jwt.kochman.repl.co", auth=("test", password)
+            )
+            url = req.text
+            self.db = AsyncDatabase(url)
 
         # nuke whatever is already here
         for k in await self.db.keys():
@@ -96,12 +99,15 @@ class TestDatabase(unittest.TestCase):
 
     def setUp(self) -> None:
         """Grab a JWT for all the tests to share."""
-        password = os.environ["PASSWORD"]
-        req = requests.get(
-            "https://database-test-jwt.kochman.repl.co", auth=("test", password)
-        )
-        url = req.text
-        self.db = Database(url)
+        if "REPLIT_DB_URL" in os.environ:
+            self.db = Database(os.environ["REPLIT_DB_URL"])
+        else:
+            password = os.environ["PASSWORD"]
+            req = requests.get(
+                "https://database-test-jwt.kochman.repl.co", auth=("test", password)
+            )
+            url = req.text
+            self.db = Database(url)
 
         # nuke whatever is already here
         for k in self.db.keys():
@@ -160,3 +166,33 @@ class TestDatabase(unittest.TestCase):
         self.db[key] = val
         act = self.db[key]
         self.assertEqual(act, val)
+
+    def test_nested_setting(self) -> None:
+        """Test that nested setting of dictionaries."""
+        db = self.db
+        key = "big-nested-object"
+        val = {"a": {"b": 1}}
+
+        db[key] = val
+        db[key]["a"]["b"] = 5
+        db[key]["a"]["b"] += 2
+        self.assertEqual(db[key], {"a": {"b": 7}})
+
+    def test_nested_lists(self) -> None:
+        """Test that nested setting of lists works."""
+        db = self.db
+        key = "nested-list"
+
+        db[key] = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        db[key][1][1] = 99
+        db[key].append(2)
+        self.assertEqual(db[key], [[1, 2, 3], [4, 99, 6], [7, 8, 9], 2])
+
+        db[key] = [[1, 2]]
+        db[key] *= 2
+        self.assertEqual(db[key], [[1, 2], [1, 2]])
+
+        db[key] = [1]
+        db[key] += [[2, [3, 4]]]
+        db[key][1][1][1] *= 2
+        self.assertEqual(db[key], [1, [2, [3, 8]]])
