@@ -491,11 +491,20 @@ class Database(abc.MutableMapping):
         """
         self.set_bulk_raw({key: value})
 
-    def set_bulk_raw(self, values: Dict[str, Any]) -> None:
+    def set_bulk(self, values: Dict[str, Any]) -> None:
+        """Set multiple values in the database, JSON encoding them.
+
+        Args:
+            values (Dict[str, Any]): A dictionary of values to put into the dictionary.
+            Values must be JSON serializeable.
+        """
+        self.set_bulk_raw({k: json.dumps(v) for k, v in values.items()})
+
+    def set_bulk_raw(self, values: Dict[str, str]) -> None:
         """Set multiple values in the database.
 
         Args:
-            values (Dict[str, Any]): The key-value pairs to set.
+            values (Dict[str, str]): The key-value pairs to set.
         """
         r = self.sess.post(self.db_url, data=values)
         r.raise_for_status()
