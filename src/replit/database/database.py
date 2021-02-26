@@ -250,7 +250,7 @@ class ObservedList(abc.MutableSequence):
     def __iter__(self) -> Iterator[Any]:
         return iter(self.value)
 
-    def __imul__(self, rhs: Any) -> None:
+    def __imul__(self, rhs: Any) -> Any:
         self.value *= rhs
         self.on_mutate()
         return self.value
@@ -317,7 +317,7 @@ class ObservedDict(abc.MutableMapping):
     def __eq__(self, rhs: Any) -> bool:
         return self.value == rhs
 
-    def __imul__(self, rhs: Any) -> None:
+    def __imul__(self, rhs: Any) -> Any:
         self.value *= rhs
         self.on_mutate()
         return self.value
