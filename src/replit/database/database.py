@@ -20,7 +20,7 @@ import requests
 
 
 class _CustomEncoder(json.JSONEncoder):
-    def default(self, o):
+    def default(self, o: Any) -> Any:
         if isinstance(o, ObservedList) or isinstance(o, ObservedDict):
             return o.value
         return o
