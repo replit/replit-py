@@ -204,9 +204,6 @@ class ObservedList(list):
         except TypeError:
             return result
 
-    def __getslice__(self, i: Any, j: Any) -> Any:
-        return self._reinit(self._on_mutate_handler, super().__getslice__(i, j))
-
     def __getitem__(self, i: Union[int, slice]) -> Any:
         return self._try_reinit(super().__getitem__(i))
 
@@ -218,13 +215,13 @@ class ObservedList(list):
         super().__delitem__(i)
         self.on_mutate()
 
-    def __iadd__(self, rhs: Any) -> Any:
+    def __iadd__(self, rhs: Any) -> Any:  # type: ignore
         # same as extend
         super().__iadd__(self._try_reinit(rhs))
         self.on_mutate()
         return self
 
-    def __imul__(self, rhs: Any) -> Any:
+    def __imul__(self, rhs: Any) -> Any:  # type: ignore
         super().__imul__(self._try_reinit(rhs))
         self.on_mutate()
         return self
@@ -254,7 +251,7 @@ class ObservedList(list):
         super().insert(i, self._try_reinit(x))
         self.on_mutate()
 
-    def pop(self, i: Any) -> Any:
+    def pop(self, i: Any) -> Any:  # type: ignore
         """Refer to the list documentation for information this method."""
         val = super().pop(i)
         self.on_mutate()
@@ -310,7 +307,7 @@ class ObservedDict(dict):
         super().__delitem__(k)
         self.on_mutate()
 
-    def get(self, k: Any, default: Any = None) -> None:
+    def get(self, k: Any, default: Any = None) -> Any:
         """Refer to the dictionary documentation for information this method."""
         return super().get(k, default)
 
@@ -329,9 +326,9 @@ class ObservedDict(dict):
         self.on_mutate()
         return val
 
-    def update(self, mapping: Any = (), **kwargs: Any) -> None:
+    def update(self, mapping: Any = (), **kwargs: Any) -> None:  # type: ignore
         """Refer to the dictionary documentation for information this method."""
-        super().update(self._process_args(mapping, **kwargs))
+        super().update(mapping, **kwargs)
         self.on_mutate()
 
     def __contains__(self, k: Any) -> bool:
@@ -339,7 +336,7 @@ class ObservedDict(dict):
 
     def copy(self) -> Any:  # don't delegate w/ super - dict.copy() -> dict
         """Refer to the dictionary documentation for information this method."""
-        return type(self)(self)
+        return type(self)(self._on_mutate_handler, super().copy())
 
     @classmethod
     def fromkeys(cls, keys: Any, v: Any = None) -> Any:
