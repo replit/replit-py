@@ -231,7 +231,7 @@ class ObservedList(list):
         return val
 
     def remove(self, x: Any) -> None:
-        # No need to reinit here because ObservableList([1]) == [1]
+        # No need to reinit here because ObservedList([1]) == [1]
         super().remove(x)
         self.on_mutate()
 
@@ -404,7 +404,7 @@ class Database(abc.MutableMapping):
         r.raise_for_status()
 
         val = json.loads(r.text)
-        return item_to_observable(_get_set_cb(self, k), val)
+        return item_to_observed(_get_set_cb(self, k), val)
 
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to value.
