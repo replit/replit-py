@@ -85,7 +85,7 @@ class AsyncDatabase:
             value (str): The value to set it to
         """
         await self.set_bulk_raw({key: value})
-    
+
     async def set_bulk(self, values: Dict[str, Any]) -> None:
         """Set multiple values in the database, JSON encoding them.
 
@@ -522,7 +522,16 @@ class Database(abc.MutableMapping):
             value (Any): The value to set it to. Must be JSON-serializable.
         """
         j = json.dumps(value, separators=(",", ":"))
-        self.set_raw(key, value)
+        self.set(key, value)
+    
+    def set(self, key: str, value: Any) -> None:
+        """Set a key in the database to value, JSON encoding it.
+
+        Args:
+            key (str): The key to set
+            value (str): The value to set.
+        """
+        self.set_raw(key, json.dumps(value))
 
     def set_raw(self, key: str, value: str) -> None:
         """Set a key in the database to value.
