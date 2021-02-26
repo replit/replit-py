@@ -316,10 +316,17 @@ class ObservedDict(dict):
         return "{0}({1})".format(type(self).__name__, super().__repr__())
 
 
-# By putting this outside we save some memory
-def _get_cb(d: Any) -> Callable[[Any], None]:
+# By putting these outside we save some memory
+def _get_on_mutate_cb(d: Any) -> Callable[[Any], None]:
     def cb(_: Any) -> None:
         d.on_mutate()
+
+    return cb
+
+
+def _get_set_cb(db: Any, k: str) -> Callable[[Any], None]:
+    def cb(val: Any) -> None:
+        db[k] = val
 
     return cb
 
@@ -342,7 +349,7 @@ def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
     elif isinstance(item, list):
         # no-op handler so we don't call on_mutate in the loop below
         l = ObservedList((lambda _: None), item)
-        cb = _get_cb(l)
+        cb = _get_on_mutate_cb(l)
 
         for i, v in enumerate(item):
             l[i] = item_to_observed(cb, v)
@@ -374,6 +381,13 @@ class Database(abc.MutableMapping):
     def __getitem__(self, key: str) -> Any:
         """Get the value of an item from the database.
 
+        Will replace the mutable JSON types of dict and list with subclasses that
+        enable nested setting. These classes will block to request the DB on every
+        mutation. To disable this behavior, use the `get` method instead.
+
+        This method will JSON decode the value. To disable this behavior, use the
+        `get_raw` method instead.
+
         Args:
             key (str): The key to retreive
 
@@ -388,7 +402,9 @@ class Database(abc.MutableMapping):
             raise KeyError(key)
 
         r.raise_for_status()
-        return json.loads(r.text)
+
+        val = json.loads(r.text)
+        return item_to_observable(_get_set_cb(self, k), val)
 
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to value.
