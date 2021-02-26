@@ -489,7 +489,7 @@ class Database(abc.MutableMapping):
         Returns:
             Any: The the value for key if key is in the database, else default.
         """
-        return super().get(key, item_to_observed(default))
+        return super().get(key, item_to_observed(_get_set_cb(self, key), default))
 
     def get_raw(self, key: str) -> str:
         """Look up the given key in the database and return the corresponding value.
