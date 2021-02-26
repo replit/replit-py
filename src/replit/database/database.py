@@ -9,6 +9,7 @@ from typing import (
     Dict,
     Iterator,
     List,
+    Optional,
     Tuple,
     Union,
 )
@@ -18,9 +19,25 @@ import aiohttp
 import requests
 
 
+class _CustomEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObservedList) or isinstance(o, ObservedDict):
+            return o.value
+        return o
+
+
 def _dumps(val: Any) -> str:
-    """JSON encode a value in the smallest way possible."""
-    return json.dumps(val, separators=(",", ":"))
+    """JSON encode a value in the smallest way possible.
+
+    Also handles ObservedList and ObservedDict by using a custom encoder.
+
+    Args:
+        val (Any): The value to be encoded.
+
+    Returns:
+        str: The JSON string.
+    """
+    return json.dumps(val, separators=(",", ":"), cls=_CustomEncoder)
 
 
 class AsyncDatabase:
@@ -194,202 +211,124 @@ class AsyncDatabase:
         return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
 
 
-class ObservedList(list):
-    """A list that calls a function every time it is mutated."""
+class ObservedList(abc.MutableSequence):
+    """A list that calls a function every time it is mutated.
 
-    __slots__ = ("_on_mutate_handler",)
+    Attributes:
+        value (List): The underlying list.
+    """
+
+    __slots__ = ("_on_mutate_handler", "value")
 
     def __init__(
-        self, on_mutate: Callable[[List], None], *args: Any, **kwargs: Any
+        self, on_mutate: Callable[[List], None], value: Optional[List] = None
     ) -> None:
         self._on_mutate_handler = on_mutate
-        super().__init__(*args, **kwargs)
+        if value is None:
+            self.value = []
+        else:
+            self.value = value
 
     def on_mutate(self) -> None:
-        """Called whenever the list is mutated."""
-        self._on_mutate_handler(self)
-
-    def _reinit(self, v: Any) -> Any:
-        """Re-initializes the class."""
-        # Convert lists into our own class
-        if isinstance(v, ObservedList):
-            return v
-        else:
-            return self.__class__(self._on_mutate_handler, v)
-
-    def _try_reinit(self, result: Any) -> Any:
-        """Tries to iterate over every element in result, recursing on each item.
-
-        If a type-error is raised while calling the constructor in _reinit, returns
-        result unmodified.
-
-        Args:
-            result (Any): The result to reinitialize.
-
-        Returns:
-            Any: The reinitialized result.
-        """
-        if (
-            isinstance(result, ObservedList)
-            or isinstance(result, ObservedDict)
-            or isinstance(result, str)
-        ):
-            # We assume that all sublists are also ObservedLists.
-            # If this condition is not true, bad things will happen
-
-            # strings are a special case: they are iterable but also don't raise a
-            #  TypeError when passed to the constructor, causing an infinite loop,
-            #  so we must catch them.
-            return result
-        if isinstance(result, dict):  # and not instance of ObservedDict as shown above
-            return ObservedDict(_get_on_mutate_cb(self), result)
-
-        try:
-            return self._reinit([self._try_reinit(i) for i in result])
-        except TypeError:
-            return result
+        """Calls the mutation handler with the underlying list as an argument."""
+        self._on_mutate_handler(self.value)
 
     def __getitem__(self, i: Union[int, slice]) -> Any:
-        return self._try_reinit(super().__getitem__(i))
+        return self.value[i]
 
     def __setitem__(self, i: Union[int, slice], val: Any) -> None:
-        super().__setitem__(i, self._try_reinit(val))
+        self.value[i] = val
         self.on_mutate()
 
     def __delitem__(self, i: Union[int, slice]) -> None:
-        super().__delitem__(i)
+        del self.value[i]
         self.on_mutate()
 
-    def __iadd__(self, rhs: Any) -> Any:  # type: ignore
-        # same as extend
-        super().__iadd__(self._try_reinit(rhs))
-        self.on_mutate()
-        return self
+    def __len__(self) -> int:
+        return len(self.value)
 
-    def __imul__(self, rhs: Any) -> Any:  # type: ignore
-        super().__imul__(self._try_reinit(rhs))
-        self.on_mutate()
-        return self
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self.value)
 
-    def append(self, item: Any) -> None:
-        """Refer to the list documentation for information this method."""
-        super().append(self._try_reinit(item))
+    def __imul__(self, rhs: Any) -> None:
+        self.value *= rhs
         self.on_mutate()
+        return self.value
 
-    def clear(self) -> None:
-        """Refer to the list documentation for information this method."""
-        super().clear()
+    def __eq__(self, rhs: Any) -> bool:
+        return self.value == rhs
+
+    def insert(self, i: int, elem: Any) -> None:
+        """Inserts a value into the underlying list."""
+        self.value.insert(i, elem)
         self.on_mutate()
 
-    def copy(self) -> Any:
-        """Refer to the list documentation for information this method."""
-        return self._reinit(self.copy())
-
-    def extend(self, t: Any) -> None:
-        """Refer to the list documentation for information this method."""
-        # same as __iadd__
-        super().extend(self._try_reinit(t))
-        self.on_mutate()
-
-    def insert(self, i: Any, x: Any) -> None:
-        """Refer to the list documentation for information this method."""
-        super().insert(i, self._try_reinit(x))
-        self.on_mutate()
-
-    def pop(self, i: Any) -> Any:  # type: ignore
-        """Refer to the list documentation for information this method."""
-        val = super().pop(i)
-        self.on_mutate()
-        return val
-
-    def remove(self, x: Any) -> None:
-        """Refer to the list documentation for information this method."""
-        # No need to reinit here because ObservedList([1]) == [1]
-        super().remove(x)
-        self.on_mutate()
-
-    def reverse(self) -> None:
-        """Refer to the list documentation for information this method."""
-        super().reverse()
+    def set_value(self, value: List) -> None:
+        """Sets the value attribute and triggers the mutation function."""
+        self.value = value
         self.on_mutate()
 
     def __repr__(self) -> str:
-        return "{0}({1})".format(type(self).__name__, super().__repr__())
+        return f"{type(self).__name__}(value={self.value!r})"
 
 
-_RaiseKeyError = object()  # singleton for no-default behavior
+class ObservedDict(abc.MutableMapping):
+    """A list that calls a function every time it is mutated.
 
-
-# Inheriting from dict is far from ideal, but it must be done in order to make the
-#  class JSON-serializable. See: https://stackoverflow.com/a/39375731/9196137
-class ObservedDict(dict):
-    """A dictionary that calls a function every time it is mutated.
-
-    When the method is called, the value may not have actually changed.
-    It is the handler's responsible to check this if necessary.
+    Attributes:
+        value (Dict): The underlying dict.
     """
 
-    __slots__ = ("_on_mutate_handler",)  # no __dict__ - that would be redundant
+    __slots__ = ("_on_mutate_handler", "value")
 
     def __init__(
-        self, on_mutate: Callable[[Dict], None], mapping: Any = (), **kwargs: Any
+        self, on_mutate: Callable[[Dict], None], value: Optional[Dict] = None
     ) -> None:
         self._on_mutate_handler = on_mutate
-        super().__init__(mapping, **kwargs)
+        if value is None:
+            self.value = {}
+        else:
+            self.value = value
 
     def on_mutate(self) -> None:
-        """Called whenever the dictionary is mutated."""
-        self._on_mutate_handler(self)
+        """Calls the mutation handler with the underlying dict as an argument."""
+        self._on_mutate_handler(self.value)
+
+    def __contains__(self, k: Any) -> bool:
+        return k in self.value
 
     def __getitem__(self, k: Any) -> Any:
-        return super().__getitem__(k)
+        return self.value[k]
 
     def __setitem__(self, k: Any, v: Any) -> None:
-        super().__setitem__(k, v)
+        self.value[k] = v
         self.on_mutate()
 
     def __delitem__(self, k: Any) -> None:
-        super().__delitem__(k)
+        del self.value[k]
         self.on_mutate()
 
-    def get(self, k: Any, default: Any = None) -> Any:
-        """Refer to the dictionary documentation for information this method."""
-        return super().get(k, default)
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self.value)
 
-    def setdefault(self, k: Any, default: Any = None) -> Any:
-        """Refer to the dictionary documentation for information this method."""
-        val = super().setdefault(k, default)
+    def __len__(self) -> int:
+        return len(self.value)
+
+    def __eq__(self, rhs: Any) -> bool:
+        return self.value == rhs
+
+    def __imul__(self, rhs: Any) -> None:
+        self.value *= rhs
         self.on_mutate()
-        return val
+        return self.value
 
-    def pop(self, k: Any, v: Any = _RaiseKeyError) -> Any:
-        """Refer to the dictionary documentation for information this method."""
-        if v is _RaiseKeyError:
-            val = super().pop(k)
-        else:
-            val = super().pop(k, v)
-        self.on_mutate()
-        return val
-
-    def update(self, mapping: Any = (), **kwargs: Any) -> None:  # type: ignore
-        """Refer to the dictionary documentation for information this method."""
-        super().update(mapping, **kwargs)
+    def set_value(self, value: Dict) -> None:
+        """Sets the value attribute and triggers the mutation function."""
+        self.value = value
         self.on_mutate()
 
-    def __contains__(self, k: Any) -> bool:
-        return super().__contains__(k)
-
-    def copy(self) -> Any:  # don't delegate w/ super - dict.copy() -> dict
-        """Refer to the dictionary documentation for information this method."""
-        return type(self)(self._on_mutate_handler, super().copy())
-
-    @classmethod
-    def fromkeys(cls, keys: Any, v: Any = None) -> Any:
-        """Refer to the dictionary documentation for information this method."""
-        return super().fromkeys((k for k in keys), v)
-
-    def __repr__(self) -> Any:
-        return "{0}({1})".format(type(self).__name__, super().__repr__())
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(value={self.value!r})"
 
 
 # By putting these outside we save some memory
