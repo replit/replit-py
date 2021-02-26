@@ -556,6 +556,10 @@ class Database(abc.MutableMapping):
         # TODO: Return a set from prefix since keys are guaranteed unique
         return set(self.prefix(""))
 
+    def dumps(self, val: Any) -> str:
+        """JSON encodes a value that can be a special DB object."""
+        return _dumps(val)
+
     def __repr__(self) -> str:
         """A representation of the database.
 
