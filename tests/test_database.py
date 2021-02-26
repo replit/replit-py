@@ -103,7 +103,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await self.db.get_raw(k), "asdf")
 
         await self.db.set(k, {"key": "val"})
-        self.assertEqual(await self.db.get_raw(k), '{"key": "val"}')
+        self.assertEqual(await self.db.get_raw(k), '{"key":"val"}')
 
     async def test_bulk(self) -> None:
         """Test that bulk setting works."""
@@ -231,7 +231,7 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(self.db.get_raw(k), "asdf")
 
         self.db.set(k, {"key": "val"})
-        self.assertEqual(self.db.get_raw(k), '{"key": "val"}')
+        self.assertEqual(self.db.get_raw(k), '{"key":"val"}')
 
     def test_bulk(self) -> None:
         """Test that bulk setting works."""
