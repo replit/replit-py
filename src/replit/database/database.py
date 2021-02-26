@@ -413,7 +413,8 @@ class Database(abc.MutableMapping):
 
         Will replace the mutable JSON types of dict and list with subclasses that
         enable nested setting. These classes will block to request the DB on every
-        mutation. To disable this behavior, use the `get` method instead.
+        mutation, which can have performance implications. To disable this, use the
+        `get_raw` method instead.
 
         This method will JSON decode the value. To disable this behavior, use the
         `get_raw` method instead.
