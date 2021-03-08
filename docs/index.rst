@@ -20,20 +20,6 @@ provides:
 
 .. figure:: https://github.com/kennethreitz42/replit-py/blob/kr-cleanup/ext/readme.gif?raw=true
 
-Something to note…
-------------------
-
-The Replit Python environment does not require any platform-specific
-code, however, these optional utilities provide additional platform
-features in a simple and accessible way.
-
-*Example*: `Replit DB`_ is an HTTP service, but an optional Python
-client (here!) is available.
-
-.. _Replit DB: https://docs.repl.it/misc/database
-.. _Repl.it: https://repl.it/
-
-
 Building Websites and APIs
 ==========================
 
