@@ -18,7 +18,7 @@ provides:
 -  A simple audio library that can play tones and audio files!
 
 
-.. figure:: https://github.com/kennethreitz42/replit-py/blob/kr-cleanup/ext/readme.gif?raw=true
+.. figure:: https://github.com/kennethreitz42/replit-py/blob/master/ext/readme.gif?raw=true
 
 Building Websites and APIs
 ==========================
