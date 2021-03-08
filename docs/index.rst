@@ -18,7 +18,15 @@ provides:
 -  A simple audio library that can play tones and audio files!
 
 
-.. figure:: https://github.com/kennethreitz42/replit-py/blob/master/ext/readme.gif?raw=true
+.. figure:: https://github.com/replit/replit-py/blob/master/ext/readme.gif?raw=true
+
+Table of Contents
+=================
+
+.. toctree::
+   :maxdepth: 2
+
+   api
 
 Building Websites and APIs
 ==========================
@@ -186,14 +194,6 @@ A more fully–fledged example is a Repl we have available known as ReplTweet. I
 Check out the Repl and the GitHub repo to see it in action and learn more about how to use
 this library to your full advantage!
 
-
-API Reference
-=============
-
-.. toctree::
-   :maxdepth: 2
-
-   api
 
 Indices and tables
 ==================
