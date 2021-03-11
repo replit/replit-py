@@ -27,6 +27,7 @@ Table of Contents
    :maxdepth: 2
 
    api
+   db_tutorial
    web_tutorial
    code_samples
 
