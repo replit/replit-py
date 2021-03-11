@@ -19,14 +19,26 @@ import aiohttp
 import requests
 
 
-class _CustomEncoder(json.JSONEncoder):
+def to_primitive(o: Any) -> Any:
+    """If object is an observed object, converts to primitve, otherwise returns it.
+
+    Args:
+        o (Any): Any object.
+
+    Returns:
+        Any: The primitive equivalent if o is an ObservedList or ObservedDict, otherwise o.
+    """
+    if isinstance(o, ObservedList) or isinstance(o, ObservedDict):
+        return o.value
+    return o
+
+
+class DBJSONEncoder(json.JSONEncoder):
     def default(self, o: Any) -> Any:
-        if isinstance(o, ObservedList) or isinstance(o, ObservedDict):
-            return o.value
-        return o
+        return to_primitive(o)
 
 
-def _dumps(val: Any) -> str:
+def dumps(val: Any) -> str:
     """JSON encode a value in the smallest way possible.
 
     Also handles ObservedList and ObservedDict by using a custom encoder.
@@ -37,7 +49,10 @@ def _dumps(val: Any) -> str:
     Returns:
         str: The JSON string.
     """
-    return json.dumps(val, separators=(",", ":"), cls=_CustomEncoder)
+    return json.dumps(val, separators=(",", ":"), cls=DBJSONEncoder)
+
+
+_dumps = dumps
 
 
 class AsyncDatabase:
