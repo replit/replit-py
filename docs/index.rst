@@ -27,6 +27,7 @@ Table of Contents
    :maxdepth: 2
 
    api
+   web_tutorial
 
 
 Indices and tables
