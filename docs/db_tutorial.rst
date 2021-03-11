@@ -78,6 +78,49 @@ Finally, you can also find keys based on a prefix:
    print(db.prefix("key")) # => ("key1", "key2")
 
 
+Async Usage
+-----------
+
+The async client API is very similar to the sync API in terms of method names.
+
+::
+
+   import AsyncDatabase from replit.database
+
+   db = AsyncDatabase()
+   await db.set("a", "1")
+   await db.get("a") # => "1"
+
+   for i in await db.keys():
+      print(i)
+
+   await db.delete("a")
+
+One important difference is dictionary-style usage and nested setting are only available
+in the sync library. 
+
+Like the sync library, the async library does JSON encoding and decoding in get and set
+but also has get_raw and set_raw methods:
+
+::
+
+   await db.set("a", "val")
+   await db.get_raw("a") # => '"val"'
+
+   await db.set_raw("b", '"abc"')
+   await db.get("b") # => "abc"
+
+It also has set_bulk and set_bulk_raw for setting multiple keys and values in a single request:
+
+::
+
+   await db.set_bulk({"a": 1, "b": 2, "c": 3})
+   await db.get("c") # => 3
+
+   await db.set_bulk_raw({"d": '"abc"'})
+   await db.get("d") # => "abc'
+
+
 Advanced Usage
 --------------
 
