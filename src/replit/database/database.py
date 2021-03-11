@@ -26,7 +26,8 @@ def to_primitive(o: Any) -> Any:
         o (Any): Any object.
 
     Returns:
-        Any: The primitive equivalent if o is an ObservedList or ObservedDict, otherwise o.
+        Any: The primitive equivalent if o is an ObservedList or ObservedDict,
+            otherwise o.
     """
     if isinstance(o, ObservedList) or isinstance(o, ObservedDict):
         return o.value
@@ -34,7 +35,10 @@ def to_primitive(o: Any) -> Any:
 
 
 class DBJSONEncoder(json.JSONEncoder):
+    """A JSON encoder that uses to_primitive on passed objects."""
+
     def default(self, o: Any) -> Any:
+        """Runs to_primitive on the passed object."""
         return to_primitive(o)
 
 

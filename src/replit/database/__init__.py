@@ -2,9 +2,17 @@
 import os
 from typing import Optional
 
-from .database import AsyncDatabase, Database, DBJSONEncoder, to_primitive
+from .database import AsyncDatabase, Database, DBJSONEncoder, dumps, to_primitive
 
-__all__ = ["AsyncDatabase", "Database", "AsyncJSONKey", "JSONKey"]
+__all__ = [
+    "AsyncDatabase",
+    "Database",
+    "DBJSONEncoder",
+    "dumps",
+    "to_primitive",
+    "db",
+    "db_url",
+]
 
 
 db: Optional[Database]
