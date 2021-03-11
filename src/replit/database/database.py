@@ -71,10 +71,10 @@ class AsyncDatabase:
             db_url (str): Database url to use.
         """
         self.db_url = db_url
-        self.sess = None
-
-    async def __aenter__(self) -> None:
         self.sess = aiohttp.ClientSession()
+
+    async def __aenter__(self) -> "AsyncDatabase":
+        return self
 
     async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         self.sess.close()
