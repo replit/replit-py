@@ -19,14 +19,30 @@ import aiohttp
 import requests
 
 
-class _CustomEncoder(json.JSONEncoder):
+def to_primitive(o: Any) -> Any:
+    """If object is an observed object, converts to primitve, otherwise returns it.
+
+    Args:
+        o (Any): Any object.
+
+    Returns:
+        Any: The primitive equivalent if o is an ObservedList or ObservedDict,
+            otherwise o.
+    """
+    if isinstance(o, ObservedList) or isinstance(o, ObservedDict):
+        return o.value
+    return o
+
+
+class DBJSONEncoder(json.JSONEncoder):
+    """A JSON encoder that uses to_primitive on passed objects."""
+
     def default(self, o: Any) -> Any:
-        if isinstance(o, ObservedList) or isinstance(o, ObservedDict):
-            return o.value
-        return o
+        """Runs to_primitive on the passed object."""
+        return to_primitive(o)
 
 
-def _dumps(val: Any) -> str:
+def dumps(val: Any) -> str:
     """JSON encode a value in the smallest way possible.
 
     Also handles ObservedList and ObservedDict by using a custom encoder.
@@ -37,7 +53,10 @@ def _dumps(val: Any) -> str:
     Returns:
         str: The JSON string.
     """
-    return json.dumps(val, separators=(",", ":"), cls=_CustomEncoder)
+    return json.dumps(val, separators=(",", ":"), cls=DBJSONEncoder)
+
+
+_dumps = dumps
 
 
 class AsyncDatabase:
@@ -52,6 +71,13 @@ class AsyncDatabase:
             db_url (str): Database url to use.
         """
         self.db_url = db_url
+        self.sess = aiohttp.ClientSession()
+
+    async def __aenter__(self) -> "AsyncDatabase":
+        return self
+
+    async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
+        self.sess.close()
 
     async def get(self, key: str) -> str:
         """Return the value for key if key is in the database.
@@ -79,14 +105,13 @@ class AsyncDatabase:
         Returns:
             str: The value of the key
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                self.db_url + "/" + urllib.parse.quote(key)
-            ) as response:
-                if response.status == 404:
-                    raise KeyError(key)
-                response.raise_for_status()
-                return await response.text()
+        async with self.sess.get(
+            self.db_url + "/" + urllib.parse.quote(key)
+        ) as response:
+            if response.status == 404:
+                raise KeyError(key)
+            response.raise_for_status()
+            return await response.text()
 
     async def set(self, key: str, value: Any) -> None:
         """Set a key in the database to the result of JSON encoding value.
@@ -121,9 +146,8 @@ class AsyncDatabase:
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.post(self.db_url, data=values) as response:
-                response.raise_for_status()
+        async with self.sess.post(self.db_url, data=values) as response:
+            response.raise_for_status()
 
     async def delete(self, key: str) -> None:
         """Delete a key from the database.
@@ -134,13 +158,12 @@ class AsyncDatabase:
         Raises:
             KeyError: Key does not exist
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.delete(
-                self.db_url + "/" + urllib.parse.quote(key)
-            ) as response:
-                if response.status == 404:
-                    raise KeyError(key)
-                response.raise_for_status()
+        async with self.sess.delete(
+            self.db_url + "/" + urllib.parse.quote(key)
+        ) as response:
+            if response.status == 404:
+                raise KeyError(key)
+            response.raise_for_status()
 
     async def list(self, prefix: str) -> Tuple[str, ...]:
         """List keys in the database which start with prefix.
@@ -152,14 +175,13 @@ class AsyncDatabase:
             Tuple[str]: The keys found.
         """
         params = {"prefix": prefix, "encode": "true"}
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.db_url, params=params) as response:
-                response.raise_for_status()
-                text = await response.text()
-                if not text:
-                    return tuple()
-                else:
-                    return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
+        async with self.sess.get(self.db_url, params=params) as response:
+            response.raise_for_status()
+            text = await response.text()
+            if not text:
+                return tuple()
+            else:
+                return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
 
     async def to_dict(self, prefix: str = "") -> Dict[str, str]:
         """Dump all data in the database into a dictionary.
