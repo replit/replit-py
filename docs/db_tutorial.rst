@@ -67,4 +67,40 @@ be persisted!
 
 All of the usual dictionary and list methods are supported.
 
+Finally, you can also find keys based on a prefix:
+
+::
+
+   db["key1"] = 1
+   db["key2"] = 2
+   db["something else"] = 3
+   print(db.keys()) # => {"key1", "key2", "something else"}
+   print(db.prefix("key")) # => ("key1", "key2")
+
+
+Advanced Usage
+--------------
+
+For some use-cases you might not want your data to be JSON-encoded. To avoid this, just
+use the get_raw and set_raw methods:
+
+::
+
+   db["a"] = "string"
+   db.get_raw("a") # => '"a"'
+
+   db.set_raw("a", '"b"')
+   db["a"] # => "b"
+
+
+Another problem you might encounter is related to the mutation feature. Under the hood,
+this feature works by replacing the primitive list and dict classes with special
+replacements that listen for mutation, namely replit.database.database.ObservedList and
+replit.database.ObservedDict. 
+
+To JSON encode these values, use the replit.database.dump method. For JSON responses in
+the web framework, this is done automatically. 
+
+To convert these classes to their primitive equivalent, access the value attribute. A
+function that automatically does this is provided: replit.database.to_primitive.
 
