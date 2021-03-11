@@ -28,6 +28,7 @@ Table of Contents
 
    api
    web_tutorial
+   code_samples
 
 
 Indices and tables
