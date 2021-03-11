@@ -9,6 +9,7 @@ Quickstart
 Repl.it DB is super simple to get up and running. Just use it like a regular python dictionary:
 
 ::
+
    from replit import db
 
    db["key"] = 12
@@ -17,6 +18,7 @@ Repl.it DB is super simple to get up and running. Just use it like a regular pyt
 You can list and delete keys the same way you would from a regular python dictionary:
 
 ::
+
    db["a"] = 1
    db["b"] = 2
    print(db.keys()) # => {"a", "b"}
@@ -27,6 +29,7 @@ You can list and delete keys the same way you would from a regular python dictio
 Other dictionary methods work too:
 
 ::
+
    print(db.get("a")) # => 1
    print(db.get("a key that does not exist", 57)) # => 57
 
@@ -37,6 +40,7 @@ You can store more than just numbers. The client uses `JSON <https://en.wikipedi
 internally, so any of the JSON types can be stored too:
 
 ::
+
    db["a number"] = 42
 
    db["nothing"] = None
@@ -51,6 +55,7 @@ You can mutate lists and dictionaries you get from the database, and your change
 be persisted!
 
 ::
+
    db["user"] = {"score": 100}
    db["user"]["score"] += 100
    print(db["user"]["score"]) # => 200
