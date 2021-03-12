@@ -1,7 +1,9 @@
 Building Websites and APIs
 ==========================
 
-.. note:: This guide assumes that you are familiar with running code of some kind on Replit. If you aren’t, please refer to our `Quick Start Guide <https://docs.repl.it/misc/quick-start>`_.
+.. note:: This guide assumes that you are familiar with running code of some kind on
+Replit. If you aren’t, please refer to our
+`Quick Start Guide <https://docs.repl.it/misc/quick-start>`_.
 
 In this tutorial, we are you going to build a Web Service – a process
 that responds to incoming HTTP Requests, like the ones that come from
@@ -18,20 +20,14 @@ The Basics
 
 Code can operate with HTTP in one of two ways:
 
-1. Code can serve HTTP requests.
-2. Code can consume HTTP responses.
-
-These operations are not mutually exclusive, however. A web applications
-can (and often do) perform both operations simultaneously. An example of
-this is when a website serving incoming requests makes external calls to
-backing APIs it is using to power it’s user experience. You’ll see an
-example of this in the working demo we’ll link to in the end!
+1. Code can serve HTTP requests: a website
+2. Code can consume HTTP responses: a browser
 
 HTTP Requests
 ~~~~~~~~~~~~~
 
 If you think you aren’t familiar with the concept of an actual HTTP
-request, you may actually be mistaken! Here’s an overt example:
+request, you may be mistaken! Here’s an overt example:
 
 .. image:: _static/404.png
 
@@ -46,27 +42,58 @@ by the first number:
 
 -  ``2xx``: Success!
 -  ``3xx``: Redirection — *a URL moved*.
--  ``4xx``:  Client Errors — *something went wrong on the consumption side*.
+-  ``4xx``: Client Errors — *something went wrong on the consumption side*.
 -  ``5xx``: Server Errors — *something went wrong on the server side*.
 
 There’s a well-defined standard that declares these codes, and it is
 known as `RFC 2616`_.
 
-HTTP on Replit
---------------
-
-The process of receiving incoming HTTP requests on Replit is very
-straight forward: you simply open a port that is bound to the ``0.0.0.0``
-host. That’s it! Replit will automatically give you a domain name, and
-the interface will present you with a simple browser window that you can
-check your frontend with.
-
-The URL of your application (e.g. ``https://<app-name>.<user-name>.repl.co``) is publicly accessible.
-
-.. _Repl.it: http://repl.it/
 .. _List of HTTP status codes - Wikipedia: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 .. _RFC 2616: https://tools.ietf.org/html/rfc2616
 
-.. _code-samples:
-.. :ref:`installed <install>`
+Building a website with repl.it
+-------------------------------
+
+Getting started with the replit web library is simple. It is based on top of the popular
+python web framework `Flask <https://flask.palletsprojects.com>`_, with extra features
+added in.
+
+Here is the basic code you can run in a `Python repl <https://replit.com/l/python3>`_
+to get an HTTP server running:
+
+::
+
+  from replit import web
+
+  app = web.App(__name__)
+
+  @app.route("/")
+  def index():
+    return "Hello, world!"
+  
+  app.run()
+
+You should have a website pop up in your repl with the text "Hello, world!"
+
+But what exactly does this code do? Let's go over it line by line.
+
+First, it imports the replit web library. Next, it creates a new "app" object using
+the current module name. This tells flask
+<where to look https://flask.palletsprojects.com/en/1.1.x/quickstart/>_ for static
+files and templates.
+
+Next, a new route is added. This uses a 
+<python decorator https://realpython.com/primer-on-python-decorators/>_ to make the 
+function we are defining the handler for the "/" route. This means that when a user
+visits the URL of our website, the index function will be called because the URL
+matches.
+
+We define a new function called "index" to handle requests to the root of our website.
+This function just returns the string "Hello, world!". In flask, there are many types
+of data you can return from a handler. If you return a string, that text will be
+returned as the response to the request.
+
+Finally, we use the :code:`app.run()` method to start our app. The replit library will
+use a configuration suited to running your app so you don't have to worry about hosts
+and ports.
 
