@@ -67,6 +67,20 @@ be persisted!
 
 All of the usual dictionary and list methods are supported.
 
+For performance, you can set multiple values in a single request using the set_bulk
+method and its raw equivalent, set_bulk_raw.
+
+::
+
+   db.set_bulk({"a": 1, "b": 2})
+   db["a"] # => 1
+   db["b"] # => 2
+
+   db.set_bulk_raw({"c": '"c"', "d": '"d"'})
+   db["c"] # => "c"
+   db["d"] # => "d"
+
+
 Finally, you can also find keys based on a prefix:
 
 ::
@@ -146,4 +160,6 @@ the web framework, this is done automatically.
 
 To convert these classes to their primitive equivalent, access the value attribute. A
 function that automatically does this is provided: replit.database.to_primitive.
+
+To avoid this behavior entirely, use the get_raw and set_raw methods instead.
 
