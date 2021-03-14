@@ -9,7 +9,8 @@ In this tutorial, we are you going to build a Web Service – a process
 that responds to incoming HTTP Requests, like the ones that come from
 web browsers or even API Clients.
 
-`HTTP <https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol>`_, if you aren’t familiar, is a protocol that allows modern
+`HTTP <https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol>`_, if you aren’t
+familiar, is a protocol that allows modern
 machines (and users of them) to interoperate. You use HTTP every time
 you open an app on your phone that talks with the web. If you can’t
 use an app on your phone without internet, it’s because it’s talking
@@ -51,7 +52,7 @@ known as `RFC 2616`_.
 .. _List of HTTP status codes - Wikipedia: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 .. _RFC 2616: https://tools.ietf.org/html/rfc2616
 
-Building a website with repl.it
+Getting started with replit web
 -------------------------------
 
 Getting started with the replit web library is simple. It is based on top of the popular
@@ -79,11 +80,11 @@ But what exactly does this code do? Let's go over it line by line.
 
 First, it imports the replit web library. Next, it creates a new "app" object using
 the current module name. This tells flask
-<where to look https://flask.palletsprojects.com/en/1.1.x/quickstart/>_ for static
+`where to look <https://flask.palletsprojects.com/en/1.1.x/quickstart/>`_ for static
 files and templates.
 
 Next, a new route is added. This uses a 
-<python decorator https://realpython.com/primer-on-python-decorators/>_ to make the 
+`python decorator <https://realpython.com/primer-on-python-decorators/>`_ to make the 
 function we are defining the handler for the "/" route. This means that when a user
 visits the URL of our website, the index function will be called because the URL
 matches.
@@ -96,4 +97,102 @@ returned as the response to the request.
 Finally, we use the :code:`app.run()` method to start our app. The replit library will
 use a configuration suited to running your app so you don't have to worry about hosts
 and ports.
+
+
+Building a simple API
+---------------------
+
+To demonstrate a simple API that uses Repl Auth and Database together, let's make a
+simple website that counts how many times you visit it.
+
+Let's start with the "Hello, world!" code from above and edit the index route:
+
+::
+
+  @app.route("/")
+  def index():
+      if web.auth.name:
+        return f"You are {web.auth.name}"
+      else:
+        return "You are not signed in!"
+
+
+You should now see your repl say that you are not signed in. 
+
+What does this do? Well, :code:`web.auth` (or, :code:`web.request.auth`) is a special
+object that represents the state of `Repl Auth <https://docs.repl.it/repls/repl-auth>`_.
+Repl auth allows users to log into your site using their repl.it account. With the
+replit python library, first-class repl auth support is built in. 
+
+Right now, theres no way for users to log in. To add that, all you have to do is
+include :code:`web.sign_in_snippet` in your HTML. This will embed a "Login With Replit"
+button in your page:
+
+::
+
+  else:
+    return "You are not signed in! {web.sign_in_snippet}"
+
+
+Now, you should be able to sign in with your repl.it account. If you're having issues,
+make sure to disable your cookie blocker on replit.com and your repl's page. Repl auth
+doesn't currently work in safari for this reason.
+
+If all goes well, your repl should show your username.
+
+An even easier way to require your users to be signed in is to use the
+:code:`web.authenticated` decorator.
+
+It is inserted between the :code:`app.route` decorator and your function. We can change
+our code to use this decorator and cut out the if statement entirely:
+
+::
+
+  @app.route("/")
+  @web.authenticated
+  def index():
+    return f"You are {web.auth.name}"
+
+This code functions almost identically to how it did previously. The only difference is
+that there is no "You are not signed in!" message, only the sign in button. If you
+want to change this, you can pass a keyword argument to the decorator with the same
+string we had previously:
+
+::
+
+  @app.route("/")
+  # This step is optional, it is to demonstrate how the login page can be customized
+  @web.authenticated(login_res = f"You are not signed in! {web.sign_in_snippet}")
+  def index():
+    return f"You are {web.auth.name}"
+
+Now that we have authentication set up, we can use database to count how many times
+each user accesses the page. 
+
+Import the database:
+
+::
+
+  from replit import db, web
+
+Whenever a user visits the page, try to get the amount of times they have visited from
+the database. If they've never visited before, assume zero. Next, add one to that value
+and store it back in the database. Finally, show the value to the user. 
+
+Here is some code that does that:
+
+::
+
+  @app.route("/")
+  @web.authenticated
+  def index():
+      hits = db.get(web.auth.name, 0) + 1
+      db[web.auth.name] = hits
+      return f"You have visited this page {hits} times"
+
+
+You should see the number go up each time you refresh the page.
+
+To take this project further, an idea is to make a leaderboard of the users who
+have requested the page the most times.
 
