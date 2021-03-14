@@ -94,7 +94,7 @@ def list_all(file_path: str) -> None:
     """Write all keys and values in the DB to a JSON file."""
     with open(file_path, "w") as f:
         keys = list(database.keys())
-        binds = dict([(k, database[k]) for k in keys])
+        binds = dict([(k, json.loads(database.get_raw(k))) for k in keys])
 
         json.dump(binds, f)
 
