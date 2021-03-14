@@ -193,6 +193,22 @@ Here is some code that does that:
 
 You should see the number go up each time you refresh the page.
 
+A second way we could accomplish the same thing is to use a :code:`UserStore`,
+which uses a dictionary for each user, allowing us to store more than just one
+value in it:
+
+::
+
+  users = web.UserStore()
+
+  @app.route("/")
+  @web.authenticated
+  def index():
+      hits = users.current.get("hits", 0) + 1
+      users.current["hits"] = hits
+      return f"You have visited this page {hits} times"
+
+
 To take this project further, an idea is to make a leaderboard of the users who
 have requested the page the most times.
 
