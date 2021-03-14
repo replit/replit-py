@@ -78,7 +78,7 @@ class UserStore(Mapping):
     def current(self) -> Optional[User]:
         """The user currently logged in with repl auth, None if not logged in."""
         if request.is_authenticated:
-            return self[request.user_info.name]
+            return self[request.auth.name]
         return None
 
     def _strip_prefix(self, k: str) -> str:
