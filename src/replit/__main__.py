@@ -92,7 +92,7 @@ def nuke_db(i_am_sure: bool) -> None:
 @click.argument("file_path")
 def list_all(file_path: str) -> None:
     """Write all keys and values in the DB to a JSON file."""
-    with open(file_path, "w+") as f:
+    with open(file_path, "w") as f:
         keys = list(database.keys())
         binds = dict([(k, database[k]) for k in keys])
 
