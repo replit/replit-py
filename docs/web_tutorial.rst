@@ -212,3 +212,60 @@ value in it:
 To take this project further, an idea is to make a leaderboard of the users who
 have requested the page the most times.
 
+Building ReplTweet
+==================
+
+As a final project, we will build a twitter clone using the replit library. 
+
+Although this is a full-stack project, meaning it uses javascript in the browser to
+make it interactive, this tutorial will only cover how the python backend works.
+
+First, we will start with a basic web app. We will add a static path for our HTML, CSS,
+and JS, and a user store to manage our users.
+
+::
+
+  from replit import db, web
+
+  # -- Create & configure Flask application.
+  app = web.App(__name__)
+  app.static_url_path = "/static"
+
+  users = web.UserStore()
+
+  @app.route("/")
+  def index():
+      return "Hello"
+
+
+  app.run()
+
+Next, let's make a home route only for signed in users and make the index route a
+landing page for signed-out users. Replace the hello-world route with this code:
+
+::
+
+  # Landing page, only for signed out users
+  @app.route("/")
+  def index():
+      if web.auth.is_authenticated:
+          return web.local_redirect("/home")
+      return web.render_template("index.html")
+
+
+  # Home page, only for signed in users
+  @app.route("/home")
+  def home():
+      if not web.auth.is_authenticated:
+          return web.local_redirect("/")
+      return web.render_template("home.html", name=web.whoami())
+
+You can get these templates and all of the static files from
+`my repltweet repl <https://replit.com/@Scoder12/repltweet#main.py>`_.
+
+The index template contains a simple landing page and a repl auth button. Don't worry
+about the home page template for now. It has the web app to communicate with our
+website, but we need to write the API routes first.
+
+
+
