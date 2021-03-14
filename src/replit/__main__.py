@@ -3,7 +3,6 @@ import json
 
 import click
 from replit import db as database
-from replit.database import DBJSONEncoder
 
 
 reset = "\u001b[0m"
