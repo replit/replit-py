@@ -69,7 +69,7 @@ class ReplitRequest(flask.Request):
         self.update_auth()
 
     def update_auth(self) -> None:
-        """Update the user_info property to be a ReplitUserContext."""
+        """Update the auth property to be a ReplitUserContext."""
         self.auth = ReplitUserContext.from_headers(self.headers)
 
     @property

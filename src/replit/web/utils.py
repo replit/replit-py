@@ -183,7 +183,7 @@ def per_user_ratelimit(
             nonlocal last_reset
             nonlocal num_requests
 
-            name = flask.request.user_info.name
+            name = flask.request.auth.name
             now = time.time()
 
             if now - last_reset >= period:
