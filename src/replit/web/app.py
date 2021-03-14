@@ -43,6 +43,15 @@ class ReplitUserContext:
         """
         return bool(self.name)
 
+    @property
+    def is_authed(self) -> bool:
+        """Check whether the user is authenticated in with Replit Auth.
+
+        Returns:
+            bool: whether or not the authentication is activated.
+        """
+        return bool(self.name)
+
 
 class ReplitRequest(flask.Request):
     """Represents a client request."""
