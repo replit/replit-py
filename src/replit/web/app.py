@@ -43,9 +43,20 @@ class ReplitUserContext:
         """
         return bool(self.name)
 
+    @property
+    def is_authed(self) -> bool:
+        """Check whether the user is authenticated in with Replit Auth.
+
+        Returns:
+            bool: whether or not the authentication is activated.
+        """
+        return bool(self.name)
+
 
 class ReplitRequest(flask.Request):
     """Represents a client request."""
+
+    auth: ReplitUserContext
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initializes request and runs update_auth.
@@ -59,7 +70,7 @@ class ReplitRequest(flask.Request):
 
     def update_auth(self) -> None:
         """Update the user_info property to be a ReplitUserContext."""
-        self.user_info = ReplitUserContext.from_headers(self.headers)
+        self.auth = ReplitUserContext.from_headers(self.headers)
 
     @property
     def is_authenticated(self) -> bool:
@@ -68,7 +79,16 @@ class ReplitRequest(flask.Request):
         Returns:
             bool: Whether or not the user is signed in
         """
-        return self.user_info.is_authenticated
+        return self.auth.is_authenticated
+
+    @property
+    def is_authed(self) -> bool:
+        """Check whether the user is authenticated with Replit.
+
+        Returns:
+            bool: Whether or not the user is signed in
+        """
+        return self.auth.is_authenticated
 
 
 class JSONEncoder(flask.json.JSONEncoder):
