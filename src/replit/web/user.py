@@ -90,7 +90,7 @@ class UserStore(Mapping):
     def __iter__(self) -> Iterator[User]:
         for k in db.keys():
             if k.startswith(self.prefix):
-                yield self[self._strip_prefix(k)]
+                yield self._strip_prefix(k)
 
     def __len__(self) -> int:
         return sum(1 for _ in self)
