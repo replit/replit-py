@@ -220,6 +220,9 @@ As a final project, we will build a twitter clone using the replit library.
 Although this is a full-stack project, meaning it uses javascript in the browser to
 make it interactive, this tutorial will only cover how the python backend works.
 
+Setup
+~~~~~
+
 First, we will start with a basic web app. We will add a static path for our HTML, CSS,
 and JS, and a user store to manage our users.
 
@@ -260,12 +263,41 @@ landing page for signed-out users. Replace the hello-world route with this code:
           return web.local_redirect("/")
       return web.render_template("home.html", name=web.whoami())
 
-You can get these templates and all of the static files from
-`my repltweet repl <https://replit.com/@Scoder12/repltweet#main.py>`_.
+Copy the the :code:`static/main.css`,  :code:`templates/base.html`, 
+:code:`templates/index.html`, and :code:`templates/home.html` files from
+`my repltweet repl <https://replit.com/@Scoder12/repltweet#main.py>`_ (again,
+this tutorial won't focus on the frontend aspect of the app). You can look into these 
+files to see how they work if you want. The HTML files use the Jinja2 templating
+engine which renders the HTML on every request inside our flask app. It also uses
+JavaScript to make the feed interactive.
 
 The index template contains a simple landing page and a repl auth button. Don't worry
 about the home page template for now. It has the web app to communicate with our
 website, but we need to write the API routes first.
 
+Adding Tweets
+~~~~~~~~~~~~~
 
+The first thing we will add is a route to create a tweet. Our user data structure will
+look like this:
+
+::
+
+  users["example"] = {
+    "tweets": [tweet]
+  }
+
+Since we are using a dictionary for each user, we will use a :code:`UserStore` object.
+We will only be using a single key, :code:`tweets`, but as an extra challenge, you can
+add additional fields like a biography.
+
+This is what each tweet will look like:
+
+::
+
+  tweet = {
+    "ts": time.time() * 1000, # UTC in ms, will be used as a unique ID
+    "body": "Hello repltweet!", # the body of the tweet
+    "likes": ["Scoder12"] # a list of the usernames of the users who liked this tweet
+  }
 
