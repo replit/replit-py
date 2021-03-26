@@ -1,5 +1,6 @@
-from typing import Optional
+"""A module containing the default database."""
 from os import environ
+from typing import Optional
 
 from .database import Database
 
