@@ -3,22 +3,17 @@ import os
 from typing import Optional
 
 from .database import AsyncDatabase, Database, DBJSONEncoder, dumps, to_primitive
+from .default_db import db_url, db
+from .server import make_database_proxy_blueprint, start_database_proxy
 
 __all__ = [
     "AsyncDatabase",
     "Database",
-    "DBJSONEncoder",
-    "dumps",
-    "to_primitive",
     "db",
+    "DBJSONEncoder",
     "db_url",
+    "dumps",
+    "make_database_proxy_blueprint",
+    "start_database_proxy",
+    "to_primitive",
 ]
-
-
-db: Optional[Database]
-db_url = os.environ.get("REPLIT_DB_URL")
-if db_url:
-    db = Database(db_url)
-else:
-    # The user will see errors if they try to use the database.
-    db = None
