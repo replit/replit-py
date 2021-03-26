@@ -4,7 +4,13 @@
 
 from . import web
 from .audio import Audio
-from .database import db, Database, AsyncDatabase
+from .database import (
+    db,
+    Database,
+    AsyncDatabase,
+    make_database_proxy_blueprint,
+    start_database_proxy,
+)
 
 # Backwards compatibility.
 def clear() -> None:
