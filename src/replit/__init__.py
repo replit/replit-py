@@ -4,7 +4,7 @@
 
 from . import web
 from .audio import Audio
-from .database import db, Database
+from .database import db, Database, AsyncDatabase
 
 # Backwards compatibility.
 def clear() -> None:
