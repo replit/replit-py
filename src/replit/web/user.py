@@ -49,6 +49,21 @@ class User(MutableMapping):
             key (str): The key to set
             val (Any): The value to set it to
         """
+        self[key] = val
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Gets a value from the database if it exists, otherwise returns default.
+
+        Args:
+            key (str): The key to retrieve
+            default (Any): The value to return if the key does not exist
+
+        Returns:
+            Any: The value of the key or default
+        """
+        # We can't let MutableMapping implement this method because if it does it will
+        #  return default directly instead of wrapping it in a special database method
+        return self._ensure_value().get(key, default)
 
     def __getitem__(self, k: str) -> Any:
         return self._ensure_value()[k]
