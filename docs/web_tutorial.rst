@@ -221,7 +221,7 @@ Although this is a full-stack project, meaning it uses javascript in the browser
 make it interactive, this tutorial will only cover how the python backend works.
 
 Setup
-~~~~~
+-----
 
 First, we will start with a basic web app. We will add a static path for our HTML, CSS,
 and JS, and a user store to manage our users.
@@ -276,7 +276,7 @@ about the home page template for now. It has the web app to communicate with our
 website, but we need to write the API routes first.
 
 Adding Tweets
-~~~~~~~~~~~~~
+-------------
 
 The first thing we will add is a route to create a tweet. Our user data structure will
 look like this:
@@ -328,7 +328,7 @@ we also add an empty likes array since nobody has liked this tweet yet. Finally,
 append this tweet to the user's tweet array.
 
 Making the feed
-~~~~~~~~~~~~~~~
+---------------
 
 Next, we will implement the ability to see the latest tweets. We will add a GET route
 that returns the latest tweets in JSON format.
@@ -375,7 +375,7 @@ could also just wrap the sorted call in :code:`reversed()` which would do the sa
 thing, but passing :code:`reverse=True` is easier to read.
 
 Adding likes and dislikes
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Next, we will add the ability to like a post. We will add a single POST route that will
 take an author, timestamp, and whether to like or unlike the tweet, and code that will
@@ -463,7 +463,7 @@ Finally, we convert the set back to a list because sets are not JSON serializeab
 so they cannot be stored in the database. 
 
 Deleting Tweets
-~~~~~~~~~~~~~~~
+---------------
 
 The last method we will implement is deletion. It will be a POST that accepts an author
 and timestamp like like does (possible missed oppurtunity for using the DELETE method).
@@ -515,7 +515,7 @@ not the matched tweet (another way to do this could be to compare each tweet's
 timestamp with :code:`ts`).
 
 Wrapping Up
-~~~~~~~~~~~
+-----------
 
 With delete implemented, repltweet is complete! Feel free to add any new features that
 your can think of and be sure to share them with the community!
