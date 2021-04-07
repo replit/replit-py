@@ -1,9 +1,10 @@
 Building Websites and APIs
 ==========================
 
-.. note:: This guide assumes that you are familiar with running code of some kind on
-Replit. If you aren’t, please refer to our
-`Quick Start Guide <https://docs.repl.it/misc/quick-start>`_.
+.. note:: 
+  This guide assumes that you are familiar with running code of some kind on
+  Replit. If you aren’t, please refer to our
+  `Quick Start Guide <https://docs.repl.it/misc/quick-start>`_.
 
 In this tutorial, we are you going to build a Web Service – a process
 that responds to incoming HTTP Requests, like the ones that come from
