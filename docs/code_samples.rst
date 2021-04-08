@@ -20,74 +20,44 @@ Here's a basic "Hello, World!" example, using the web framework provided:
 
    app.run()
 
-Adding Required Replit Login
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Requiring Replit Auth
+~~~~~~~~~~~~~~~~~~~~~
 
 In this example, we are requiring that a Replit user sign in with their Replit user account in order to see the "Hello, World!":
 
 ::
 
-   from replit import web
-
-   app = web.App(__name__)
-
-   @web.needs_sign_in(login_res=f"Hello! {web.login_snippet}")
+   @app.route("/")
+   @web.authenticated
    def index():
       return "Hello, World!"
 
-   app.run()
-
-
-Getting a User's Profile Information
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In this next example, we will take the logged in user's profile information and present it in API form:
+Accessing replit user info
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-   from replit import web, get_profile
-
-   app = web.App(__name__)
-
-   @web.needs_sign_in(login_res=f"Hello! {web.login_snippet}")
+   @app.route("/")
    def index():
-      username = web.whoami()
+      if web.signed_in:
+         return f"You are {auth.name}"
+      return f"You are not signed in {web.sign_in_snippet}"
 
-      payload = {}
-      payload["greetings"] = True
-      payload["profile"] = get_profile(username).as_dict
+Combining Replit Auth and Replit Database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-      return payload
-
-   app.run()
-
-Here's the example API response:
+:code:`web.UserStore` will map usernames to values in the database.
 
 ::
 
-   $ curl https://replit-py-code-sample.kennethreitz42.repl.co/
-   {
-      "greetings": true,
-      "profile": {
-         "avatar_url": "https://storage.googleapis.com/replit/images/1609937177761_8ce62c49dfd5f0192cff5d3684f78a21.jpeg",
-         "bio": "Software Engineer focused on abstractions, reducing cognitive overhead, and Design for Humans.",
-         "name": "Kenneth Reitz",
-         "username": "kennethreitz42"
-      }
-   }
+   from replit import db, web
 
-Pretty useful!
+   users = web.UserStore()
 
-You could use this to build your own social tools based around the Replit community.
-
-
-ReplTweet Example
-~~~~~~~~~~~~~~~~~
-
-A more fully–fledged example is a Repl we have available known as ReplTweet. It is a Twitter clone!
-
-- `https://repl.it/@kennethreitz42/repltweet <https://repl.it/@kennethreitz42/repltweet>`_
-- `https://github.com/replit/example-repltweet <https://github.com/replit/example-repltweet>`_
-
-Check out the Repl and the GitHub repo to see it in action and learn more about how to use
-this library to your full advantage!
+   @app.route("/")
+   @web.authenticated
+   def index():
+      # users.current is the same as users[web.auth.name]
+      hits = users.current.get("hits", 0) + 1
+      users.current["hits"] = hits
+      return f"You have visited the page {hits} times"
