@@ -172,10 +172,10 @@ def per_user_ratelimit(
         Callable[[Callable], flask.Response]: A function which decorates the handler.
     """
 
-    def decorator(func: Callable) -> flask.Response:
-        last_reset = time.time()
-        num_requests = {}
+    last_reset = time.time()
+    num_requests = {}
 
+    def decorator(func: Callable) -> flask.Response:
         # Checks for signin first, before checking ratelimit
         @authenticated(login_res=login_res)
         @wraps(func)
