@@ -515,8 +515,55 @@ Finally, if all checks pass, we filter the author's tweets to only be those that
 not the matched tweet (another way to do this could be to compare each tweet's
 timestamp with :code:`ts`).
 
+Adding Ratelimits
+-----------------
+
+The final step will be to add a ratelimit to our API. Replit-py allows you to do this
+out of the box without writing any of your own code. It uses a decorator that
+ratelimits each user individually. Because it relies on usernames to apply the
+ratelimit, it also automatically requires login. The reason that we use usernames to
+apply ratelimits is that on replit there is no concept of IPs so if we ratelimited
+globally one malicious user could ratelimit all users of the app. Ratelimiting based on
+usernames works well for our use-case because we require users to sign in anyway.
+
+To apply the ratelimit, you can use the :code:`@web.per_user_ratelimit()` decorator, 
+but we want to re-use this decorator on multiple routes so we will assign it to a
+variable instead. Now, we can add :code:`@ratelimit` after each :code:`@app.route` line
+in our API routes to enforce the ratelimit: 
+
+::
+
+  ratelimit = web.per_user_ratelimit(
+    max_requests=60,
+    period=60,
+    login_res=json.dumps({"error": "Not signed in"}),
+    get_ratelimited_res=(
+        lambda time_left: json.dumps(
+            {"error": f"Wait {time_left:.2f} sec before trying again."}
+        )
+    ),
+  )
+
+  # --snip--
+
+  @app.route("/api/tweet", methods=["POST"])
+  @ratelimit
+  @web.params("body")
+  def api_tweet(body):
+
+
+This ratelimit has a :code:`max_requests` value of 60 and a :code:`period` value of 60,
+which means that every 60 seconds (or 1 minute), users can send 60 requests. This is
+almost the same as 1 and 1 but it allows users to use multiple requests in a single
+second as long as they don't go over 60 requests. Once they hit 60 requests, a user
+will not be able to issue any further requests for the rest of the 60 second period.
+Note, since we are re-using the same decorator across multiple routes, the ratelimit is
+shared between those routes, meaning a request to :code:`/api/like` and then a request
+to :code:`/api/tweet` counts as 2 requests instead of one for each endpoint.
+
+
 Wrapping Up
 -----------
 
-With delete implemented, repltweet is complete! Feel free to add any new features that
+That's it for the repltweet tutorial! Feel free to add any new features that
 your can think of and be sure to share them with the community!
