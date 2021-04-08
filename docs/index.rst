@@ -29,6 +29,7 @@ Table of Contents
    api
    db_tutorial
    web_tutorial
+   cli
    code_samples
 
 
