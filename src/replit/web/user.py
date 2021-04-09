@@ -102,7 +102,7 @@ class UserStore(Mapping):
     def __getitem__(self, name: str) -> User:
         return User(username=name, prefix=self.prefix)
 
-    def __iter__(self) -> Iterator[User]:
+    def __iter__(self) -> Iterator[str]:
         for k in db.keys():
             if k.startswith(self.prefix):
                 yield self._strip_prefix(k)
