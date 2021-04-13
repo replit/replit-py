@@ -24,7 +24,7 @@ class ReplInfo:
         return os.getenv("REPL_LANGUAGE")
 
     @property
-    def id_url(self) -> Optional[str]:
+    def id_co_url(self) -> Optional[str]:
         """The hosted URL of the repl in the form https://<id>.id.repl.co.
 
         Less readable than the vanity URL but guaranteed to work (the vanity URL might
@@ -35,7 +35,7 @@ class ReplInfo:
         return f"https://{repl_id}.id.repl.co"
 
     @property
-    def readable_url(self) -> Optional[str]:
+    def co_url(self) -> Optional[str]:
         """The readable, hosted repl.co URL for this repl.
 
         See id_url for the difference between the hosted URL types."""
