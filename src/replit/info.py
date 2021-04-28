@@ -1,20 +1,29 @@
+"""Information about your repl."""
 import os
 from typing import Optional
 
 
 class ReplInfo:
+    """Represents info about the current repl."""
+
     @property
     def id(self) -> Optional[str]:
         """The id of the repl (REPL_ID environment variable)."""
         return os.getenv("REPL_ID")
 
     @property
-    def slug(self) -> str:
-        """The slug (name) of the repl (REPL_SLUG environement variable)."""
+    def slug(self) -> Optional[str]:
+        """The slug of the repl (REPL_SLUG environement variable).
+
+        The slug is the url-safe version of the repl's name.
+
+        Returns:
+            Optional[str]: The repl slug.
+        """
         return os.getenv("REPL_SLUG")
 
     @property
-    def owner(self) -> str:
+    def owner(self) -> Optional[str]:
         """The owner of the repl (REPL_OWNER environment variable)."""
         return os.getenv("REPL_OWNER")
 
@@ -28,7 +37,11 @@ class ReplInfo:
         """The hosted URL of the repl in the form https://<id>.id.repl.co.
 
         Less readable than the vanity URL but guaranteed to work (the vanity URL might
-        be too long for a certificate to be issued for it, causing it to break)."""
+        be too long for a certificate to be issued for it, causing it to break).
+
+        Returns:
+            Optional[str]: The id URL or None if there is no ID.
+        """
         repl_id = self.id
         if repl_id is None:
             return None
@@ -38,7 +51,11 @@ class ReplInfo:
     def co_url(self) -> Optional[str]:
         """The readable, hosted repl.co URL for this repl.
 
-        See id_url for the difference between the hosted URL types."""
+        See id_url for the difference between the hosted URL types.
+
+        Returns:
+            Optional[str]: The vanity hosted URL or None if slug or owner is None.
+        """
         slug = self.slug
         owner = self.owner
         if slug is None or owner is None:
