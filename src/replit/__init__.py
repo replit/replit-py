@@ -11,6 +11,9 @@ from .database import (
     make_database_proxy_blueprint,
     start_database_proxy,
 )
+from .info import ReplInfo
+
+info = ReplInfo()
 
 # Backwards compatibility.
 def clear() -> None:
