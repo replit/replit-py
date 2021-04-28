@@ -171,7 +171,6 @@ def per_user_ratelimit(
     Returns:
         Callable[[Callable], flask.Response]: A function which decorates the handler.
     """
-
     last_reset = time.time()
     num_requests = {}
 
