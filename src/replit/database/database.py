@@ -370,9 +370,7 @@ def _get_set_cb(db: Any, k: str) -> Callable[[Any], None]:
 
 def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
     """Takes a JSON value and recursively converts it into an Observed value."""
-    if isinstance(item, str) or isinstance(item, int) or item is None:
-        return item
-    elif isinstance(item, dict):
+    if isinstance(item, dict):
         # no-op handler so we don't call on_mutate in the loop below
         observed_dict = ObservedDict((lambda _: None), item)
         cb = _get_on_mutate_cb(observed_dict)
@@ -393,7 +391,7 @@ def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
         observed_list._on_mutate_handler = on_mutate
         return observed_list
     else:
-        raise TypeError(f"Unexpected type {type(item).__name__!r}")
+        return item
 
 
 class Database(abc.MutableMapping):
