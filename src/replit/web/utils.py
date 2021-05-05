@@ -68,6 +68,30 @@ def authenticated(func: Callable = None, login_res: str = sign_in_page) -> Calla
 needs_sign_in = authenticated
 
 
+def authenticated_template(template: str, **context: Any) -> Callable:
+    """A decorator that renders a template if the user is not signed in.
+
+    Args:
+        template (str): The template filename to render.
+        **context (Any): The context to pass to the template.
+
+    Returns:
+        Callable: A decorator to apply to your route.
+    """
+
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def handler(*args: Any, **kwargs: Any) -> flask.Response:
+            if flask.request.is_authenticated:
+                return func(*args, **kwargs)
+            else:
+                return flask.render_template(template, **context)
+
+        return handler
+
+    return decorator
+
+
 def params(
     *param_names: str,
     src: Union[str, dict] = "form",
