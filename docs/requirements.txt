@@ -32,3 +32,4 @@ werkzeug==1.0.1; (python_version >= "2.7" and python_full_version < "3.0.0") or 
 yarl==1.6.3; python_version >= "3.6"
 sphinx_autodoc_typehints
 alabaster
+sphinx-click==2.7.1
