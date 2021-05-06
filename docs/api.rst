@@ -25,11 +25,6 @@ Replit Web Framework & Utilities
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: replit.web.files
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. automodule:: replit.web.user
    :members:
    :undoc-members:
