@@ -12,11 +12,9 @@ Welcome to Replit-py's User Guide!
 This repository is the home for the ``replit`` Python package, which
 provides:
 
--  A fully-featured database client for `Replit DB <https://docs.repl.it/misc/database>`_.
+-  A fully-featured `Replit DB <https://docs.repl.it/misc/database>`_ client and CLI.
 -  A Flask–based application framework for accellerating development on the platform.
--  Replit user profile metadata retreival (more coming here!).
 -  A simple audio library that can play tones and audio files!
-
 
 .. figure:: https://github.com/replit/replit-py/blob/master/ext/readme.gif?raw=true
 
