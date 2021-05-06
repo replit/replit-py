@@ -6,7 +6,6 @@ import os
 import flask
 from werkzeug.local import LocalProxy
 
-from . import files
 from .app import ReplitApp
 from .user import User, UserStore
 from .utils import *
