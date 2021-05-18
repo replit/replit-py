@@ -12,7 +12,7 @@ documentation = "https://replit-py.readthedocs.org/"
 [tool.poetry.dependencies]
 python = "^3.8"
 typing_extensions = "^3.7.4"
-flask = "^1.1.2"
+Flask = "^2.0.0"
 werkzeug = "^1.0.1"
 aiohttp = "^3.6.2"
 
@@ -31,7 +31,7 @@ sphinx-autodoc-typehints = "^1.11.0"
 sphinx-rtd-theme = "^0.5.0"
 coverage = "^5.2.1"
 mypy = "^0.782"
-Flask = "^1.1.2"
+Flask = "^2.0.0"
 sphinx-autobuild = "^2020.9.1"
 sphinx-click = "^2.7.1"
 
