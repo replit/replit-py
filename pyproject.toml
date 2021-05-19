@@ -13,7 +13,7 @@ documentation = "https://replit-py.readthedocs.org/"
 python = "^3.8"
 typing_extensions = "^3.7.4"
 Flask = "^2.0.0"
-werkzeug = "^1.0.1"
+Werkzeug = "^2.0.0"
 aiohttp = "^3.6.2"
 
 [tool.poetry.dev-dependencies]
