@@ -9,6 +9,7 @@ from replit.database import AsyncDatabase, Database
 import requests
 
 
+@unittest.skip("flaky")
 class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
     """Tests for replit.database.AsyncDatabase."""
 
@@ -118,6 +119,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await self.db.get_raw("bulk2"), "val2")
 
 
+@unittest.skip("flaky")
 class TestDatabase(unittest.TestCase):
     """Tests for replit.database.Database."""
 
