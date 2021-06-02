@@ -107,7 +107,7 @@ class AsyncDatabase:
         """
         if type(key) != str:
             raise TypeError("Key '" + str(key) + "' is not of type str")
-            
+
         async with self.sess.get(
             self.db_url + "/" + urllib.parse.quote(key)
         ) as response:
@@ -134,7 +134,7 @@ class AsyncDatabase:
         """
         if type(key) != str:
             raise TypeError("Key '" + str(key) + "' is not of type str")
-            
+
         await self.set_bulk_raw({key: value})
 
     async def set_bulk(self, values: Dict[str, Any]) -> None:
@@ -155,7 +155,7 @@ class AsyncDatabase:
         for key in values:
             if type(key) != str:
                 raise TypeError("Key '" + str(key) + "' is not of type str")
-                
+
         async with self.sess.post(self.db_url, data=values) as response:
             response.raise_for_status()
 
@@ -170,7 +170,7 @@ class AsyncDatabase:
         """
         if type(key) != str:
             raise TypeError("Key '" + str(key) + "' is not of type str")
-            
+
         async with self.sess.delete(
             self.db_url + "/" + urllib.parse.quote(key)
         ) as response:
@@ -482,7 +482,7 @@ class Database(abc.MutableMapping):
         """
         if type(key) != str:
             raise TypeError("Key '" + str(key) + "' is not of type str")
-            
+
         r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
         if r.status_code == 404:
             raise KeyError(key)
@@ -535,7 +535,7 @@ class Database(abc.MutableMapping):
         for key in values:
             if type(key) != str:
                 raise TypeError("Key '" + str(key) + "' is not of type str")
-            
+
         r = self.sess.post(self.db_url, data=values)
         r.raise_for_status()
 
@@ -550,7 +550,7 @@ class Database(abc.MutableMapping):
         """
         if type(key) != str:
             raise TypeError("Key '" + str(key) + "' is not of type str")
-            
+
         r = self.sess.delete(self.db_url + "/" + urllib.parse.quote(key))
         if r.status_code == 404:
             raise KeyError(key)
