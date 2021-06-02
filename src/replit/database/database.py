@@ -105,6 +105,9 @@ class AsyncDatabase:
         Returns:
             str: The value of the key
         """
+        if type(key) != str:
+            raise TypeError("Key '" + str(key) + "' is not of type str")
+            
         async with self.sess.get(
             self.db_url + "/" + urllib.parse.quote(key)
         ) as response:
@@ -129,6 +132,9 @@ class AsyncDatabase:
             key (str): The key to set
             value (str): The value to set it to
         """
+        if type(key) != str:
+            raise TypeError("Key '" + str(key) + "' is not of type str")
+            
         await self.set_bulk_raw({key: value})
 
     async def set_bulk(self, values: Dict[str, Any]) -> None:
@@ -146,6 +152,10 @@ class AsyncDatabase:
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
+        for key in values:
+            if type(key) != str:
+                raise TypeError("Key '" + str(key) + "' is not of type str")
+                
         async with self.sess.post(self.db_url, data=values) as response:
             response.raise_for_status()
 
@@ -158,6 +168,9 @@ class AsyncDatabase:
         Raises:
             KeyError: Key does not exist
         """
+        if type(key) != str:
+            raise TypeError("Key '" + str(key) + "' is not of type str")
+            
         async with self.sess.delete(
             self.db_url + "/" + urllib.parse.quote(key)
         ) as response:
@@ -467,6 +480,9 @@ class Database(abc.MutableMapping):
         Returns:
             str: The value of the key in the database.
         """
+        if type(key) != str:
+            raise TypeError("Key '" + str(key) + "' is not of type str")
+            
         r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
         if r.status_code == 404:
             raise KeyError(key)
@@ -516,6 +532,10 @@ class Database(abc.MutableMapping):
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
+        for key in values:
+            if type(key) != str:
+                raise TypeError("Key '" + str(key) + "' is not of type str")
+            
         r = self.sess.post(self.db_url, data=values)
         r.raise_for_status()
 
@@ -528,6 +548,9 @@ class Database(abc.MutableMapping):
         Raises:
             KeyError: Key is not set
         """
+        if type(key) != str:
+            raise TypeError("Key '" + str(key) + "' is not of type str")
+            
         r = self.sess.delete(self.db_url + "/" + urllib.parse.quote(key))
         if r.status_code == 404:
             raise KeyError(key)
