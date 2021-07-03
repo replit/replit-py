@@ -16,8 +16,6 @@ provides:
 -  A Flask–based application framework for accellerating development on the platform.
 -  A simple audio library that can play tones and audio files!
 
-.. figure:: https://github.com/replit/replit-py/blob/master/ext/readme.gif?raw=true
-
 Table of Contents
 =================
 
