@@ -2,9 +2,11 @@
 
 """A basic example of repl auth."""
 
+import flask
 from replit import web
 
-app = web.App(__name__)
+app = flask.Flask(__name__)
+
 
 
 @app.route("/")
