@@ -91,7 +91,7 @@ class UserStore(Mapping):
     @property
     def current(self) -> Optional[User]:
         """The user currently logged in with repl auth, None if not logged in."""
-        auth = ReplitAuthContext(flask.request)
+        auth = ReplitAuthContext.from_headers(flask.request.headers)
         if auth.is_authed:
             return self[auth.name]
         return None
