@@ -7,7 +7,7 @@ app = flask.Flask(__name__)
 
 
 @app.route("/")
-@web.authed_ratelimit(
+@web.per_user_ratelimit(
     max_requests=1,  # Number of requests allowed
     period=1,  # Amount of time before counter resets
     login_res=web.Page(body=f"Sign in\n{maqpy.sign_in_snippet}"),
