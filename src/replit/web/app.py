@@ -54,3 +54,8 @@ class JSONEncoder(flask.json.JSONEncoder):
         if isinstance(o, ObservedDict) or isinstance(o, ObservedList):
             return o.value
         return super().default(o)
+
+
+def run_app(app: flask.Flask, host: str = "0.0.0.0", port: int = 8080, **kwargs) -> None:
+    """A simple wrapper around app.run() with replit compatible defaults."""
+    app.run(host=host, port=port, **kwargs)
