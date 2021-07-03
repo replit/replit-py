@@ -7,7 +7,7 @@ import flask
 from ..database.database import ObservedDict, ObservedList
 
 @dataclass
-class ReplitUserContext:
+class ReplitAuthContext:
     """A dataclass defining a Replit Auth state."""
 
     user_id: int
