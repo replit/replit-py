@@ -39,3 +39,6 @@ sphinx-click = "^2.7.1"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.poetry.scripts]
+replit = "replit.__main__:cli"
