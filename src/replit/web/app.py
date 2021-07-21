@@ -62,3 +62,38 @@ def run_app(app: flask.Flask, host: str = "0.0.0.0", port: int = 8080, **kwargs)
 
 # shorthand
 run = run_app
+
+
+def debug(
+    app: flask.Flask,
+    watch_dirs: List[str] = None,
+    watch_files: List[str] = None,
+    port: int = 8080,
+    localhost: bool = False,
+    **kwargs: Any
+) -> None:
+    """Run the app in debug mode.
+    Args:
+        watch_dirs (List[str]): Directories whose files will be added to
+            watch_files. Defaults to [].
+        watch_files (List[str]): Files to watch, and if changes are detected
+            the server will be restarted. Defaults to [].
+        port (int): The port to run the app on. Defaults to 8080.
+        localhost (bool): Whether to run the app without exposing it on all
+            interfaces. Defaults to False.
+        **kwargs (Any): Extra keyword arguments to be passed to the flask app's run
+            method.
+    """
+    watch_files = list(watch_files or [])
+
+    for directory in watch_dirs or []:
+        if not isinstance(directory, Path):
+            directory = Path(directory)
+        watch_files += [str(f) for f in directory.iterdir() if f.is_file()]
+
+    app.run(
+        host="localhost" if localhost else "0.0.0.0",
+        port=port,
+        debug=True,
+        extra_files=watch_files,
+    )
