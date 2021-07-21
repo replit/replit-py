@@ -6,6 +6,7 @@ import flask
 
 from ..database.database import ObservedDict, ObservedList
 
+
 @dataclass
 class ReplitAuthContext:
     """A dataclass defining a Replit Auth state."""
@@ -56,9 +57,12 @@ class JSONEncoder(flask.json.JSONEncoder):
         return super().default(o)
 
 
-def run_app(app: flask.Flask, host: str = "0.0.0.0", port: int = 8080, **kwargs) -> None:
+def run_app(
+    app: flask.Flask, host: str = "0.0.0.0", port: int = 8080, **kwargs
+) -> None:
     """A simple wrapper around app.run() with replit compatible defaults."""
     app.run(host=host, port=port, **kwargs)
+
 
 # shorthand
 run = run_app

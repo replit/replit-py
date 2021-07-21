@@ -8,7 +8,6 @@ from replit import web
 app = flask.Flask(__name__)
 
 
-
 @app.route("/")
 def index():
     if web.signed_in:
