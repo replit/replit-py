@@ -56,31 +56,32 @@ known as `RFC 2616`_.
 Getting started with replit web
 -------------------------------
 
-Getting started with the replit web library is simple. It is based on top of the popular
-python web framework `Flask <https://flask.palletsprojects.com>`_, with extra features
-added in.
+Getting started with the replit web library is simple. It is a set of utilities
+that work with the popular python web framework
+`Flask <https://flask.palletsprojects.com>`_.
 
 Here is the basic code you can run in a `Python repl <https://replit.com/l/python3>`_
 to get an HTTP server running:
 
 ::
 
+  import flask
   from replit import web
 
-  app = web.App(__name__)
+  app = flask.Flask(__name__)
 
   @app.route("/")
   def index():
     return "Hello, world!"
   
-  app.run()
+  web.run(app)
 
 You should have a website pop up in your repl with the text "Hello, world!"
 
 But what exactly does this code do? Let's go over it line by line.
 
-First, it imports the replit web library. Next, it creates a new "app" object using
-the current module name. This tells flask
+First, it imports flask and the replit web library. Next, it creates a new app object
+using the current module name. This tells flask
 `where to look <https://flask.palletsprojects.com/en/1.1.x/quickstart/>`_ for static
 files and templates.
 
@@ -229,10 +230,11 @@ and JS, and a user store to manage our users.
 
 ::
 
+  import flask
   from replit import db, web
 
   # -- Create & configure Flask application.
-  app = web.App(__name__)
+  app = flask.Flask(__name__)
   app.static_url_path = "/static"
 
   users = web.UserStore()
