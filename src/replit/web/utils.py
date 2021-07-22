@@ -7,6 +7,8 @@ from typing import Any, Callable, Iterable, Optional, Union
 import flask
 from werkzeug.local import LocalProxy
 
+from .app import ReplitAuthContext
+
 authentication_snippet = (
     '<script authed="location.reload()" '
     'src="https://auth.turbio.repl.co/script.js"></script>'
@@ -52,7 +54,7 @@ def authenticated(func: Callable = None, login_res: str = sign_in_page) -> Calla
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def handler(*args: Any, **kwargs: Any) -> flask.Response:
-            if flask.request.is_authenticated:
+            if ReplitAuthContext.from_headers(flask.request.headers).is_authed:
                 return func(*args, **kwargs)
             else:
                 return login_res
@@ -82,7 +84,7 @@ def authenticated_template(template: str, **context: Any) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def handler(*args: Any, **kwargs: Any) -> flask.Response:
-            if flask.request.is_authenticated:
+            if ReplitAuthContext.from_headers(flask.request.headers).is_authed:
                 return func(*args, **kwargs)
             else:
                 return flask.render_template(template, **context)
@@ -206,7 +208,7 @@ def per_user_ratelimit(
             nonlocal last_reset
             nonlocal num_requests
 
-            name = flask.request.auth.name
+            name = ReplitAuthContext.from_headers(flask.request.headers).name
             now = time.time()
 
             if now - last_reset >= period:

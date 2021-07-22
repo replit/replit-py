@@ -1,8 +1,9 @@
 # flake8: noqa
 
+import flask
 from replit import web
 
-app = web.App(__name__)
+app = flask.Flask(__name__)
 
 
 @app.route("/")
@@ -44,4 +45,4 @@ def query(q):
 
 
 if __name__ == "__main__":
-    app.run()
+    web.run_app(app)

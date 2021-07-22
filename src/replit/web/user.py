@@ -2,13 +2,12 @@
 from collections.abc import Mapping, MutableMapping
 from typing import Any, Iterator, Optional
 
-from flask import request as real_request
+import flask
 
-from .app import ReplitRequest
+from .app import ReplitAuthContext
 from ..database import Database, db as real_db
 
 db: Database = real_db  # type: ignore
-request: ReplitRequest = real_request  # type: ignore
 
 
 class User(MutableMapping):
@@ -92,8 +91,9 @@ class UserStore(Mapping):
     @property
     def current(self) -> Optional[User]:
         """The user currently logged in with repl auth, None if not logged in."""
-        if request.is_authenticated:
-            return self[request.auth.name]
+        auth = ReplitAuthContext.from_headers(flask.request.headers)
+        if auth.is_authed:
+            return self[auth.name]
         return None
 
     def _strip_prefix(self, k: str) -> str:
