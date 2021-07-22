@@ -1,15 +1,17 @@
 # flake8: noqa
 
+import flask
 from replit import web
 
-app = web.App(__name__)
+app = flask.Flask(__name__)
 
 
 @app.route("/")
-@web.authed_ratelimit(
+@web.per_user_ratelimit(
     max_requests=1,  # Number of requests allowed
     period=1,  # Amount of time before counter resets
-    login_res=web.Page(body=f"Sign in\n{maqpy.sign_in_snippet}"),
+    # Optional sign in page
+    login_res=f"Hello, please sign in\n{web.sign_in_snippet}",
     get_ratelimited_res=(lambda left: f"Too many requests, try again after {left} sec"),
 )
 def index():
@@ -17,4 +19,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run()
+    web.run_app(app)
