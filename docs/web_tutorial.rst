@@ -254,7 +254,7 @@ landing page for signed-out users. Replace the hello-world route with this code:
 
   def is_mod(username):
       # Check whether a user has moderator priveleges
-      return web.whoami() in ("Scoder12", "Your_username_here")
+      return web.auth.name in ("Scoder12", "Your_username_here")
 
   # Landing page, only for signed out users
   @app.route("/")
@@ -269,7 +269,7 @@ landing page for signed-out users. Replace the hello-world route with this code:
   def home():
       if not web.auth.is_authenticated:
           return web.local_redirect("/")
-      return flask.render_template("home.html", name=web.whoami(), MOD=is_mod(web.whoami()))
+      return flask.render_template("home.html", name=web.auth.name, MOD=is_mod(web.auth.name))
 
 Copy the the :code:`static/main.css`,  :code:`templates/base.html`, 
 :code:`templates/index.html`, and :code:`templates/home.html` files from
@@ -333,7 +333,7 @@ will take a "body" argument which is the content of the tweet.
       # Use .get() to handle missing keys
       users.current.get("tweets", []).append(newtweet)
 
-      print(f"{web.whoami()} tweeted: {body!r}")
+      print(f"{web.auth.name} tweeted: {body!r}")
 
       return {"success": True}
 
@@ -435,7 +435,7 @@ Here is the implementation of the like route. It is a bit longer than the other 
       if tweet is None:
           return {"error": "Tweet not found"}, 404
 
-      me = web.whoami()
+      me = web.auth.name
       # Convert to a unique set so we can add and remove and prevent double liking
       likes = set(tweet.get("likes", []))
       if action == "like":
@@ -499,13 +499,13 @@ and timestamp like like does (possible missed oppurtunity for using the DELETE m
           return {"error": "Tweet not found"}, 404
 
       # Moderators bypass this check, they can delete anything
-      if not is_mod() and author != web.whoami():
+      if not is_mod() and author != web.auth.name:
           print(
-              f"{web.whoami()!r} tried to delete tweet by {author!r}: Permission denied"
+              f"{web.auth.name!r} tried to delete tweet by {author!r}: Permission denied"
           )
           return {"error": "Permission denied. This incident has been reported."}, 401
 
-      print(web.whoami(), "deleted a tweet by", author)
+      print(web.auth.name, "deleted a tweet by", author)
 
       users[author]["tweets"] = [
           t for t in users[author].get("tweets", []) if t != tweet
