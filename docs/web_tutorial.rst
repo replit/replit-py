@@ -560,6 +560,10 @@ which means that every 60 seconds (or 1 minute), users can send 60 requests. Thi
 almost the same as 1 and 1 but it allows users to use multiple requests in a single
 second as long as they don't go over 60 requests. Once they hit 60 requests, a user
 will not be able to issue any further requests for the rest of the 60 second period.
+During this period, the API returns a message explaining that they are ratelimited in
+JSON format. This is the same format that normal API responses use, so the client can
+handle it and show the error message to the user.
+
 Note, since we are re-using the same decorator across multiple routes, the ratelimit is
 shared between those routes, meaning a request to :code:`/api/like` and then a request
 to :code:`/api/tweet` counts as 2 requests instead of one for each endpoint.
