@@ -252,6 +252,10 @@ landing page for signed-out users. Replace the hello-world route with this code:
 
 ::
 
+  def is_mod(username):
+      # Check whether a user has moderator priveleges
+      return web.whoami() in ("Scoder12", "Your_username_here")
+
   # Landing page, only for signed out users
   @app.route("/")
   def index():
@@ -265,7 +269,7 @@ landing page for signed-out users. Replace the hello-world route with this code:
   def home():
       if not web.auth.is_authenticated:
           return web.local_redirect("/")
-      return flask.render_template("home.html", name=web.whoami())
+      return flask.render_template("home.html", name=web.whoami(), MOD=is_mod(web.whoami()))
 
 Copy the the :code:`static/main.css`,  :code:`templates/base.html`, 
 :code:`templates/index.html`, and :code:`templates/home.html` files from
@@ -277,6 +281,11 @@ so that the file structure is the same as the example repl.
 You can look into these files to see how they work if you want. The HTML files use the
 Jinja2 templating engine which renders the HTML on every request inside our flask app.
 It also uses JavaScript to make the feed interactive.
+
+First, we define an :code:`is_mod` function. This checks if the current username is in
+a hardcoded list of moderators. Be careful when editing the tuple: :code:`("a", )` is a
+tuple with a single element while :code:`("a")` is the same as :code:`"a"` which will
+give you unexpected and potentially insecure behavior.
 
 The index template contains a simple landing page and a repl auth button. Don't worry
 about the home page template for now. It has the web app to communicate with our
@@ -477,9 +486,6 @@ and timestamp like like does (possible missed oppurtunity for using the DELETE m
 
 ::
 
-  # This function can go at the top
-  def is_mod():
-    return web.whoami() in ("Scoder12", "Your_username_here")
 
   @app.route("/api/delete", methods=["POST"])
   @web.params("author", "ts")
@@ -506,10 +512,6 @@ and timestamp like like does (possible missed oppurtunity for using the DELETE m
       ]
       return {"success": True}
 
-First, we define an :code:`is_mod` function. This checks if the current username is in
-a hardcoded list of moderators. Be careful when editing the tuple: :code:`("a", )` is a
-tuple with a single element while :code:`("a")` is the same as :code:`"a"` which will
-give you unexpected and potentially insecure behavior.
 
 This method is very similar to the like endpoint. The timestamp gets parsed and is
 passed into the :code:`find_matching_tweet` function, the result of which is checked.
