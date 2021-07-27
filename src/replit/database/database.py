@@ -324,7 +324,9 @@ class ObservedDict(abc.MutableMapping):
 
     # This should be posititional only but flake8 doesn't like that
     def get(self, key: str, default: Any = None) -> Any:
-        return self.value.get(key, item_to_observed(_get_set_cb(db=self, k=key), default))
+        return self.value.get(
+            key, item_to_observed(_get_set_cb(db=self, k=key), default)
+        )
 
     def __setitem__(self, k: Any, v: Any) -> None:
         self.value[k] = v
