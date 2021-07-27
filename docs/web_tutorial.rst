@@ -96,9 +96,10 @@ This function just returns the string "Hello, world!". In flask, there are many 
 of data you can return from a handler. If you return a string, that text will be
 returned as the response to the request.
 
-Finally, we use the :code:`app.run()` method to start our app. The replit library will
+Finally, we use the :code:`web.run(app)` method to start our app. The replit library will
 use a configuration suited to running your app so you don't have to worry about hosts
-and ports.
+and ports. Under the hood it just calls :code:`app.run()`. You can use
+:code:`web.debug(app)` for debug mode as well. 
 
 
 Building a simple API
@@ -244,7 +245,7 @@ and JS, and a user store to manage our users.
       return "Hello"
 
 
-  app.run()
+  web.run(app)
 
 Next, let's make a home route only for signed in users and make the index route a
 landing page for signed-out users. Replace the hello-world route with this code:
@@ -256,7 +257,7 @@ landing page for signed-out users. Replace the hello-world route with this code:
   def index():
       if web.auth.is_authenticated:
           return web.local_redirect("/home")
-      return web.render_template("index.html")
+      return flask.render_template("index.html")
 
 
   # Home page, only for signed in users
@@ -264,15 +265,18 @@ landing page for signed-out users. Replace the hello-world route with this code:
   def home():
       if not web.auth.is_authenticated:
           return web.local_redirect("/")
-      return web.render_template("home.html", name=web.whoami())
+      return flask.render_template("home.html", name=web.whoami())
 
 Copy the the :code:`static/main.css`,  :code:`templates/base.html`, 
 :code:`templates/index.html`, and :code:`templates/home.html` files from
 `my repltweet repl <https://replit.com/@Scoder12/repltweet#main.py>`_ (again,
-this tutorial won't focus on the frontend aspect of the app). You can look into these 
-files to see how they work if you want. The HTML files use the Jinja2 templating
-engine which renders the HTML on every request inside our flask app. It also uses
-JavaScript to make the feed interactive.
+this tutorial won't focus on the frontend aspect of the app). For each file, make a new
+folder if needed, then make a new file in the correct folder and paste the code into it
+so that the file structure is the same as the example repl. 
+
+You can look into these files to see how they work if you want. The HTML files use the
+Jinja2 templating engine which renders the HTML on every request inside our flask app.
+It also uses JavaScript to make the feed interactive.
 
 The index template contains a simple landing page and a repl auth button. Don't worry
 about the home page template for now. It has the web app to communicate with our
@@ -340,8 +344,8 @@ that returns the latest tweets in JSON format.
 
   @app.route("/api/feed")
   def feed():
-    # The username is only stored as the key name, but the client doesn't know the key
-    name so add an author field to each tweet
+    # The username is only stored as the key name, but the client
+    # doesn't know the key name so add an author field to each tweet
     tweets = []
     for name in users.keys():
         for tweet in users[name].get("tweets", []):
@@ -535,6 +539,9 @@ in our API routes to enforce the ratelimit:
 
 ::
 
+  # add to your import statements at the top:
+  import json
+
   ratelimit = web.per_user_ratelimit(
     max_requests=60,
     period=60,
@@ -559,6 +566,10 @@ which means that every 60 seconds (or 1 minute), users can send 60 requests. Thi
 almost the same as 1 and 1 but it allows users to use multiple requests in a single
 second as long as they don't go over 60 requests. Once they hit 60 requests, a user
 will not be able to issue any further requests for the rest of the 60 second period.
+During this period, the API returns a message explaining that they are ratelimited in
+JSON format. This is the same format that normal API responses use, so the client can
+handle it and show the error message to the user.
+
 Note, since we are re-using the same decorator across multiple routes, the ratelimit is
 shared between those routes, meaning a request to :code:`/api/like` and then a request
 to :code:`/api/tweet` counts as 2 requests instead of one for each endpoint.
