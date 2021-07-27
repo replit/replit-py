@@ -11,4 +11,4 @@ from .user import User, UserStore
 from .utils import *
 from ..database import AsyncDatabase, Database, db
 
-auth = LocalProxy(lambda: ReplitAuthContext(flask.request.headers))
+auth = LocalProxy(lambda: ReplitAuthContext.from_headers(flask.request.headers))
