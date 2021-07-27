@@ -27,7 +27,7 @@ copyright = "2021"
 author = "<a href='https://repl.it/'>Replit</a>"
 
 # The full version, including alpha/beta/rc tags
-release = "3.1.0"
+release = "3.2.2"
 html_theme = "alabaster"
 
 # -- General configuration ---------------------------------------------------
