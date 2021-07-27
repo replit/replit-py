@@ -26,7 +26,6 @@ Table of Contents
    db_tutorial
    web_tutorial
    cli
-   code_samples
 
 
 Indices and tables
