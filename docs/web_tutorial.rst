@@ -124,7 +124,7 @@ You should now see your repl say that you are not signed in.
 
 What does this do? Well, :code:`web.auth` (or, :code:`web.request.auth`) is a special
 object that represents the state of `Repl Auth <https://docs.repl.it/repls/repl-auth>`_.
-Repl auth allows users to log into your site using their repl.it account. With the
+Repl auth allows users to log into your site using their Replit account. With the
 replit python library, first-class repl auth support is built in. 
 
 Right now, theres no way for users to log in. To add that, all you have to do is
