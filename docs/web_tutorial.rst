@@ -252,7 +252,7 @@ landing page for signed-out users. Replace the hello-world route with this code:
 
 ::
 
-  def is_mod(username):
+  def is_mod():
       # Check whether a user has moderator priveleges
       return web.auth.name in ("Scoder12", "Your_username_here")
 
@@ -269,7 +269,7 @@ landing page for signed-out users. Replace the hello-world route with this code:
   def home():
       if not web.auth.is_authenticated:
           return web.local_redirect("/")
-      return flask.render_template("home.html", name=web.auth.name, MOD=is_mod(web.auth.name))
+      return flask.render_template("home.html", name=web.auth.name, MOD=is_mod())
 
 Copy the the :code:`static/main.css`,  :code:`templates/base.html`, 
 :code:`templates/index.html`, and :code:`templates/home.html` files from
