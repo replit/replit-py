@@ -270,10 +270,13 @@ landing page for signed-out users. Replace the hello-world route with this code:
 Copy the the :code:`static/main.css`,  :code:`templates/base.html`, 
 :code:`templates/index.html`, and :code:`templates/home.html` files from
 `my repltweet repl <https://replit.com/@Scoder12/repltweet#main.py>`_ (again,
-this tutorial won't focus on the frontend aspect of the app). You can look into these 
-files to see how they work if you want. The HTML files use the Jinja2 templating
-engine which renders the HTML on every request inside our flask app. It also uses
-JavaScript to make the feed interactive.
+this tutorial won't focus on the frontend aspect of the app). For each file, make a new
+folder if needed, then make a new file in the correct folder and paste the code into it
+so that the file structure is the same as the example repl. 
+
+You can look into these files to see how they work if you want. The HTML files use the
+Jinja2 templating engine which renders the HTML on every request inside our flask app.
+It also uses JavaScript to make the feed interactive.
 
 The index template contains a simple landing page and a repl auth button. Don't worry
 about the home page template for now. It has the web app to communicate with our
