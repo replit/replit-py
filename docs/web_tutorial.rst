@@ -96,9 +96,10 @@ This function just returns the string "Hello, world!". In flask, there are many 
 of data you can return from a handler. If you return a string, that text will be
 returned as the response to the request.
 
-Finally, we use the :code:`app.run()` method to start our app. The replit library will
+Finally, we use the :code:`web.run(app)` method to start our app. The replit library will
 use a configuration suited to running your app so you don't have to worry about hosts
-and ports.
+and ports. Under the hood it just calls :code:`app.run()`. You can use
+:code:`web.debug(app)` for debug mode as well. 
 
 
 Building a simple API
@@ -244,7 +245,7 @@ and JS, and a user store to manage our users.
       return "Hello"
 
 
-  app.run()
+  web.run(app)
 
 Next, let's make a home route only for signed in users and make the index route a
 landing page for signed-out users. Replace the hello-world route with this code:
