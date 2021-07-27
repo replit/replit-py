@@ -341,8 +341,8 @@ that returns the latest tweets in JSON format.
 
   @app.route("/api/feed")
   def feed():
-    # The username is only stored as the key name, but the client doesn't know the key
-    name so add an author field to each tweet
+    # The username is only stored as the key name, but the client
+    # doesn't know the key name so add an author field to each tweet
     tweets = []
     for name in users.keys():
         for tweet in users[name].get("tweets", []):
