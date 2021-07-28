@@ -50,13 +50,6 @@ class ReplitAuthContext:
         return bool(self.name)
 
 
-class JSONEncoder(flask.json.JSONEncoder):
-    def default(self, o: Any) -> Any:
-        if isinstance(o, ObservedDict) or isinstance(o, ObservedList):
-            return o.value
-        return super().default(o)
-
-
 def run(
     app: flask.Flask,
     host: str = "0.0.0.0",
