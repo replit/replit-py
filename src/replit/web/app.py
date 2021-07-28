@@ -88,4 +88,5 @@ def debug(
         app,
         debug=True,
         extra_files=watch_files,
+        **kwargs,
     )
