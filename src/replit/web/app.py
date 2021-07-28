@@ -66,8 +66,6 @@ def debug(
     app: flask.Flask,
     watch_dirs: List[str] = None,
     watch_files: List[str] = None,
-    port: int = 8080,
-    localhost: bool = False,
     **kwargs: Any
 ) -> None:
     """Run the app in debug mode.
@@ -76,9 +74,6 @@ def debug(
             watch_files. Defaults to [].
         watch_files (List[str]): Files to watch, and if changes are detected
             the server will be restarted. Defaults to [].
-        port (int): The port to run the app on. Defaults to 8080.
-        localhost (bool): Whether to run the app without exposing it on all
-            interfaces. Defaults to False.
         **kwargs (Any): Extra keyword arguments to be passed to the flask app's run
             method.
     """
@@ -91,8 +86,6 @@ def debug(
 
     run(
         app,
-        host="localhost" if localhost else "0.0.0.0",
-        port=port,
         debug=True,
         extra_files=watch_files,
     )
