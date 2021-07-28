@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, List
 import flask
 
-from ..database.database import ObservedDict, ObservedList
+from ..database.database import ObservedDict, ObservedList, DBJSONEncoder
 
 
 @dataclass
@@ -57,8 +57,17 @@ class JSONEncoder(flask.json.JSONEncoder):
         return super().default(o)
 
 
-def run(app: flask.Flask, host: str = "0.0.0.0", port: int = 8080, **kwargs) -> None:
+def run(
+    app: flask.Flask,
+    host: str = "0.0.0.0",
+    port: int = 8080,
+    change_encoder: bool = True,
+    **kwargs
+) -> None:
     """A simple wrapper around app.run() with replit compatible defaults."""
+    # don't clobber user
+    if change_encoder and flask.json_encoder is flask.json.JSONEncoder:
+        app.json_encoder = DBJSONEncoder
     app.run(host=host, port=port, **kwargs)
 
 
