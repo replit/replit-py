@@ -57,15 +57,9 @@ class JSONEncoder(flask.json.JSONEncoder):
         return super().default(o)
 
 
-def run_app(
-    app: flask.Flask, host: str = "0.0.0.0", port: int = 8080, **kwargs
-) -> None:
+def run(app: flask.Flask, host: str = "0.0.0.0", port: int = 8080, **kwargs) -> None:
     """A simple wrapper around app.run() with replit compatible defaults."""
     app.run(host=host, port=port, **kwargs)
-
-
-# shorthand
-run = run_app
 
 
 def debug(
