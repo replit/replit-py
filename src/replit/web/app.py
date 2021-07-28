@@ -89,7 +89,8 @@ def debug(
             directory = Path(directory)
         watch_files += [str(f) for f in directory.iterdir() if f.is_file()]
 
-    app.run(
+    run(
+        app,
         host="localhost" if localhost else "0.0.0.0",
         port=port,
         debug=True,
