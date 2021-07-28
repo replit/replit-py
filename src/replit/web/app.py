@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, List
 import flask
 
-from ..database.database import ObservedDict, ObservedList
+from ..database.database import ObservedDict, ObservedList, DBJSONEncoder
 
 
 @dataclass
@@ -50,30 +50,24 @@ class ReplitAuthContext:
         return bool(self.name)
 
 
-class JSONEncoder(flask.json.JSONEncoder):
-    def default(self, o: Any) -> Any:
-        if isinstance(o, ObservedDict) or isinstance(o, ObservedList):
-            return o.value
-        return super().default(o)
-
-
-def run_app(
-    app: flask.Flask, host: str = "0.0.0.0", port: int = 8080, **kwargs
+def run(
+    app: flask.Flask,
+    host: str = "0.0.0.0",
+    port: int = 8080,
+    change_encoder: bool = True,
+    **kwargs
 ) -> None:
     """A simple wrapper around app.run() with replit compatible defaults."""
+    # don't clobber user
+    if change_encoder and flask.json_encoder is flask.json.JSONEncoder:
+        app.json_encoder = DBJSONEncoder
     app.run(host=host, port=port, **kwargs)
-
-
-# shorthand
-run = run_app
 
 
 def debug(
     app: flask.Flask,
     watch_dirs: List[str] = None,
     watch_files: List[str] = None,
-    port: int = 8080,
-    localhost: bool = False,
     **kwargs: Any
 ) -> None:
     """Run the app in debug mode.
@@ -82,9 +76,6 @@ def debug(
             watch_files. Defaults to [].
         watch_files (List[str]): Files to watch, and if changes are detected
             the server will be restarted. Defaults to [].
-        port (int): The port to run the app on. Defaults to 8080.
-        localhost (bool): Whether to run the app without exposing it on all
-            interfaces. Defaults to False.
         **kwargs (Any): Extra keyword arguments to be passed to the flask app's run
             method.
     """
@@ -95,9 +86,9 @@ def debug(
             directory = Path(directory)
         watch_files += [str(f) for f in directory.iterdir() if f.is_file()]
 
-    app.run(
-        host="localhost" if localhost else "0.0.0.0",
-        port=port,
+    run(
+        app,
         debug=True,
         extra_files=watch_files,
+        **kwargs,
     )
