@@ -6,7 +6,7 @@ import os
 import flask
 from werkzeug.local import LocalProxy
 
-from .app import debug, ReplitAuthContext, run, run_app
+from .app import debug, ReplitAuthContext, run
 from .user import User, UserStore
 from .utils import *
 from ..database import AsyncDatabase, Database, db
