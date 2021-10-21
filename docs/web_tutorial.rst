@@ -134,7 +134,7 @@ button in your page:
 ::
 
   else:
-    return "You are not signed in! {web.sign_in_snippet}"
+    return f"You are not signed in! {web.sign_in_snippet}"
 
 
 Now, you should be able to sign in with your repl.it account. If you're having issues,
