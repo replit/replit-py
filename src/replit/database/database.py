@@ -77,7 +77,7 @@ class AsyncDatabase:
         return self
 
     async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
-        self.sess.close()
+        await self.sess.close()
 
     async def get(self, key: str) -> str:
         """Return the value for key if key is in the database.
