@@ -73,7 +73,7 @@ def start_database_proxy(
     host: str = "0.0.0.0",  # noqa: S104
     port: int = 8080,
 ) -> None:
-    """Stars the database proxy."""
+    """Starts the database proxy."""
     app = Flask(__name__)
 
     app.register_blueprint(make_database_proxy_blueprint(view_only, prefix=prefix))
