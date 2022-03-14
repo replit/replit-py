@@ -99,7 +99,7 @@ The async client API is very similar to the sync API in terms of method names.
 
 ::
 
-   import AsyncDatabase from replit.database
+   from replit.database import AsyncDatabase
 
    db = AsyncDatabase()
    await db.set("a", "1")
