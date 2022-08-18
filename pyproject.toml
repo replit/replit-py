@@ -11,7 +11,7 @@ documentation = "https://replit-py.readthedocs.org/"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-typing_extensions = "^3.7.4"
+typing_extensions = "^4"
 Flask = "^2.0.0"
 Werkzeug = "^2.0.0"
 aiohttp = "^3.6.2"
