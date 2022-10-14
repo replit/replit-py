@@ -1,0 +1,8 @@
+//swap two numbers//
+a=input("enter value of a=")
+b=input("enter values of b=")
+temp = a
+a=b
+b=temp
+print(a)
+print(b)
