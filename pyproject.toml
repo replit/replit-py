@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "replit"
-version = "3.2.4"
+version = "3.2.5"
 description = "A library for interacting with features of repl.it"
 authors = ["Repl.it <contact@repl.it>", "mat <pypi@matdoes.dev>", "kennethreitz <me@kennethreitz.org>", "Scoder12 <pypi@scoder12.ml>", "AllAwesome497", ]
 license = "ISC"
@@ -16,6 +16,8 @@ Flask = "^2.0.0"
 Werkzeug = "^2.0.0"
 aiohttp = "^3.6.2"
 requests = "^2.25.1"
+pyseto = "^1.6.11"
+protobuf = "^4.21.8"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.3"
@@ -41,3 +43,8 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry.scripts]
 replit = "replit.__main__:cli"
+
+[tool.mypy]
+exclude = [
+	"_pb2.py$",  # Generated code
+]
