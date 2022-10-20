@@ -15,6 +15,7 @@ provides:
 -  A fully-featured `Replit DB <https://docs.repl.it/misc/database>`_ client and CLI.
 -  A Flask–based application framework for accellerating development on the platform.
 -  A simple audio library that can play tones and audio files!
+-  A library to authenticate between Repls.
 
 Table of Contents
 =================
