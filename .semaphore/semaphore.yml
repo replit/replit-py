@@ -18,7 +18,7 @@ blocks:
             - checkout --use-cache
             - python -m pip install --upgrade poetry
             - poetry install
-            - git diff origin/master | poetry run flake8 --diff
+            - poetry run flake8
         - name: unittest
           commands:
             - sem-version python 3.8
