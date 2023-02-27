@@ -89,7 +89,7 @@ class AsyncDatabase:
             key (str): The key to retreive
 
         Returns:
-            str: The the value for key if key is in the database.
+            str: The value for key if key is in the database.
         """
         return json.loads(await self.get_raw(key))
 
