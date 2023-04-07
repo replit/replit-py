@@ -5,7 +5,12 @@ from typing import Optional
 from .database import Database
 
 db: Optional[Database]
-db_url = environ.get("REPLIT_DB_URL")
+if os.path.exists("/tmp/replitdb"):
+    with open(file_path, 'r') as file:
+        db_url = file.read()
+else:
+    db_url = environ.get("REPLIT_DB_URL")
+
 if db_url:
     db = Database(db_url)
 else:
