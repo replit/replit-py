@@ -14,7 +14,11 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self) -> None:
         """Grab a JWT for all the tests to share."""
-        if "REPLIT_DB_URL" in os.environ:
+        if os.path.exists("/tmp/replitdb"):
+            with open(file_path, 'r') as file:
+                db_url = file.read()
+                self.db = AsyncDatabase(db_url)
+        elif "REPLIT_DB_URL" in os.environ:
             self.db = AsyncDatabase(os.environ["REPLIT_DB_URL"])
         else:
             password = os.environ["PASSWORD"]
