@@ -16,6 +16,13 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         """Grab a JWT for all the tests to share."""
         if "REPLIT_DB_URL" in os.environ:
             self.db = AsyncDatabase(os.environ["REPLIT_DB_URL"])
+        elif "DB_RIDT" in os.environ:
+            password = os.environ["RIDT_PASSWORD"]
+            req = requests.get(
+                "https://database-test-ridt.util.repl.co", auth=("test", password)
+            )
+            url = req.text
+            self.db = AsyncDatabase(url)
         else:
             password = os.environ["PASSWORD"]
             req = requests.get(
