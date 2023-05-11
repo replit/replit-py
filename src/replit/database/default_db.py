@@ -5,34 +5,35 @@ import threading
 
 from .database import Database
 
-db: Optional[Database] = None
 
-db_url: str = environ.get("REPLIT_DB_URL")
-
-
-def reload_db() -> None:
+def get_db_url() -> str:
     """
-    Reloads the database. The database token expires every 20h.
+    Fetches the most up-to-date db url from the Repl environment.
     """
-    global db
-    global db_url
     if path.exists("/tmp/replitdb"):
         with open("/tmp/replitdb", 'r') as file:
             db_url = file.read()
     else:
         db_url = environ.get("REPLIT_DB_URL")
 
-    if db_url:
-        db = Database(db_url)
-    else:
-        # The user will see errors if they try to use the database.
-        db = None
+    return db_url
 
 
 def refresh_db() -> None:
     """Refresh the DB URL every hour"""
-    reload_db()
+    global db
+    db_url = get_db_url()
+    db.update_db_url(db_url)
+    print('Updated DB URL')
     threading.Timer(3600, refresh_db).start()
 
+
+db: Optional[Database]
+db_url = get_db_url()
+if db_url:
+    db = Database(db_url)
+else:
+    # The user will see errors if they try to use the database.
+    db = None
 
 refresh_db()

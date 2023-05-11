@@ -73,10 +73,19 @@ class AsyncDatabase:
         self.db_url = db_url
         self.sess = aiohttp.ClientSession()
 
+    def update_db_url(self, db_url: str) -> None:
+        """Update the database url.
+
+        Args:
+            db_url (str): Database url to use.
+        """
+        self.db_url = db_url
+
     async def __aenter__(self) -> "AsyncDatabase":
         return self
 
-    async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
+    async def __aexit__(self, exc_type: Any, exc_value: Any,
+                        traceback: Any) -> None:
         await self.sess.close()
 
     async def get(self, key: str) -> str:
@@ -105,9 +114,8 @@ class AsyncDatabase:
         Returns:
             str: The value of the key
         """
-        async with self.sess.get(
-            self.db_url + "/" + urllib.parse.quote(key)
-        ) as response:
+        async with self.sess.get(self.db_url + "/" +
+                                 urllib.parse.quote(key)) as response:
             if response.status == 404:
                 raise KeyError(key)
             response.raise_for_status()
@@ -158,9 +166,8 @@ class AsyncDatabase:
         Raises:
             KeyError: Key does not exist
         """
-        async with self.sess.delete(
-            self.db_url + "/" + urllib.parse.quote(key)
-        ) as response:
+        async with self.sess.delete(self.db_url + "/" +
+                                    urllib.parse.quote(key)) as response:
             if response.status == 404:
                 raise KeyError(key)
             response.raise_for_status()
@@ -242,9 +249,9 @@ class ObservedList(abc.MutableSequence):
 
     __slots__ = ("_on_mutate_handler", "value")
 
-    def __init__(
-        self, on_mutate: Callable[[List], None], value: Optional[List] = None
-    ) -> None:
+    def __init__(self,
+                 on_mutate: Callable[[List], None],
+                 value: Optional[List] = None) -> None:
         self._on_mutate_handler = on_mutate
         if value is None:
             self.value = []
@@ -303,9 +310,9 @@ class ObservedDict(abc.MutableMapping):
 
     __slots__ = ("_on_mutate_handler", "value")
 
-    def __init__(
-        self, on_mutate: Callable[[Dict], None], value: Optional[Dict] = None
-    ) -> None:
+    def __init__(self,
+                 on_mutate: Callable[[Dict], None],
+                 value: Optional[Dict] = None) -> None:
         self._on_mutate_handler = on_mutate
         if value is None:
             self.value = {}
@@ -326,8 +333,7 @@ class ObservedDict(abc.MutableMapping):
     def get(self, key: str, default: Any = None) -> Any:
         """Return the value for key if key is in the dictionary, else default."""
         return self.value.get(
-            key, item_to_observed(_get_set_cb(db=self, k=key), default)
-        )
+            key, item_to_observed(_get_set_cb(db=self, k=key), default))
 
     def __setitem__(self, k: Any, v: Any) -> None:
         self.value[k] = v
@@ -362,6 +368,7 @@ class ObservedDict(abc.MutableMapping):
 
 # By putting these outside we save some memory
 def _get_on_mutate_cb(d: Any) -> Callable[[Any], None]:
+
     def cb(_: Any) -> None:
         d.on_mutate()
 
@@ -369,6 +376,7 @@ def _get_on_mutate_cb(d: Any) -> Callable[[Any], None]:
 
 
 def _get_set_cb(db: Any, k: str) -> Callable[[Any], None]:
+
     def cb(val: Any) -> None:
         db[k] = val
 
@@ -419,6 +427,14 @@ class Database(abc.MutableMapping):
         self.db_url = db_url
         self.sess = requests.Session()
 
+    def update_db_url(self, db_url: str) -> None:
+        """Update the database url.
+
+        Args:
+            db_url (str): Database url to use.
+        """
+        self.db_url = db_url
+
     def __getitem__(self, key: str) -> Any:
         """Get the value of an item from the database.
 
@@ -460,7 +476,8 @@ class Database(abc.MutableMapping):
         Returns:
             Any: The the value for key if key is in the database, else default.
         """
-        return super().get(key, item_to_observed(_get_set_cb(self, key), default))
+        return super().get(key,
+                           item_to_observed(_get_set_cb(self, key), default))
 
     def get_raw(self, key: str) -> str:
         """Look up the given key in the database and return the corresponding value.
@@ -559,7 +576,11 @@ class Database(abc.MutableMapping):
         Returns:
             Tuple[str]: The keys found.
         """
-        r = self.sess.get(f"{self.db_url}", params={"prefix": prefix, "encode": "true"})
+        r = self.sess.get(f"{self.db_url}",
+                          params={
+                              "prefix": prefix,
+                              "encode": "true"
+                          })
         r.raise_for_status()
 
         if not r.text:
