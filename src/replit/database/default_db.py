@@ -24,7 +24,6 @@ def refresh_db() -> None:
     global db
     db_url = get_db_url()
     db.update_db_url(db_url)
-    print('Updated DB URL')
     threading.Timer(3600, refresh_db).start()
 
 
