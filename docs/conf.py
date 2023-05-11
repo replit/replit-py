@@ -19,7 +19,6 @@ sys.path.append(os.path.abspath("../src"))
 
 import replit
 
-
 # -- Project information -----------------------------------------------------
 
 project = "replit-py"
@@ -27,7 +26,7 @@ copyright = "2021"
 author = "<a href='https://repl.it/'>Replit</a>"
 
 # The full version, including alpha/beta/rc tags
-release = "3.2.2"
+release = "3.3.0"
 html_theme = "alabaster"
 
 # -- General configuration ---------------------------------------------------
@@ -50,7 +49,6 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "conf.py"]
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -65,7 +63,8 @@ html_static_path = ["_static"]
 html_theme_options = {"show_powered_by": False}
 
 html_sidebars = {
-    "index": ["sidebarintro.html", "sourcelink.html", "searchbox.html", "hacks.html"],
+    "index":
+    ["sidebarintro.html", "sourcelink.html", "searchbox.html", "hacks.html"],
     "**": [
         "sidebarintro.html",
         "localtoc.html",
