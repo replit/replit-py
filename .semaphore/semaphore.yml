@@ -18,9 +18,11 @@ blocks:
             - checkout
             - python -m pip install --upgrade poetry
             - echo hi
+            - bash -c 'poetry env info -p; echo $?'
             - bash -c 'poetry install; echo $?'
             - echo bye
             - which poetry
+            - bash -c 'poetry env info -p; echo $?'
             - pwd
             - poetry run flake8
         - name: unittest
