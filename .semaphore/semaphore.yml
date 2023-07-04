@@ -18,7 +18,7 @@ blocks:
             - checkout
             - python -m pip install --upgrade poetry
             - echo hi
-            - python -m poetry install
+            - python -m poetry install -vvv
             - echo bye
             - poetry run flake8
         - name: unittest
@@ -26,7 +26,7 @@ blocks:
             - sem-version python 3.8
             - checkout --use-cache
             - python -m pip install --upgrade poetry
-            - poetry install
+            - poetry install -vv
             - poetry run coverage run -m unittest
             - poetry run coverage report -m --include='src/*'
         - name: mypy
@@ -34,5 +34,5 @@ blocks:
             - sem-version python 3.8
             - checkout --use-cache
             - python -m pip install --upgrade poetry
-            - poetry install
+            - poetry install -v
             - bash -c '! poetry run mypy src/replit | grep database.py'
