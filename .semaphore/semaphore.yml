@@ -18,8 +18,10 @@ blocks:
             - checkout
             - python -m pip install --upgrade poetry
             - echo hi
-            - bash -c 'python -m poetry install -vvv; poetry install'
+            - bash -c 'python -m poetry install -vvv; poetry install;'
             - echo bye
+            - which poetry
+            - pwd
             - poetry run flake8
         - name: unittest
           commands:
