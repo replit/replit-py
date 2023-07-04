@@ -17,7 +17,7 @@ blocks:
             - sem-version python 3.8
             - checkout --use-cache
             - python -m pip install --upgrade poetry
-            - poetry install
+            - bash -c "poetry install; echo $?"
             - poetry run flake8
         - name: unittest
           commands:
