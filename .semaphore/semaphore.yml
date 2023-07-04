@@ -14,10 +14,10 @@ blocks:
       jobs:
         - name: flake8
           commands:
-            - sem-version python 3.8
-            - checkout --use-cache
+            - sem-version python 3.10
+            - checkout
             - python -m pip install --upgrade poetry
-            - poetry install
+            - bash -c "poetry install && echo $?"
             - poetry run flake8
         - name: unittest
           commands:
