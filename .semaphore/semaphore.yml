@@ -15,9 +15,11 @@ blocks:
         - name: flake8
           commands:
             - sem-version python 3.8
-            - checkout --use-cache
+            - checkout
             - python -m pip install --upgrade poetry
-            - poetry install
+            - echo hi
+            - python -m poetry install
+            - echo bye
             - poetry run flake8
         - name: unittest
           commands:
