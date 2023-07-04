@@ -15,16 +15,20 @@ blocks:
         - name: flake8
           commands:
             - sem-version python 3.8
-            - checkout --use-cache
+            - checkout
             - python -m pip install --upgrade poetry
-            - poetry install
+            - echo hi
+            - bash -c 'poetry install; echo $?'
+            - echo bye
+            - which poetry
+            - pwd
             - poetry run flake8
         - name: unittest
           commands:
             - sem-version python 3.8
             - checkout --use-cache
             - python -m pip install --upgrade poetry
-            - poetry install
+            - poetry install -vv
             - poetry run coverage run -m unittest
             - poetry run coverage report -m --include='src/*'
         - name: mypy
@@ -32,5 +36,5 @@ blocks:
             - sem-version python 3.8
             - checkout --use-cache
             - python -m pip install --upgrade poetry
-            - poetry install
+            - poetry install -v
             - bash -c '! poetry run mypy src/replit | grep database.py'
