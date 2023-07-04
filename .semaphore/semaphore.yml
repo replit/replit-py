@@ -18,7 +18,7 @@ blocks:
             - checkout
             - python -m pip install --upgrade poetry
             - echo hi
-            - bash -c 'python -m poetry install -vvv; poetry install; echo $?; sleep 1000'
+            - bash -c 'python -m poetry install -vvv; echo $?'
             - echo bye
             - which poetry
             - pwd
