@@ -62,9 +62,9 @@ _dumps = dumps
 class AsyncDatabase:
     """Async interface for Repl.it Database."""
 
-    __slots__ = ("db_url", "sess")
+    __slots__ = ("db_url", "sess", "retry_count")
 
-    def __init__(self, db_url: str) -> None:
+    def __init__(self, db_url: str, retry_count=5) -> None:
         """Initialize database. You shouldn't have to do this manually.
 
         Args:
@@ -72,6 +72,7 @@ class AsyncDatabase:
         """
         self.db_url = db_url
         self.sess = aiohttp.ClientSession()
+        self.retry_count = retry_count
 
     def update_db_url(self, db_url: str) -> None:
         """Update the database url.
@@ -114,12 +115,17 @@ class AsyncDatabase:
         Returns:
             str: The value of the key
         """
-        async with self.sess.get(self.db_url + "/" +
-                                 urllib.parse.quote(key)) as response:
-            if response.status == 404:
-                raise KeyError(key)
-            response.raise_for_status()
-            return await response.text()
+        for _ in range(self.retry_count):
+            try:
+                async with self.sess.get(self.db_url + "/" + urllib.parse.quote(key)) as response:
+                    if response.status == 404:
+                        raise KeyError(key)
+                    response.raise_for_status()
+                    return await response.text()
+            except aiohttp.ClientResponseError:
+							pass
+        
+        raise ConnectionError("Could not connect to database")
 
     async def set(self, key: str, value: Any) -> None:
         """Set a key in the database to the result of JSON encoding value.
@@ -182,13 +188,20 @@ class AsyncDatabase:
             Tuple[str]: The keys found.
         """
         params = {"prefix": prefix, "encode": "true"}
-        async with self.sess.get(self.db_url, params=params) as response:
-            response.raise_for_status()
-            text = await response.text()
-            if not text:
-                return tuple()
-            else:
-                return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
+				for _ in range(self.retry_count):
+					try:
+		        async with self.sess.get(self.db_url, params=params) as response:
+		            response.raise_for_status()
+		            text = await response.text()
+		            if not text:
+		                return tuple()
+		            else:
+		                return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
+
+					except aiohttp.ClientResponseError:
+						pass
+									
+				raise ConnectionError("Could not connect to database")
 
     async def to_dict(self, prefix: str = "") -> Dict[str, str]:
         """Dump all data in the database into a dictionary.
@@ -416,9 +429,9 @@ class Database(abc.MutableMapping):
     don't want this, use AsyncDatabase instead.
     """
 
-    __slots__ = ("db_url", "sess")
+    __slots__ = ("db_url", "sess", "retry_count")
 
-    def __init__(self, db_url: str) -> None:
+    def __init__(self, db_url: str, retry_count=5) -> None:
         """Initialize database. You shouldn't have to do this manually.
 
         Args:
@@ -426,6 +439,7 @@ class Database(abc.MutableMapping):
         """
         self.db_url = db_url
         self.sess = requests.Session()
+        self.retry_count = retry_count
 
     def update_db_url(self, db_url: str) -> None:
         """Update the database url.
@@ -491,12 +505,19 @@ class Database(abc.MutableMapping):
         Returns:
             str: The value of the key in the database.
         """
-        r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
-        if r.status_code == 404:
-            raise KeyError(key)
-
-        r.raise_for_status()
-        return r.text
+			
+				for _ in range(self.retry_count):
+					try:
+		        r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
+		        if r.status_code == 404:
+		            raise KeyError(key)
+		
+		        r.raise_for_status()
+		        return r.text
+						except aiohttp.ClientResponseError:
+							# retry
+							pass
+        raise ConnectionError("Could not connect to database")
 
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to the result of JSON encoding value.
@@ -576,17 +597,25 @@ class Database(abc.MutableMapping):
         Returns:
             Tuple[str]: The keys found.
         """
-        r = self.sess.get(f"{self.db_url}",
-                          params={
-                              "prefix": prefix,
-                              "encode": "true"
-                          })
-        r.raise_for_status()
+        for _ in range(self.retry_count):
+            try:
+                r = self.sess.get(f"{self.db_url}",
+                                  params={
+                                      "prefix": prefix,
+                                      "encode": "true"
+                                  })
+                r.raise_for_status()
 
-        if not r.text:
-            return tuple()
-        else:
-            return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
+                if not r.text:
+                    return tuple()
+                else:
+                    return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
+            except aiohttp.ClientResponseError:
+								# retry
+                pass
+							
+        raise ConnectionError("Could not connect to database")
+
 
     def keys(self) -> AbstractSet[str]:
         """Returns all of the keys in the database.
