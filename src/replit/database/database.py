@@ -115,17 +115,22 @@ class AsyncDatabase:
         Returns:
             str: The value of the key
         """
-        for _ in range(self.retry_count):
+        for i in range(self.retry_count):
             try:
-                async with self.sess.get(self.db_url + "/" + urllib.parse.quote(key)) as response:
+                async with self.sess.get(self.db_url + "/" +
+                                         urllib.parse.quote(key)) as response:
                     if response.status == 404:
                         raise KeyError(key)
                     response.raise_for_status()
                     return await response.text()
-            except aiohttp.ClientResponseError:
-							pass
-        
-        raise ConnectionError("Could not connect to database")
+            except KeyError:
+                raise
+            except Exception as e:
+                if i < self.retry_count - 1:
+                    await asyncio.sleep(2**i)
+                    continue
+                else:
+                    raise e  # we're out of retries
 
     async def set(self, key: str, value: Any) -> None:
         """Set a key in the database to the result of JSON encoding value.
@@ -180,28 +185,27 @@ class AsyncDatabase:
 
     async def list(self, prefix: str) -> Tuple[str, ...]:
         """List keys in the database which start with prefix.
-
         Args:
             prefix (str): The prefix keys must start with, blank not not check.
-
         Returns:
             Tuple[str]: The keys found.
         """
-        params = {"prefix": prefix, "encode": "true"}
-				for _ in range(self.retry_count):
-					try:
-		        async with self.sess.get(self.db_url, params=params) as response:
-		            response.raise_for_status()
-		            text = await response.text()
-		            if not text:
-		                return tuple()
-		            else:
-		                return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
-
-					except aiohttp.ClientResponseError:
-						pass
-									
-				raise ConnectionError("Could not connect to database")
+        for i in range(self.retry_count):
+            try:
+                params = {"prefix": prefix, "encode": "true"}
+                async with self.sess.get(self.db_url, params=params) as response:
+                    response.raise_for_status()
+                    text = await response.text()
+                    if not text:
+                        return tuple()
+                    else:
+                        return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
+            except Exception as e:
+                if i < self.retry_count - 1:
+                    await asyncio.sleep(2**i)
+                    continue
+                else:
+                    raise e  # we're out of retries
 
     async def to_dict(self, prefix: str = "") -> Dict[str, str]:
         """Dump all data in the database into a dictionary.
@@ -495,29 +499,29 @@ class Database(abc.MutableMapping):
 
     def get_raw(self, key: str) -> str:
         """Look up the given key in the database and return the corresponding value.
-
         Args:
             key (str): The key to look up
-
         Raises:
             KeyError: The key is not in the database.
-
         Returns:
             str: The value of the key in the database.
         """
-			
-				for _ in range(self.retry_count):
-					try:
-		        r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
-		        if r.status_code == 404:
-		            raise KeyError(key)
-		
-		        r.raise_for_status()
-		        return r.text
-						except aiohttp.ClientResponseError:
-							# retry
-							pass
-        raise ConnectionError("Could not connect to database")
+        for i in range(self.retry_count):
+            try:
+                r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
+                if r.status_code == 404:
+                    raise KeyError(key)
+
+                r.raise_for_status()
+                return r.text
+            except KeyError:
+                raise 
+            except Exception as e:
+                if i < self.retry_count - 1:
+                    time.sleep(2**i)
+                    continue
+                else:
+                    raise e  # we're out of retries
 
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to the result of JSON encoding value.
@@ -589,15 +593,12 @@ class Database(abc.MutableMapping):
 
     def prefix(self, prefix: str) -> Tuple[str, ...]:
         """Return all of the keys in the database that begin with the prefix.
-
         Args:
-            prefix (str): The prefix the keys must start with,
-                blank means anything.
-
+            prefix (str): The prefix the keys must start with, blank means anything.
         Returns:
             Tuple[str]: The keys found.
         """
-        for _ in range(self.retry_count):
+        for i in range(self.retry_count):
             try:
                 r = self.sess.get(f"{self.db_url}",
                                   params={
@@ -610,12 +611,12 @@ class Database(abc.MutableMapping):
                     return tuple()
                 else:
                     return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
-            except aiohttp.ClientResponseError:
-								# retry
-                pass
-							
-        raise ConnectionError("Could not connect to database")
-
+            except Exception as e:
+                if i < self.retry_count - 1: 
+                    time.sleep(2**i)
+                    continue
+                else:
+                    raise e  # we're out of retries
 
     def keys(self) -> AbstractSet[str]:
         """Returns all of the keys in the database.
