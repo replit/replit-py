@@ -82,6 +82,14 @@ class AsyncDatabase:
         """
         self.db_url = db_url
 
+    def update_db_url(self, db_url: str) -> None:
+        """Update the database url.
+
+        Args:
+            db_url (str): Database url to use.
+        """
+        self.db_url = db_url
+
     async def __aenter__(self) -> "AsyncDatabase":
         return self
 
@@ -115,6 +123,7 @@ class AsyncDatabase:
         Returns:
             str: The value of the key
         """
+
         for _ in range(self.retry_count):
             try:
                 async with self.sess.get(self.db_url + "/" + urllib.parse.quote(key)) as response:
@@ -449,6 +458,14 @@ class Database(abc.MutableMapping):
         """
         self.db_url = db_url
 
+    def update_db_url(self, db_url: str) -> None:
+        """Update the database url.
+
+        Args:
+            db_url (str): Database url to use.
+        """
+        self.db_url = db_url
+
     def __getitem__(self, key: str) -> Any:
         """Get the value of an item from the database.
 
@@ -597,6 +614,7 @@ class Database(abc.MutableMapping):
         Returns:
             Tuple[str]: The keys found.
         """
+
         for _ in range(self.retry_count):
             try:
                 r = self.sess.get(f"{self.db_url}",
@@ -615,7 +633,6 @@ class Database(abc.MutableMapping):
                 pass
 							
         raise ConnectionError("Could not connect to database")
-
 
     def keys(self) -> AbstractSet[str]:
         """Returns all of the keys in the database.
