@@ -14,14 +14,14 @@ blocks:
       jobs:
         - name: flake8
           commands:
-            - sem-version python 3.8
+            - sem-version python 3.9
             - checkout --use-cache
             - pip install poetry==1.3.2 --no-cache
             - poetry install --no-root --no-interaction --no-ansi
             - poetry run flake8
         - name: unittest
           commands:
-            - sem-version python 3.8
+            - sem-version python 3.9
             - checkout --use-cache
             - pip install poetry==1.3.2 --no-cache
             - poetry install --no-root --no-interaction --no-ansi
@@ -29,7 +29,7 @@ blocks:
             - poetry run coverage report -m --include='src/*'
         - name: mypy
           commands:
-            - sem-version python 3.8
+            - sem-version python 3.9
             - checkout --use-cache
             - pip install poetry==1.3.2 --no-cache
             - poetry install --no-root --no-interaction --no-ansi
