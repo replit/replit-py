@@ -10,7 +10,7 @@ homepage = "https://github.com/replit/replit-py"
 documentation = "https://replit-py.readthedocs.org/"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 typing_extensions = "^3.7.4"
 Flask = "^2.0.0"
 Werkzeug = "^2.0.0"
