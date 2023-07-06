@@ -14,23 +14,23 @@ blocks:
       jobs:
         - name: flake8
           commands:
-            - sem-version python 3.8
+            - sem-version python 3.10
             - checkout --use-cache
-            - python -m pip install --upgrade poetry
-            - poetry install
+            - pip install poetry==1.3.2 --no-cache
+            - poetry install --no-root --no-interaction --no-ansi
             - poetry run flake8
         - name: unittest
           commands:
-            - sem-version python 3.8
+            - sem-version python 3.10
             - checkout --use-cache
-            - python -m pip install --upgrade poetry
-            - poetry install
+            - pip install poetry==1.3.2 --no-cache
+            - poetry install --no-root --no-interaction --no-ansi
             - poetry run coverage run -m unittest
             - poetry run coverage report -m --include='src/*'
         - name: mypy
           commands:
-            - sem-version python 3.8
+            - sem-version python 3.10
             - checkout --use-cache
-            - python -m pip install --upgrade poetry
-            - poetry install
+            - pip install poetry==1.3.2 --no-cache
+            - poetry install --no-root --no-interaction --no-ansi
             - bash -c '! poetry run mypy src/replit | grep database.py'
