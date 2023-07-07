@@ -14,7 +14,8 @@ from typing import (
     Union,
 )
 import urllib
-
+import time
+import asyncio
 import aiohttp
 import requests
 
@@ -517,7 +518,9 @@ class Database(abc.MutableMapping):
             except KeyError:
                 raise 
             except Exception as e:
+                print("Error getting value from DB: ", e)
                 if i < self.retry_count - 1:
+                    print("re-trying...")
                     time.sleep(2**i)
                     continue
                 else:
