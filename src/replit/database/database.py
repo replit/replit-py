@@ -436,7 +436,7 @@ class Database(abc.MutableMapping):
 
     __slots__ = ("db_url", "sess", "retry_count")
 
-    def __init__(self, db_url: str, retry_count=5) -> None:
+    def __init__(self, db_url: str, retry_count: int = 5) -> None:
         """Initialize database. You shouldn't have to do this manually.
 
         Args:
