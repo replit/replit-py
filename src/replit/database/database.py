@@ -18,7 +18,7 @@ import time
 import asyncio
 import aiohttp
 import requests
-
+from requests.adapters import HTTPAdapter, Retry
 from aiohttp_retry import RetryClient, ExponentialRetry
 
 def to_primitive(o: Any) -> Any:
@@ -434,6 +434,9 @@ class Database(abc.MutableMapping):
         self.db_url = db_url
         self.sess = requests.Session()
         self.retry_count = retry_count
+        retries = Retry(total=retry_count, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+        self.sess.mount("http://", HTTPAdapter(max_retries=retries))
+        self.sess.mount("https://", HTTPAdapter(max_retries=retries))
 
     def update_db_url(self, db_url: str) -> None:
         """Update the database url.
@@ -496,22 +499,12 @@ class Database(abc.MutableMapping):
         Returns:
             str: The value of the key in the database.
         """
-        for i in range(self.retry_count):
-            try:
-                r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
-                if r.status_code == 404:
-                    raise KeyError(key)
+        r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
+        if r.status_code == 404:
+            raise KeyError(key)
 
-                r.raise_for_status()
-                return r.text
-            except KeyError:
-                raise 
-            except Exception as e:
-                if i < self.retry_count - 1:
-                    time.sleep(2**i)
-                    continue
-                else:
-                    raise e  # we're out of retries
+        r.raise_for_status()
+        return r.text
 
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to the result of JSON encoding value.
@@ -588,25 +581,17 @@ class Database(abc.MutableMapping):
         Returns:
             Tuple[str]: The keys found.
         """
-        for i in range(self.retry_count):
-            try:
-                r = self.sess.get(f"{self.db_url}",
-                                  params={
-                                      "prefix": prefix,
-                                      "encode": "true"
-                                  })
-                r.raise_for_status()
+        r = self.sess.get(f"{self.db_url}",
+                          params={
+                              "prefix": prefix,
+                              "encode": "true"
+                          })
+        r.raise_for_status()
 
-                if not r.text:
-                    return tuple()
-                else:
-                    return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
-            except Exception as e:
-                if i < self.retry_count - 1: 
-                    time.sleep(2**i)
-                    continue
-                else:
-                    raise e  # we're out of retries
+        if not r.text:
+            return tuple()
+        else:
+            return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
 
     def keys(self) -> AbstractSet[str]:
         """Returns all of the keys in the database.
