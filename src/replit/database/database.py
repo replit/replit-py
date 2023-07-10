@@ -19,6 +19,7 @@ import asyncio
 import aiohttp
 import requests
 
+from aiohttp_retry import RetryClient, ExponentialRetry
 
 def to_primitive(o: Any) -> Any:
     """If object is an observed object, converts to primitve, otherwise returns it.
@@ -63,7 +64,7 @@ _dumps = dumps
 class AsyncDatabase:
     """Async interface for Repl.it Database."""
 
-    __slots__ = ("db_url", "sess", "retry_count")
+    __slots__ = ("db_url", "sess", "retry_count", "client")
 
     def __init__(self, db_url: str, retry_count: int = 5) -> None:
         """Initialize database. You shouldn't have to do this manually.
@@ -74,6 +75,12 @@ class AsyncDatabase:
         self.db_url = db_url
         self.sess = aiohttp.ClientSession()
         self.retry_count = retry_count
+
+        retry_options = ExponentialRetry(attempts=retry_count)
+        self.client = RetryClient(
+            client_session=self.sess,
+            retry_options=retry_options
+        )
 
     def update_db_url(self, db_url: str) -> None:
         """Update the database url.
@@ -88,6 +95,7 @@ class AsyncDatabase:
 
     async def __aexit__(self, exc_type: Any, exc_value: Any,
                         traceback: Any) -> None:
+        await self.client.close()
         await self.sess.close()
 
     async def get(self, key: str) -> str:
@@ -116,22 +124,11 @@ class AsyncDatabase:
         Returns:
             str: The value of the key
         """
-        for i in range(self.retry_count):
-            try:
-                async with self.sess.get(self.db_url + "/" +
-                                         urllib.parse.quote(key)) as response:
-                    if response.status == 404:
-                        raise KeyError(key)
-                    response.raise_for_status()
-                    return await response.text()
-            except KeyError:
-                raise
-            except Exception as e:
-                if i < self.retry_count - 1:
-                    await asyncio.sleep(2**i)
-                    continue
-                else:
-                    raise e  # we're out of retries
+        async with self.client.get(self.db_url + "/" + urllib.parse.quote(key)) as response:
+            if response.status == 404:
+                raise KeyError(key)
+            response.raise_for_status()
+            return await response.text()
 
     async def set(self, key: str, value: Any) -> None:
         """Set a key in the database to the result of JSON encoding value.
@@ -166,7 +163,7 @@ class AsyncDatabase:
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        async with self.sess.post(self.db_url, data=values) as response:
+        async with self.client.post(self.db_url, data=values) as response:
             response.raise_for_status()
 
     async def delete(self, key: str) -> None:
@@ -178,7 +175,7 @@ class AsyncDatabase:
         Raises:
             KeyError: Key does not exist
         """
-        async with self.sess.delete(self.db_url + "/" +
+        async with self.client.delete(self.db_url + "/" +
                                     urllib.parse.quote(key)) as response:
             if response.status == 404:
                 raise KeyError(key)
@@ -191,22 +188,14 @@ class AsyncDatabase:
         Returns:
             Tuple[str]: The keys found.
         """
-        for i in range(self.retry_count):
-            try:
-                params = {"prefix": prefix, "encode": "true"}
-                async with self.sess.get(self.db_url, params=params) as response:
-                    response.raise_for_status()
-                    text = await response.text()
-                    if not text:
-                        return tuple()
-                    else:
-                        return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
-            except Exception as e:
-                if i < self.retry_count - 1:
-                    await asyncio.sleep(2**i)
-                    continue
-                else:
-                    raise e  # we're out of retries
+        params = {"prefix": prefix, "encode": "true"}
+        async with self.client.get(self.db_url, params=params) as response:
+            response.raise_for_status()
+            text = await response.text()
+            if not text:
+                return tuple()
+            else:
+                return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
 
     async def to_dict(self, prefix: str = "") -> Dict[str, str]:
         """Dump all data in the database into a dictionary.
