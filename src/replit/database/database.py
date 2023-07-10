@@ -14,7 +14,8 @@ from typing import (
     Union,
 )
 import urllib
-
+import time
+import asyncio
 import aiohttp
 import requests
 
@@ -62,9 +63,9 @@ _dumps = dumps
 class AsyncDatabase:
     """Async interface for Repl.it Database."""
 
-    __slots__ = ("db_url", "sess")
+    __slots__ = ("db_url", "sess", "retry_count")
 
-    def __init__(self, db_url: str) -> None:
+    def __init__(self, db_url: str, retry_count: int = 5) -> None:
         """Initialize database. You shouldn't have to do this manually.
 
         Args:
@@ -72,6 +73,7 @@ class AsyncDatabase:
         """
         self.db_url = db_url
         self.sess = aiohttp.ClientSession()
+        self.retry_count = retry_count
 
     def update_db_url(self, db_url: str) -> None:
         """Update the database url.
@@ -114,12 +116,22 @@ class AsyncDatabase:
         Returns:
             str: The value of the key
         """
-        async with self.sess.get(self.db_url + "/" +
-                                 urllib.parse.quote(key)) as response:
-            if response.status == 404:
-                raise KeyError(key)
-            response.raise_for_status()
-            return await response.text()
+        for i in range(self.retry_count):
+            try:
+                async with self.sess.get(self.db_url + "/" +
+                                         urllib.parse.quote(key)) as response:
+                    if response.status == 404:
+                        raise KeyError(key)
+                    response.raise_for_status()
+                    return await response.text()
+            except KeyError:
+                raise
+            except Exception as e:
+                if i < self.retry_count - 1:
+                    await asyncio.sleep(2**i)
+                    continue
+                else:
+                    raise e  # we're out of retries
 
     async def set(self, key: str, value: Any) -> None:
         """Set a key in the database to the result of JSON encoding value.
@@ -174,21 +186,27 @@ class AsyncDatabase:
 
     async def list(self, prefix: str) -> Tuple[str, ...]:
         """List keys in the database which start with prefix.
-
         Args:
             prefix (str): The prefix keys must start with, blank not not check.
-
         Returns:
             Tuple[str]: The keys found.
         """
-        params = {"prefix": prefix, "encode": "true"}
-        async with self.sess.get(self.db_url, params=params) as response:
-            response.raise_for_status()
-            text = await response.text()
-            if not text:
-                return tuple()
-            else:
-                return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
+        for i in range(self.retry_count):
+            try:
+                params = {"prefix": prefix, "encode": "true"}
+                async with self.sess.get(self.db_url, params=params) as response:
+                    response.raise_for_status()
+                    text = await response.text()
+                    if not text:
+                        return tuple()
+                    else:
+                        return tuple(urllib.parse.unquote(k) for k in text.split("\n"))
+            except Exception as e:
+                if i < self.retry_count - 1:
+                    await asyncio.sleep(2**i)
+                    continue
+                else:
+                    raise e  # we're out of retries
 
     async def to_dict(self, prefix: str = "") -> Dict[str, str]:
         """Dump all data in the database into a dictionary.
@@ -416,9 +434,9 @@ class Database(abc.MutableMapping):
     don't want this, use AsyncDatabase instead.
     """
 
-    __slots__ = ("db_url", "sess")
+    __slots__ = ("db_url", "sess", "retry_count")
 
-    def __init__(self, db_url: str) -> None:
+    def __init__(self, db_url: str, retry_count=5) -> None:
         """Initialize database. You shouldn't have to do this manually.
 
         Args:
@@ -426,6 +444,7 @@ class Database(abc.MutableMapping):
         """
         self.db_url = db_url
         self.sess = requests.Session()
+        self.retry_count = retry_count
 
     def update_db_url(self, db_url: str) -> None:
         """Update the database url.
@@ -481,22 +500,29 @@ class Database(abc.MutableMapping):
 
     def get_raw(self, key: str) -> str:
         """Look up the given key in the database and return the corresponding value.
-
         Args:
             key (str): The key to look up
-
         Raises:
             KeyError: The key is not in the database.
-
         Returns:
             str: The value of the key in the database.
         """
-        r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
-        if r.status_code == 404:
-            raise KeyError(key)
+        for i in range(self.retry_count):
+            try:
+                r = self.sess.get(self.db_url + "/" + urllib.parse.quote(key))
+                if r.status_code == 404:
+                    raise KeyError(key)
 
-        r.raise_for_status()
-        return r.text
+                r.raise_for_status()
+                return r.text
+            except KeyError:
+                raise 
+            except Exception as e:
+                if i < self.retry_count - 1:
+                    time.sleep(2**i)
+                    continue
+                else:
+                    raise e  # we're out of retries
 
     def __setitem__(self, key: str, value: Any) -> None:
         """Set a key in the database to the result of JSON encoding value.
@@ -568,25 +594,30 @@ class Database(abc.MutableMapping):
 
     def prefix(self, prefix: str) -> Tuple[str, ...]:
         """Return all of the keys in the database that begin with the prefix.
-
         Args:
-            prefix (str): The prefix the keys must start with,
-                blank means anything.
-
+            prefix (str): The prefix the keys must start with, blank means anything.
         Returns:
             Tuple[str]: The keys found.
         """
-        r = self.sess.get(f"{self.db_url}",
-                          params={
-                              "prefix": prefix,
-                              "encode": "true"
-                          })
-        r.raise_for_status()
+        for i in range(self.retry_count):
+            try:
+                r = self.sess.get(f"{self.db_url}",
+                                  params={
+                                      "prefix": prefix,
+                                      "encode": "true"
+                                  })
+                r.raise_for_status()
 
-        if not r.text:
-            return tuple()
-        else:
-            return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
+                if not r.text:
+                    return tuple()
+                else:
+                    return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
+            except Exception as e:
+                if i < self.retry_count - 1: 
+                    time.sleep(2**i)
+                    continue
+                else:
+                    raise e  # we're out of retries
 
     def keys(self) -> AbstractSet[str]:
         """Returns all of the keys in the database.
