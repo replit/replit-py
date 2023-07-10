@@ -64,7 +64,7 @@ _dumps = dumps
 class AsyncDatabase:
     """Async interface for Repl.it Database."""
 
-    __slots__ = ("db_url", "sess", "retry_count", "client")
+    __slots__ = ("db_url", "sess", "client")
 
     def __init__(self, db_url: str, retry_count: int = 5) -> None:
         """Initialize database. You shouldn't have to do this manually.
@@ -74,7 +74,6 @@ class AsyncDatabase:
         """
         self.db_url = db_url
         self.sess = aiohttp.ClientSession()
-        self.retry_count = retry_count
 
         retry_options = ExponentialRetry(attempts=retry_count)
         self.client = RetryClient(
@@ -423,7 +422,7 @@ class Database(abc.MutableMapping):
     don't want this, use AsyncDatabase instead.
     """
 
-    __slots__ = ("db_url", "sess", "retry_count")
+    __slots__ = ("db_url", "sess")
 
     def __init__(self, db_url: str, retry_count: int = 5) -> None:
         """Initialize database. You shouldn't have to do this manually.
@@ -433,7 +432,6 @@ class Database(abc.MutableMapping):
         """
         self.db_url = db_url
         self.sess = requests.Session()
-        self.retry_count = retry_count
         retries = Retry(total=retry_count, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
         self.sess.mount("http://", HTTPAdapter(max_retries=retries))
         self.sess.mount("https://", HTTPAdapter(max_retries=retries))
