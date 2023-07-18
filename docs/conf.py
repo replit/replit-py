@@ -63,8 +63,7 @@ html_static_path = ["_static"]
 html_theme_options = {"show_powered_by": False}
 
 html_sidebars = {
-    "index":
-    ["sidebarintro.html", "sourcelink.html", "searchbox.html", "hacks.html"],
+    "index": ["sidebarintro.html", "sourcelink.html", "searchbox.html", "hacks.html"],
     "**": [
         "sidebarintro.html",
         "localtoc.html",
