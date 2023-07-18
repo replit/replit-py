@@ -16,7 +16,7 @@ from typing import (
 import urllib
 
 import aiohttp
-from aiohttp_retry import ExponentialRetry, RetryClient
+from aiohttp_retry import ExponentialRetry, RetryClient  # type: ignore
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
