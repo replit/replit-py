@@ -33,6 +33,8 @@ if db_url:
     db = Database(db_url)
 else:
     # The user will see errors if they try to use the database.
+    print('Warning: error initializing database. Replit DB is not configured.')
     db = None
 
-refresh_db()
+if db:
+    refresh_db()
