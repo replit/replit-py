@@ -110,7 +110,9 @@ class Verifier:
         pass
 
     def verify_chain(
-        self, token: str, pubkey_source: PubKeySource,
+        self,
+        token: str,
+        pubkey_source: PubKeySource,
     ) -> Tuple[bytes, Optional[signing_pb2.GovalCert]]:
         """Verifies that the token and its signing chain are valid."""
         gsa = _get_signing_authority(token)
@@ -140,13 +142,21 @@ class Verifier:
         raise VerifyError(f"Invalid signing authority: {gsa}")
 
     def verify_token_with_keyid(
-        self, token: str, key_id: str, issuer: str, pubkey_source: PubKeySource,
+        self,
+        token: str,
+        key_id: str,
+        issuer: str,
+        pubkey_source: PubKeySource,
     ) -> bytes:
         """Verifies that the token is valid and signed by the keyid."""
         pubkey = pubkey_source(key_id, issuer)
         return self.verify_token(token, pubkey)
 
-    def verify_token_with_cert(self, token: str, cert: signing_pb2.GovalCert,) -> bytes:
+    def verify_token_with_cert(
+        self,
+        token: str,
+        cert: signing_pb2.GovalCert,
+    ) -> bytes:
         """Verifies that the token is valid and signed by the cert."""
         pubkey = pyseto.Key.from_paserk(cert.publicKey)
         return self.verify_token(token, pubkey)
@@ -195,7 +205,11 @@ class Verifier:
 
         return cert
 
-    def verify_token(self, token: str, pubkey: pyseto.KeyInterface,) -> bytes:
+    def verify_token(
+        self,
+        token: str,
+        pubkey: pyseto.KeyInterface,
+    ) -> bytes:
         """Verifies that the token is valid."""
         decoded = pyseto.decode(pubkey, token)
         return base64.b64decode(decoded.payload)
@@ -217,7 +231,8 @@ def read_public_key_from_env(keyid: str, issuer: str) -> pyseto.KeyInterface:
 
 
 def verify_ghostwriter(
-    ghostwriter_token: str, pubkey_source: PubKeySource = read_public_key_from_env,
+    ghostwriter_token: str,
+    pubkey_source: PubKeySource = read_public_key_from_env,
 ) -> signing_pb2.GovalToken:
     """Verifies a Ghostwriter token.
 
