@@ -14,10 +14,12 @@ from typing import (
     Union,
 )
 import urllib
-
+import time
+import asyncio
 import aiohttp
 import requests
-
+from requests.adapters import HTTPAdapter, Retry
+from aiohttp_retry import RetryClient, ExponentialRetry
 
 def to_primitive(o: Any) -> Any:
     """If object is an observed object, converts to primitve, otherwise returns it.
@@ -62,9 +64,9 @@ _dumps = dumps
 class AsyncDatabase:
     """Async interface for Repl.it Database."""
 
-    __slots__ = ("db_url", "sess")
+    __slots__ = ("db_url", "sess", "client")
 
-    def __init__(self, db_url: str) -> None:
+    def __init__(self, db_url: str, retry_count: int = 5) -> None:
         """Initialize database. You shouldn't have to do this manually.
 
         Args:
@@ -73,10 +75,26 @@ class AsyncDatabase:
         self.db_url = db_url
         self.sess = aiohttp.ClientSession()
 
+        retry_options = ExponentialRetry(attempts=retry_count)
+        self.client = RetryClient(
+            client_session=self.sess,
+            retry_options=retry_options
+        )
+
+    def update_db_url(self, db_url: str) -> None:
+        """Update the database url.
+
+        Args:
+            db_url (str): Database url to use.
+        """
+        self.db_url = db_url
+
     async def __aenter__(self) -> "AsyncDatabase":
         return self
 
-    async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
+    async def __aexit__(self, exc_type: Any, exc_value: Any,
+                        traceback: Any) -> None:
+        await self.client.close()
         await self.sess.close()
 
     async def get(self, key: str) -> str:
@@ -105,9 +123,7 @@ class AsyncDatabase:
         Returns:
             str: The value of the key
         """
-        async with self.sess.get(
-            self.db_url + "/" + urllib.parse.quote(key)
-        ) as response:
+        async with self.client.get(self.db_url + "/" + urllib.parse.quote(key)) as response:
             if response.status == 404:
                 raise KeyError(key)
             response.raise_for_status()
@@ -146,7 +162,7 @@ class AsyncDatabase:
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        async with self.sess.post(self.db_url, data=values) as response:
+        async with self.client.post(self.db_url, data=values) as response:
             response.raise_for_status()
 
     async def delete(self, key: str) -> None:
@@ -158,24 +174,21 @@ class AsyncDatabase:
         Raises:
             KeyError: Key does not exist
         """
-        async with self.sess.delete(
-            self.db_url + "/" + urllib.parse.quote(key)
-        ) as response:
+        async with self.client.delete(self.db_url + "/" +
+                                    urllib.parse.quote(key)) as response:
             if response.status == 404:
                 raise KeyError(key)
             response.raise_for_status()
 
     async def list(self, prefix: str) -> Tuple[str, ...]:
         """List keys in the database which start with prefix.
-
         Args:
             prefix (str): The prefix keys must start with, blank not not check.
-
         Returns:
             Tuple[str]: The keys found.
         """
         params = {"prefix": prefix, "encode": "true"}
-        async with self.sess.get(self.db_url, params=params) as response:
+        async with self.client.get(self.db_url, params=params) as response:
             response.raise_for_status()
             text = await response.text()
             if not text:
@@ -242,9 +255,9 @@ class ObservedList(abc.MutableSequence):
 
     __slots__ = ("_on_mutate_handler", "value")
 
-    def __init__(
-        self, on_mutate: Callable[[List], None], value: Optional[List] = None
-    ) -> None:
+    def __init__(self,
+                 on_mutate: Callable[[List], None],
+                 value: Optional[List] = None) -> None:
         self._on_mutate_handler = on_mutate
         if value is None:
             self.value = []
@@ -303,9 +316,9 @@ class ObservedDict(abc.MutableMapping):
 
     __slots__ = ("_on_mutate_handler", "value")
 
-    def __init__(
-        self, on_mutate: Callable[[Dict], None], value: Optional[Dict] = None
-    ) -> None:
+    def __init__(self,
+                 on_mutate: Callable[[Dict], None],
+                 value: Optional[Dict] = None) -> None:
         self._on_mutate_handler = on_mutate
         if value is None:
             self.value = {}
@@ -326,8 +339,7 @@ class ObservedDict(abc.MutableMapping):
     def get(self, key: str, default: Any = None) -> Any:
         """Return the value for key if key is in the dictionary, else default."""
         return self.value.get(
-            key, item_to_observed(_get_set_cb(db=self, k=key), default)
-        )
+            key, item_to_observed(_get_set_cb(db=self, k=key), default))
 
     def __setitem__(self, k: Any, v: Any) -> None:
         self.value[k] = v
@@ -362,6 +374,7 @@ class ObservedDict(abc.MutableMapping):
 
 # By putting these outside we save some memory
 def _get_on_mutate_cb(d: Any) -> Callable[[Any], None]:
+
     def cb(_: Any) -> None:
         d.on_mutate()
 
@@ -369,6 +382,7 @@ def _get_on_mutate_cb(d: Any) -> Callable[[Any], None]:
 
 
 def _get_set_cb(db: Any, k: str) -> Callable[[Any], None]:
+
     def cb(val: Any) -> None:
         db[k] = val
 
@@ -410,7 +424,7 @@ class Database(abc.MutableMapping):
 
     __slots__ = ("db_url", "sess")
 
-    def __init__(self, db_url: str) -> None:
+    def __init__(self, db_url: str, retry_count: int = 5) -> None:
         """Initialize database. You shouldn't have to do this manually.
 
         Args:
@@ -418,6 +432,17 @@ class Database(abc.MutableMapping):
         """
         self.db_url = db_url
         self.sess = requests.Session()
+        retries = Retry(total=retry_count, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+        self.sess.mount("http://", HTTPAdapter(max_retries=retries))
+        self.sess.mount("https://", HTTPAdapter(max_retries=retries))
+
+    def update_db_url(self, db_url: str) -> None:
+        """Update the database url.
+
+        Args:
+            db_url (str): Database url to use.
+        """
+        self.db_url = db_url
 
     def __getitem__(self, key: str) -> Any:
         """Get the value of an item from the database.
@@ -460,17 +485,15 @@ class Database(abc.MutableMapping):
         Returns:
             Any: The the value for key if key is in the database, else default.
         """
-        return super().get(key, item_to_observed(_get_set_cb(self, key), default))
+        return super().get(key,
+                           item_to_observed(_get_set_cb(self, key), default))
 
     def get_raw(self, key: str) -> str:
         """Look up the given key in the database and return the corresponding value.
-
         Args:
             key (str): The key to look up
-
         Raises:
             KeyError: The key is not in the database.
-
         Returns:
             str: The value of the key in the database.
         """
@@ -551,15 +574,16 @@ class Database(abc.MutableMapping):
 
     def prefix(self, prefix: str) -> Tuple[str, ...]:
         """Return all of the keys in the database that begin with the prefix.
-
         Args:
-            prefix (str): The prefix the keys must start with,
-                blank means anything.
-
+            prefix (str): The prefix the keys must start with, blank means anything.
         Returns:
             Tuple[str]: The keys found.
         """
-        r = self.sess.get(f"{self.db_url}", params={"prefix": prefix, "encode": "true"})
+        r = self.sess.get(f"{self.db_url}",
+                          params={
+                              "prefix": prefix,
+                              "encode": "true"
+                          })
         r.raise_for_status()
 
         if not r.text:
