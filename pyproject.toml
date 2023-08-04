@@ -8,6 +8,7 @@ readme = "README.md"
 repository = "https://github.com/replit/replit-py"
 homepage = "https://github.com/replit/replit-py"
 documentation = "https://replit-py.readthedocs.org/"
+packages = [{ include = "replit", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
