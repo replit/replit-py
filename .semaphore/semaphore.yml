@@ -14,21 +14,21 @@ blocks:
           commands:
             - sem-version python 3.8
             - checkout --use-cache
-            - pip install poetry==1.5.1
-            - poetry install --no-root --no-interaction --no-ansi
+            - pip install poetry
+            - poetry install
             - poetry run flake8
         - name: unittest
           commands:
             - sem-version python 3.8
             - checkout --use-cache
-            - pip install poetry==1.5.1
-            - poetry install --no-root --no-interaction --no-ansi
+            - pip install poetry
+            - poetry install
             - poetry run coverage run -m unittest
             - poetry run coverage report -m --include='src/*'
         - name: mypy
           commands:
             - sem-version python 3.8
             - checkout --use-cache
-            - pip install poetry==1.5.1
-            - poetry install --no-root --no-interaction --no-ansi
+            - pip install poetry
+            - poetry install
             - bash -c '! poetry run mypy src/replit | grep database.py'
