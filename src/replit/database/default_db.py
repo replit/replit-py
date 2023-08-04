@@ -11,3 +11,4 @@ if db_url:
 else:
     # The user will see errors if they try to use the database.
     db = None
+
