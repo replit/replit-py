@@ -6,8 +6,6 @@ agent:
     os_image: ubuntu1804
 blocks:
   - name: Lint and test
-    run:
-      when: "change_in('/src')"
     task:
       secrets:
         - name: replit-database
@@ -15,22 +13,22 @@ blocks:
         - name: flake8
           commands:
             - sem-version python 3.8
-            - checkout --use-cache
-            - pip install poetry==1.3.2 --no-cache
-            - poetry install --no-root --no-interaction --no-ansi
+            - checkout
+            - pip install poetry
+            - poetry install
             - poetry run flake8
         - name: unittest
           commands:
             - sem-version python 3.8
-            - checkout --use-cache
-            - pip install poetry==1.3.2 --no-cache
-            - poetry install --no-root --no-interaction --no-ansi
+            - checkout
+            - pip install poetry
+            - poetry install
             - poetry run coverage run -m unittest
             - poetry run coverage report -m --include='src/*'
         - name: mypy
           commands:
             - sem-version python 3.8
-            - checkout --use-cache
-            - pip install poetry==1.3.2 --no-cache
-            - poetry install --no-root --no-interaction --no-ansi
+            - checkout
+            - pip install poetry
+            - poetry install
             - bash -c '! poetry run mypy src/replit | grep database.py'
