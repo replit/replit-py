@@ -16,6 +16,8 @@ def get_db_url() -> str:
     else:
         db_url = environ.get("REPLIT_DB_URL")
 
+
+
     return db_url
 
 
