@@ -6,8 +6,6 @@ agent:
     os_image: ubuntu1804
 blocks:
   - name: Lint and test
-    run:
-      when: "change_in('/src')"
     task:
       secrets:
         - name: replit-database
