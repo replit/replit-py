@@ -15,14 +15,14 @@ blocks:
             - sem-version python 3.8
             - checkout --use-cache
             - pip install poetry
-            - poetry install --no-root --no-interaction --no-ansi
+            - poetry install --no-interaction --no-ansi
             - poetry run flake8
         - name: unittest
           commands:
             - sem-version python 3.8
             - checkout --use-cache
             - pip install poetry
-            - poetry install --no-root --no-interaction --no-ansi
+            - poetry install --no-interaction --no-ansi
             - poetry run coverage run -m unittest
             - poetry run coverage report -m --include='src/*'
         - name: mypy
