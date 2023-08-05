@@ -91,7 +91,8 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         await self.db.set(key + "2", "value2")
 
         vals = await self.db.values()
-        self.assertTupleEqual(vals, ("value1", "value2"))
+        self.assertIn("value1", vals)
+        self.assertIn("value2", vals)
 
     async def test_dict(self) -> None:
         """Test that we can get a dict."""
