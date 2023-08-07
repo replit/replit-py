@@ -16,6 +16,7 @@ from .auth import getUserInfo
 
 info = ReplInfo()
 
+
 # Backwards compatibility.
 def clear() -> None:
     """Clear the terminal."""

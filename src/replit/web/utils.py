@@ -215,7 +215,7 @@ def per_user_ratelimit(
                 last_reset = now
                 num_requests = {}
 
-            times_requested = num_requests.get(name, 0)
+            times_requested = num_requests.get(name, 0)  # noqa: S113
             if times_requested >= max_requests:
                 res = get_ratelimited_res(period - (now - last_reset))
                 # Make a reponse object so that status can be set
