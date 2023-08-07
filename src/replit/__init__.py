@@ -12,6 +12,7 @@ from .database import (
     start_database_proxy,
 )
 from .info import ReplInfo
+from .auth import getUserInfo
 
 info = ReplInfo()
 
