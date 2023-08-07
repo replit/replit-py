@@ -15,6 +15,7 @@ from .info import ReplInfo
 
 info = ReplInfo()
 
+
 # Backwards compatibility.
 def clear() -> None:
     """Clear the terminal."""
