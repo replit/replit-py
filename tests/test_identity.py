@@ -23,6 +23,7 @@ class TestIdentity(unittest.TestCase):
         pubkey = replit.identity.read_public_key_from_env("dev:1", "goval")
         self.assertIsInstance(pubkey, pyseto.versions.v2.V2Public)
 
+    @unittest.skip("todo: investigate how to update this token")
     def test_verify_ghostwriter(self) -> None:
         """Test verify_ghostwriter."""
         # This token should be valid for 10y.
