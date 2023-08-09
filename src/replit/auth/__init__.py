@@ -7,41 +7,34 @@ from typing import Optional
 __all__ = ("getUserInfo")
 
 class User:
-  def __init__(self, request: Request):
-    self.id = None
-    self.name = None
-    self.bio = None
-    self.profile_image = None
-    self.roles = None
-    self.teams = None
-    self.url = None
-    if not request.headers.get('X-Replit-User-Id'): return
+    id = name = bio = profile_image = roles = teams = url = None
 
-    REPLIT_HEADERS = list(filter(
-      lambda header: header[0].startswith("X-Replit-User-"),
-      list(request.headers)
-    ))
+    def __init__(self, request: Request):
+        if not request.headers.get('X-Replit-User-Id'): return
 
-    for header in REPLIT_HEADERS:
-      header, value = header
+        REPLIT_HEADERS = filter(
+            lambda header: header[0].startswith("X-Replit-User-"),
+            request.headers)
 
-      if header == "X-Replit-User-Id":
-        value = int(value)
-      elif header == "X-Replit-User-Teams" or header == "X-Replit-User-Roles":
-        value = value.split(',')
-      
-      setattr(self, header[14:len(header)].lower().replace('-', '_'), value)
+        for header in REPLIT_HEADERS:
+            header, value = header
 
-  def __repr__(self) -> str:
-    return dumps(self.__dict__)
+            if header == "X-Replit-User-Id":
+                value = int(value)
+            elif header in {"X-Replit-User-Teams", "X-Replit-User-Roles"}:
+                value = value.split(',')
 
-  def __str__(self) -> str:
-    return self.name if self.name else ""
+            setattr(self, header[14:len(header)].lower().replace('-', '_'),
+                    value)
+
+    def __repr__(self) -> str:
+        return dumps(self.__dict__)
+
+    def __str__(self) -> str:
+        return self.name or ""
+
 
 def getUserInfo(request: Request) -> Optional[User]:
-  user = User(request)
+    user = User(request)
 
-  return user if user.id else None
-
-    
-      
+    return user if user.id else None
