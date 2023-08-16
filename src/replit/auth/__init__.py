@@ -4,7 +4,7 @@ from json import dumps
 from flask import Request
 from typing import Optional
 
-__all__ = ("get_user_info")
+__all__ = ("get_user_info",)
 
 class User:
     id = name = bio = profile_image = roles = teams = url = None
