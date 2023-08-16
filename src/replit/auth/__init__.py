@@ -4,7 +4,7 @@ from json import dumps
 from flask import Request
 from typing import Optional
 
-__all__ = ("getUserInfo")
+__all__ = ("get_user_info")
 
 class User:
     id = name = bio = profile_image = roles = teams = url = None
@@ -34,7 +34,7 @@ class User:
         return self.name or ""
 
 
-def getUserInfo(request: Request) -> Optional[User]:
+def get_user_info(request: Request) -> Optional[User]:
     user = User(request)
 
     return user if user.id else None
