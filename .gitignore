@@ -137,3 +137,7 @@ Pipfile.lock
 t.py
 repl-tweet.py
 .DS_Store
+
+# Replit config files
+.replit
+replit.nix
