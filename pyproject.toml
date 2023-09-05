@@ -51,3 +51,6 @@ replit = "replit.__main__:cli"
 exclude = [
 	"_pb2.py$",  # Generated code
 ]
+
+[tool.black]
+exclude = "src/replit/goval/api"
