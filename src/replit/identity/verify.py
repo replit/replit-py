@@ -21,7 +21,9 @@ class _MessageClaims:
 
     repls: Set[str] = dataclasses.field(default_factory=set)
     users: Set[str] = dataclasses.field(default_factory=set)
+    user_ids: Set[int] = dataclasses.field(default_factory=set)
     clusters: Set[str] = dataclasses.field(default_factory=set)
+    subclusters: Set[str] = dataclasses.field(default_factory=set)
     flags: Set[int] = dataclasses.field(default_factory=set)
 
 
@@ -38,13 +40,17 @@ def _parse_claims(cert: signing_pb2.GovalCert) -> _MessageClaims:
 
     for claim in cert.claims:
         if claim.WhichOneof("claim") == "replid":
-            claims.repls.insert(claim.replid)
+            claims.repls.add(claim.replid)
         elif claim.WhichOneof("claim") == "user":
-            claims.users.insert(claim.user)
+            claims.users.add(claim.user)
+        elif claim.WhichOneof("claim") == "user_id":
+            claims.user_ids.add(claim.user_id)
         elif claim.WhichOneof("claim") == "cluster":
-            claims.clusters.insert(claim.cluster)
+            claims.clusters.add(claim.cluster)
+        elif claim.WhichOneof("claim") == "subcluster":
+            claims.subclusters.add(claim.subcluster)
         elif claim.WhichOneof("claim") == "flag":
-            claims.flags.insert(claim.flag)
+            claims.flags.add(claim.flag)
 
     return claims
 
@@ -69,21 +75,47 @@ def _get_signing_authority(token: str) -> signing_pb2.GovalSigningAuthority:
 def _verify_raw_claims(
     replid: Optional[str] = None,
     user: Optional[str] = None,
+    user_id: Optional[int] = None,
     cluster: Optional[str] = None,
+    subcluster: Optional[str] = None,
     claims: Optional[_MessageClaims] = None,
-    any_replid: bool = False,
-    any_user: bool = False,
-    any_cluster: bool = False,
+    deployment: bool = False,
 ) -> None:
     if claims is None:
         return
 
+    any_replid = signing_pb2.FlagClaim.ANY_REPLID in claims.flags
+    any_user = signing_pb2.FlagClaim.ANY_USER in claims.flags
+    any_user_id = signing_pb2.FlagClaim.ANY_USER_ID in claims.flags
+    any_cluster = signing_pb2.FlagClaim.ANY_CLUSTER in claims.flags
+    any_subcluster = signing_pb2.FlagClaim.ANY_SUBCLUSTER in claims.flags
+    deployments = signing_pb2.FlagClaim.DEPLOYMENTS in claims.flags
+
     if not any_replid and replid is not None and replid not in claims.repls:
-        raise VerifyError("not authorized (replid)")
+        raise VerifyError(
+            f"not authorized (replid), got {replid!r}, want {claims.repls!r}"
+        )
     if not any_user and user is not None and user not in claims.users:
-        raise VerifyError("not authorized (user)")
+        raise VerifyError(f"not authorized (user), got {user!r}, want {claims.users!r}")
+    if not any_user_id and user_id is not None and user_id not in claims.user_ids:
+        raise VerifyError(
+            f"not authorized (user_id), got {user_id!r}, want {claims.user_ids!r}"
+        )
     if not any_cluster and cluster is not None and cluster not in claims.clusters:
-        raise VerifyError("not authorized (cluster)")
+        raise VerifyError(
+            f"not authorized (cluster), got {cluster!r}, want {claims.clusters!r}"
+        )
+    if (
+        not any_subcluster
+        and subcluster is not None
+        and subcluster not in claims.subclusters
+    ):
+        raise VerifyError(
+            f"not authorized (subcluster), "
+            f"got {subcluster!r}, want {claims.subclusters!r}"
+        )
+    if not deployments and deployment:
+        raise VerifyError("not authorized (deployment)")
 
 
 def _verify_claims(
@@ -91,7 +123,10 @@ def _verify_claims(
     exp: datetime.datetime,
     replid: Optional[str] = None,
     user: Optional[str] = None,
+    user_id: Optional[int] = None,
     cluster: Optional[str] = None,
+    subcluster: Optional[str] = None,
+    deployment: bool = False,
     claims: Optional[_MessageClaims] = None,
 ) -> None:
     now = datetime.datetime.utcnow()
@@ -100,7 +135,14 @@ def _verify_claims(
     if exp < now:
         raise VerifyError(f"expired {now - exp} ago")
 
-    _verify_raw_claims(replid=replid, user=user, cluster=cluster, claims=claims)
+    _verify_raw_claims(
+        replid=replid,
+        user=user,
+        user_id=user_id,
+        cluster=cluster,
+        subcluster=subcluster,
+        claims=claims,
+    )
 
 
 class Verifier:
@@ -168,7 +210,11 @@ class Verifier:
         cert = signing_pb2.GovalCert.FromString(encoded_cert)
 
         # Verify that the cert is valid.
-        _verify_claims(iat=cert.iat.ToDatetime(), exp=cert.exp.ToDatetime())
+        _verify_claims(
+            iat=cert.iat.ToDatetime(),
+            exp=cert.exp.ToDatetime(),
+            claims=_parse_claims(cert),
+        )
 
         # If the parent is the root cert, there's nothing else to verify.
         if signing_cert:
@@ -182,23 +228,33 @@ class Verifier:
             authorized_claims: Set[str] = set()
             any_replid = False
             any_user = False
+            any_user_id = False
             any_cluster = False
+            any_subcluster = False
             for claim in signing_cert.claims:
-                authorized_claims.insert(str(claim))
+                authorized_claims.add(str(claim))
                 if claim.WhichOneof("claim") == "flag":
                     if claim.flag == signing_pb2.FlagClaim.ANY_REPLID:
                         any_replid = True
                     elif claim.flag == signing_pb2.FlagClaim.ANY_USER:
                         any_user = True
+                    elif claim.flag == signing_pb2.FlagClaim.ANY_USER_ID:
+                        any_user_id = True
                     elif claim.flag == signing_pb2.FlagClaim.ANY_CLUSTER:
                         any_cluster = True
+                    elif claim.flag == signing_pb2.FlagClaim.ANY_SUBCLUSTER:
+                        any_subcluster = True
 
             for claim in signing_cert.claims:
                 if claim.WhichOneof("claim") == "replid" and any_replid:
                     continue
                 if claim.WhichOneof("claim") == "user" and any_user:
                     continue
+                if claim.WhichOneof("claim") == "user_id" and any_user_id:
+                    continue
                 if claim.WhichOneof("claim") == "cluster" and any_cluster:
+                    continue
+                if claim.WhichOneof("claim") == "subcluster" and any_subcluster:
                     continue
                 if str(claim) not in authorized_claims:
                     raise VerifyError(f"signing cert does not authorize claim {claim}")
@@ -230,6 +286,52 @@ def read_public_key_from_env(keyid: str, issuer: str) -> pyseto.KeyInterface:
     return pyseto.Key.from_asymmetric_key_params(version=2, x=key)
 
 
+def verify_identity_token(
+    identity_token: str,
+    audience: str,
+    pubkey_source: PubKeySource = read_public_key_from_env,
+) -> signing_pb2.GovalReplIdentity:
+    """Verifies a Repl Identity token.
+
+    Args:
+        identity_token: The Identity token.
+        audience: The audience that the token was signed for.
+        pubkey_source: The PubKeySource to get the public key.
+
+    Returns:
+        The parsed and verified signing_pb2.GovalReplIdentity.
+
+    Raises:
+        VerifyError: If there's any problem verifying the token.
+    """
+    v = Verifier()
+    raw_goval_token, goval_cert = v.verify_chain(identity_token, pubkey_source)
+    repl_identity = signing_pb2.GovalReplIdentity.FromString(raw_goval_token)
+
+    # Verify that the cert is valid.
+    if repl_identity.aud != audience:
+        raise VerifyError(
+            f"not authorized (audience), got {repl_identity.aud!r}, want {audience!r}"
+        )
+    deployment: bool = False
+    cluster: Optional[str] = None
+    subcluster: Optional[str] = None
+    if repl_identity.WhichOneof("runtime") == "deployment":
+        deployment = True
+    elif repl_identity.WhichOneof("runtime") == "interactive":
+        cluster = repl_identity.interactive.cluster
+        subcluster = repl_identity.interactive.subcluster
+    _verify_claims(
+        iat=goval_cert.iat.ToDatetime(),
+        exp=goval_cert.exp.ToDatetime(),
+        cluster=cluster,
+        subcluster=subcluster,
+        deployment=deployment,
+        claims=_parse_claims(goval_cert) if goval_cert else None,
+    )
+    return repl_identity
+
+
 def verify_ghostwriter(
     ghostwriter_token: str,
     pubkey_source: PubKeySource = read_public_key_from_env,
@@ -257,6 +359,7 @@ def verify_ghostwriter(
             iat=goval_cert.iat.ToDatetime(),
             exp=goval_cert.exp.ToDatetime(),
             replid=goval_token.replid or None,
+            claims=_parse_claims(goval_cert),
         )
         # Ensure that the claims include ghostwriter.
         has_ghostwriter_claim = False
