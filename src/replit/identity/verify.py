@@ -55,7 +55,18 @@ def _parse_claims(cert: signing_pb2.GovalCert) -> _MessageClaims:
     return claims
 
 
-def _get_signing_authority(token: str) -> signing_pb2.GovalSigningAuthority:
+def get_signing_authority(token: str) -> signing_pb2.GovalSigningAuthority:
+    """Gets the signing authority from a token.
+
+    Args:
+        token: The token in a PASETO format.
+
+    Returns:
+        The parsed GovalSigningAuthority.
+
+    Raises:
+        VerifyError: If there's any problem verifying the token.
+    """
     # The library does not allow just grabbing the footer to know what key to
     # use, so we need to manually extract that.
     token_parts = token.split(".")
@@ -157,7 +168,7 @@ class Verifier:
         pubkey_source: PubKeySource,
     ) -> Tuple[bytes, Optional[signing_pb2.GovalCert]]:
         """Verifies that the token and its signing chain are valid."""
-        gsa = _get_signing_authority(token)
+        gsa = get_signing_authority(token)
 
         if gsa.key_id != "":
             # If it's signed directly with a root key, grab the pubkey and
