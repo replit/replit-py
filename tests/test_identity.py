@@ -9,6 +9,11 @@ import replit.identity
 
 PUBLIC_KEY = "on0FkSmEC+ce40V9Vc4QABXSx6TXo+lhp99b6Ka0gro="
 
+# This identity keypair should be valid for 100y.
+# Generated with `go run ./cmd/goval_keypairgen/ -eternal -sample-token -identity -gen-prefix dev -gen-id identity -issuer conman -replid=test -shortlived=false` in goval.
+IDENTITY_PRIVATE_KEY = "k2.secret.6sHU27WoRIaspIOVaShpuZM33ozpfFyI2THfO8fmSX6xiA_Duh4ac5g76Y5bParclsalaOCTaCs6gZowhYivVQ"
+IDENTITY_TOKEN = "v2.public.Q2dSMFpYTjBJZ1IwWlhOMHDnO17Eg43zucAMSAHnCS4C1wn4QUCCOcr-Pggw5SV1KnbOXq8RcQE5if6pMcbJ6lmRWcdoHq5CV9jqyRrUlwo.R0FFaUJtTnZibTFoYmhLckFuWXlMbkIxWW14cFl5NVJNbVF6VTFkd2VHRnRXbmRrTVd4U1lXMDViRm96YkVKU1ZrNUZVVmRzYTA1VmQzSlRSVlp2VWtaa2RGbFZVa3BSVmtwMlVUQmtRbFpYUmtOYU1qbEdXa1ZrVjJWdFVrUlRWRVpvWld0c01Wa3dhRmRoVjBwSVlrZHdUV0pyTldGWGFrWkRUVEEwZVU5WGVGTk5hbFpSVmpGVk5HUkhTbFpQVm1oc1lXdHdORlJVUW5kaFZrbDZVV3hvYUdKWFVubFVWekZyWlZaUmVVOVZhRnBXVkVaTFZtcENjMlZWTVZkV1ZEQkRUbVpoYkhkMk5EUm9SRkZQTFVKWlJDMURWSEUxYVdJeFQzVlVlamxIWW5WTlFVVnFURFExUVVwclZXNW9kR2hxVFZOVVRtOVZSRVphWDBsaVUyTjFjekoxWW05aVowNU1MV2RRVlRGRmVVOTFUVzlHTGxJd1JrWmhWVXAwVkc1YWFXSlVSbTlaYldSMlVteHdTRlpxU2xCaGExVTU"  # noqa: E501,B950 # line too long
+
 
 class TestIdentity(unittest.TestCase):
     """Tests for replit.identity."""
@@ -23,12 +28,24 @@ class TestIdentity(unittest.TestCase):
         pubkey = replit.identity.read_public_key_from_env("dev:1", "goval")
         self.assertIsInstance(pubkey, pyseto.versions.v2.V2Public)
 
+    def test_signing_authority(self) -> None:
+        """Test SigningAuthority."""
+        gsa = replit.identity.SigningAuthority(
+            marshaled_private_key=IDENTITY_PRIVATE_KEY,
+            marshaled_identity=IDENTITY_TOKEN,
+            replid="test",
+        )
+        signed_token = gsa.sign("audience")
+
+        replit.identity.verify_identity_token(
+            identity_token=signed_token,
+            audience="audience",
+        )
+
     def test_verify_identity_token(self) -> None:
         """Test verify_identity_token."""
-        # This token should be valid for 100y.
-        # Generated with `go run ./cmd/goval_keypairgen/ -eternal -sample-token -identity -gen-prefix dev -gen-id identity -issuer conman -replid=test -shortlived=false` in goval.
         replit.identity.verify_identity_token(
-            identity_token="v2.public.Q2dSMFpYTjBJZ1IwWlhOMFxmipFrFWTrOkBoOzmSd8l3hYl88GIxsQTq4oueW4d8Lq7mhxYhl3RrZ6Tty24kpkOuIf0b5h582qp98L9iJwI.R0FFaUJtTnZibTFoYmhLbUFuWXlMbkIxWW14cFl5NVJNbVI2VTFkNGJXVnRWbmRrTVd4U1QxaFJNMkp0U2tOVFZYaEVVekZOTUdScVVtcFZNRlpPWVcwd01VMXVaR2hSVjJodVVtdGtibGRWZEVOVFJrcHpXWHBPVW1GVk5WaGpNMnhOWW10SmVGZFhNVFJqUm13MVRsWk9hMDFyV1hoVk1qRnpZVlp3U0dJemFHaGhlbFY1VjFaa2IxVnNaRmxpTTJSaFpWUkZlVlJYY0d0WGJFcDBWMjVLYUZaclZYcGFWbVJyWlVkU1JtUkVXbXRTYkZwV1ZGUktWazVLZVdKaGJsWmlOeTFRTUZsRWJIRnlibkZCV1RaSGMwRTFZbU5rUWtaUmVIRkJNMnRSWkd0NFozSXdYeTFrUVZSUGFtRk9PRGhFUkZVMldVZFJlazlwTkY5WVoyaGlTbWM1WVRodE1GcFlNRGhwTm14QldTNVNNRVpHWVZWS2RGUnVXbWxpVkVadldXMWtkbEpzY0VoV2FrcFFZV3RWT1E9PQ",  # noqa: E501,B950 # line too long
+            identity_token=IDENTITY_TOKEN,
             audience="test",
         )
 
