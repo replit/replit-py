@@ -71,6 +71,7 @@ def keyStrip(key: str) -> str:
 
 _dumps = dumps
 
+
 class AsyncDatabase:
     """Async interface for Repl.it Database."""
 
