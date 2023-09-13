@@ -127,7 +127,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
 
     async def test_slash_keys(self) -> None:
         """Test that slash keys work."""
-        k = "/slash-test"
+        k = "/key"
         # set
         await self.db.set(k,"val1")
         self.assertEqual(await self.db.get(k), "val1")
@@ -289,7 +289,7 @@ class TestDatabase(unittest.TestCase):
 
     def test_slash_keys(self) -> None:
         """Test that slash keys work."""
-        k = "/slash-test"
+        k = "/key"
         # set
         self.db.set(k,"val1")
         val = self.db[k]
