@@ -58,6 +58,18 @@ def dumps(val: Any) -> str:
     return json.dumps(val, separators=(",", ":"), cls=DBJSONEncoder)
 
 
+def keyStrip(key: str) -> str:
+    """Strip slashes from the beginning of keys.
+
+    Args:
+        key (str): The key to strip
+
+    Returns:
+        str: The stripped key
+    """
+    return key.lstrip("/")
+
+
 _dumps = dumps
 
 
@@ -136,7 +148,7 @@ class AsyncDatabase:
             key (str): The key to set
             value (Any): The value to set it to. Must be JSON-serializable.
         """
-        await self.set_raw(key, _dumps(value))
+        await self.set_raw(keyStrip(key), _dumps(value))
 
     async def set_raw(self, key: str, value: str) -> None:
         """Set a key in the database to value.
@@ -145,7 +157,7 @@ class AsyncDatabase:
             key (str): The key to set
             value (str): The value to set it to
         """
-        await self.set_bulk_raw({key: value})
+        await self.set_bulk_raw({keyStrip(key): value})
 
     async def set_bulk(self, values: Dict[str, Any]) -> None:
         """Set multiple values in the database, JSON encoding them.
@@ -154,7 +166,7 @@ class AsyncDatabase:
             values (Dict[str, Any]): A dictionary of values to put into the dictionary.
                 Values must be JSON serializeable.
         """
-        await self.set_bulk_raw({k: _dumps(v) for k, v in values.items()})
+        await self.set_bulk_raw({keyStrip(k): _dumps(v) for k, v in values.items()})
 
     async def set_bulk_raw(self, values: Dict[str, str]) -> None:
         """Set multiple values in the database.
@@ -162,7 +174,7 @@ class AsyncDatabase:
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        async with self.client.post(self.db_url, data=values) as response:
+        async with self.client.post(self.db_url, data={keyStrip(k), v for k,v in values.items()}) as response:
             response.raise_for_status()
 
     async def delete(self, key: str) -> None:
@@ -519,7 +531,7 @@ class Database(abc.MutableMapping):
             key (str): The key to set
             value (Any): The value to set it to. Must be JSON-serializable.
         """
-        self.set(key, value)
+        self.set(keyStrip(key), value)
 
     def set(self, key: str, value: Any) -> None:
         """Set a key in the database to value, JSON encoding it.
@@ -528,7 +540,7 @@ class Database(abc.MutableMapping):
             key (str): The key to set
             value (Any): The value to set.
         """
-        self.set_raw(key, _dumps(value))
+        self.set_raw(keyStrip(key), _dumps(value))
 
     def set_raw(self, key: str, value: str) -> None:
         """Set a key in the database to value.
@@ -537,7 +549,7 @@ class Database(abc.MutableMapping):
             key (str): The key to set
             value (str): The value to set.
         """
-        self.set_bulk_raw({key: value})
+        self.set_bulk_raw({keyStrip(key): value})
 
     def set_bulk(self, values: Dict[str, Any]) -> None:
         """Set multiple values in the database, JSON encoding them.
@@ -546,7 +558,7 @@ class Database(abc.MutableMapping):
             values (Dict[str, Any]): A dictionary of values to put into the dictionary.
                 Values must be JSON serializeable.
         """
-        self.set_bulk_raw({k: _dumps(v) for k, v in values.items()})
+        self.set_bulk_raw({keyStrip(k): _dumps(v) for k, v in values.items()})
 
     def set_bulk_raw(self, values: Dict[str, str]) -> None:
         """Set multiple values in the database.
@@ -554,7 +566,7 @@ class Database(abc.MutableMapping):
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        r = self.sess.post(self.db_url, data=values)
+        r = self.sess.post(self.db_url, data={keyStrip(k), v for k,v in values.items()})
         r.raise_for_status()
 
     def __delitem__(self, key: str) -> None:
