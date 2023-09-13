@@ -284,25 +284,32 @@ class TestDatabase(unittest.TestCase):
         k = "/slash-test"
         # set
         self.db.set(k,"val1")
-        self.assertEqual(self.db[k], "val1")
+        val = self.db[k]
+        self.assertEqual(val, "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
-            self.db[k]
+            val = self.db[k]
         # set_raw
+        del val
         self.db.set_raw(k,"val1")
-        self.assertEqual(self.db[k], "val1")
+        val = self.db[k]
+        self.assertEqual(val, "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
-            self.db[k]
+            val = self.db[k]
         # set_bulk
+        del val
         self.db.set_bulk({k: "val1"})
-        self.assertEqual(self.db[k], "val1")
+        val = self.db[k]
+        self.assertEqual(val, "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
             self.db[k]
         # set_bulk_raw
+        del val
         self.db.set_bulk_raw({k: "val1"})
-        self.assertEqual(self.db[k], "val1")
+        val = self.db[k]
+        self.assertEqual(val, "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
             self.db[k]
