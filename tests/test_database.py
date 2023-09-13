@@ -135,7 +135,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
             await self.db.get(k)
         # set_raw
         await self.db.set_raw(k,"val1")
-        self.assertEqual(await self.db.get(k), "val1")
+        self.assertEqual(await self.db.get_raw(k), "val1")
         await self.db.delete(k)
         with self.assertRaises(KeyError):
             await self.db.get(k)
@@ -147,7 +147,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
             await self.db.get(k)
         # set_bulk_raw
         await self.db.set_bulk_raw({k: "val1"})
-        self.assertEqual(await self.db.get(k), "val1")
+        self.assertEqual(await self.db.get_raw(k), "val1")
         await self.db.delete(k)
         with self.assertRaises(KeyError):
             await self.db.get(k)
@@ -284,32 +284,25 @@ class TestDatabase(unittest.TestCase):
         k = "/key"
         # set
         self.db.set(k,"val1")
-        val = self.db[k]
-        self.assertEqual(val, "val1")
+        self.assertEqual(self.db[k], "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
-            val = self.db[k]
+            self.db[k]
         # set_raw
-        del val
         self.db.set_raw(k,"val1")
-        val = self.db[k]
-        self.assertEqual(val, "val1")
+        self.assertEqual(self.db.get_raw(k), "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
-            val = self.db[k]
+            self.db[k]
         # set_bulk
-        del val
         self.db.set_bulk({k: "val1"})
-        val = self.db[k]
-        self.assertEqual(val, "val1")
+        self.assertEqual(self.db.get(k), "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
             self.db[k]
         # set_bulk_raw
-        del val
         self.db.set_bulk_raw({k: "val1"})
-        val = self.db[k]
-        self.assertEqual(val, "val1")
+        self.assertEqual(self.db.get_raw(k), "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
             self.db[k]
