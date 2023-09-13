@@ -566,7 +566,7 @@ class Database(abc.MutableMapping):
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        values = {keyStrip(k): v for k,v in values.items()}
+        values = {keyStrip(k): v for k, v in values.items()}
         r = self.sess.post(self.db_url, data=values)
         r.raise_for_status()
 
