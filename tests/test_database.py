@@ -295,22 +295,22 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(self.db.get(k), "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
-            self.db.get(k)
+            self.db[k]
         # set_raw
         self.db.set_raw(k,"val1")
         self.assertEqual(self.db.get(k), "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
-            self.db.get(k)
+            self.db[k]
         # set_bulk
         self.db.set_bulk({k: "val1"})
         self.assertEqual(self.db.get(k), "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
-            self.db.get(k)
+            self.db[k]
         # set_bulk_raw
         self.db.set_bulk_raw({k: "val1"})
         self.assertEqual(self.db.get(k), "val1")
         del self.db[k]
         with self.assertRaises(KeyError):
-            self.db.get(k)
+            self.db[k]
