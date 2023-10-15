@@ -1,80 +1,59 @@
 """Information about your repl."""
 import os
+from dataclasses import dataclass
 from typing import Optional
 
-
+@dataclass
 class ReplInfo:
-    """Represents info about the current repl."""
-
-    @property
-    def id(self) -> Optional[str]:
-        """The id of the repl (REPL_ID environment variable)."""
-        return os.getenv("REPL_ID")
-
-    @property
-    def slug(self) -> Optional[str]:
-        """The slug of the repl (REPL_SLUG environement variable).
-
-        The slug is the url-safe version of the repl's name.
-
-        Returns:
-            Optional[str]: The repl slug.
-        """
-        return os.getenv("REPL_SLUG")
-
-    @property
-    def owner(self) -> Optional[str]:
-        """The owner of the repl (REPL_OWNER environment variable)."""
-        return os.getenv("REPL_OWNER")
-
-    @property
-    def language(self) -> Optional[str]:
-        """The language of the repl (REPL_LANGUAGE environment variable)."""
-        return os.getenv("REPL_LANGUAGE")
+    id: Optional[str] = os.getenv("REPL_ID")
+    slug: Optional[str] = os.getenv("REPL_SLUG")
+    owner: Optional[str] = os.getenv("REPL_OWNER")
+    language: Optional[str] = os.getenv("REPL_LANGUAGE")
 
     @property
     def id_co_url(self) -> Optional[str]:
-        """The hosted URL of the repl in the form https://<id>.id.repl.co.
-
-        Less readable than the vanity URL but guaranteed to work (the vanity URL might
-        be too long for a certificate to be issued for it, causing it to break).
-
-        Returns:
-            Optional[str]: The id URL or None if there is no ID.
-        """
-        repl_id = self.id
-        if repl_id is None:
-            return None
-        return f"https://{repl_id}.id.repl.co"
+        """The hosted URL of the repl in the form https://<id>.id.repl.co."""
+        if self.id:
+            return f"https://{self.id}.id.repl.co"
+        return None
 
     @property
     def co_url(self) -> Optional[str]:
-        """The readable, hosted repl.co URL for this repl.
-
-        See id_url for the difference between the hosted URL types.
-
-        Returns:
-            Optional[str]: The vanity hosted URL or None if slug or owner is None.
-        """
-        slug = self.slug
-        owner = self.owner
-        if slug is None or owner is None:
-            return None
-        return f"https://{slug.lower()}.{owner.lower()}.repl.co"
+        """The readable, hosted repl.co URL for this repl."""
+        if self.slug and self.owner:
+            return f"https://{self.slug.lower()}.{self.owner.lower()}.repl.co"
+        return None
 
     @property
     def replit_url(self) -> Optional[str]:
         """The URL of this repl on replit.com."""
-        slug = self.slug
-        owner = self.owner
-        if slug is None or owner is None:
-            return None
-        return f"https://replit.com/@{owner}/{slug}"
+        if self.slug and self.owner:
+            return f"https://replit.com/@{self.owner}/{self.slug}"
+        return None
 
     @property
     def replit_id_url(self) -> Optional[str]:
         """The URL of this repl on replit.com, based on the repl's ID."""
-        repl_id = self.id
-        if repl_id is None:
-            return None
-        return f"https://replit.com/replid/{repl_id}"
+        if self.id:
+            return f"https://replit.com/replid/{self.id}"
+        return None
+
+    @staticmethod
+    def from_env_variables() -> 'ReplInfo':
+        return ReplInfo()
+
+    @staticmethod
+    def from_values(
+        id: Optional[str] = None,
+        slug: Optional[str] = None,
+        owner: Optional[str] = None,
+        language: Optional[str] = None
+    ) -> 'ReplInfo':
+        return ReplInfo(id, slug, owner, language)
+
+    def __repr__(self) -> str:
+        return (f"ReplInfo(id={self.id}, slug={self.slug}, owner={self.owner}, "
+                f"language={self.language})")
+
+    def __str__(self) -> str:
+        return self.slug or ""
