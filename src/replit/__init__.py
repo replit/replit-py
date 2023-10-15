@@ -12,9 +12,10 @@ from .database import (
     start_database_proxy,
 )
 from .info import ReplInfo
+from .auth import get_user_info
 
-info = ReplInfo()
-
+repl_info = ReplInfo()
+user_info = get_user_info()
 
 # Backwards compatibility.
 def clear() -> None:
