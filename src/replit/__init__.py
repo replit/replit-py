@@ -12,14 +12,13 @@ from .database import (
     start_database_proxy,
 )
 from .info import ReplInfo
+from .auth import get_user_info
 
-info = ReplInfo()
-
+repl_info = ReplInfo()
 
 # Backwards compatibility.
 def clear() -> None:
     """Clear the terminal."""
     print("\033[H\033[2J", end="", flush=True)
-
 
 audio = Audio()
