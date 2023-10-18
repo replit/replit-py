@@ -15,12 +15,10 @@ from .info import ReplInfo
 from .auth import get_user_info
 
 repl_info = ReplInfo()
-user_info = get_user_info()
 
 # Backwards compatibility.
 def clear() -> None:
     """Clear the terminal."""
     print("\033[H\033[2J", end="", flush=True)
-
 
 audio = Audio()
