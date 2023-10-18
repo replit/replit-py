@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/')
 @replit.web.authenticated(login_res=f"Hello! {replit.web.sign_in_snippet}")
 def user_info():
-    user = replitpytest.get_user_info(request)
+    user = replit.get_user_info(request)
     if user:
         profile_image = user.profile_image
         username = user.name
