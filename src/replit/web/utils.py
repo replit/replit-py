@@ -179,7 +179,7 @@ def per_user_ratelimit(
     get_ratelimited_res: Callable[[float], str] = (
         lambda left: f"Too many requests, wait {left} sec"
     ),
-) -> Callable[[Callable], flask.Response]:
+) -> Callable[[Callable], Callable[[Callable], flask.Response]]:
     """Require sign in and limit the amount of requests each signed in user can perform.
 
     This decorator also calls needs_signin for you and passes the login_res kwarg
@@ -200,7 +200,7 @@ def per_user_ratelimit(
     last_reset = time.time()
     num_requests = {}
 
-    def decorator(func: Callable) -> flask.Response:
+    def decorator(func: Callable) -> Callable[..., flask.Response]:
         # Checks for signin first, before checking ratelimit
         @authenticated(login_res=login_res)
         @wraps(func)
