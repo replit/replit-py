@@ -59,7 +59,9 @@ def run(
 ) -> None:
     """A simple wrapper around app.run() with replit compatible defaults."""
     # don't clobber user
-    if change_encoder and app.json_encoder is flask.json.JSONEncoder:
+    if change_encoder and getattr(app, "json_encoder", None) is getattr(
+        flask.json, "json_encoder", None
+    ):
         app.json_encoder = DBJSONEncoder
     app.run(host=host, port=port, **kwargs)
 
