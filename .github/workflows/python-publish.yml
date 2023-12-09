@@ -14,14 +14,31 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install --upgrade poetry
+
+    - name: Set release version
+      run: |
+        tag="${GITHUB_REF_NAME}"
+        version="${tag#v}"  # Strip leading v
+
+        # Bump poetry tag
+        poetry version "$version"
+
+        # Bump docs tag
+        sed -i'' 's/^release = "[^"]*"/release = "'"$version"'"/' docs/conf.py
+        # Bump docs copyright
+        year="$(date +%Y)"
+        sed -i'' 's/^copyright = "[^"]*"/copyright = "Replit, '"$year"'"/' docs/conf.py
+
     - name: Build and publish
       run: |
         poetry build
