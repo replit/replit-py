@@ -18,7 +18,7 @@ This library is licensed under the [ISC License](https://en.wikipedia.org/wiki/I
 With poetry already setup, you can set up the repl for development with:
 
 ```
-poetry setup
+poetry install
 ```
 
 ### Continuous Integration
