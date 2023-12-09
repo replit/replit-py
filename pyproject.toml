@@ -21,7 +21,7 @@ protobuf = "^4.21.8"
 urllib3 = ">=1.26,<3"
 aiohttp-retry = "^2.8.3"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
 darglint = "^1.5.2"
 flake8-bandit = "^4.1.1"
