@@ -18,7 +18,7 @@ aiohttp = "^3.6.2"
 requests = "^2.25.1"
 pyseto = "^1.6.11"
 protobuf = "^4.21.8"
-urllib3 = "1.26.18"
+urllib3 = ">=1.26,<3"
 aiohttp-retry = "^2.8.3"
 
 [tool.poetry.dev-dependencies]
