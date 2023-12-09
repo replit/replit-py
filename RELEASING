@@ -1,6 +1,0 @@
-Update version marker in:
-
-  - ./pyproject.toml
-  - ./docs/_sphinx/conf.py
-
-$ poetry publish --build
