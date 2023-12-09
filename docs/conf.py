@@ -22,7 +22,7 @@ import replit
 # -- Project information -----------------------------------------------------
 
 project = "replit-py"
-copyright = "2021"
+copyright = "Replit, 2023"
 author = "<a href='https://repl.it/'>Replit</a>"
 
 # The full version, including alpha/beta/rc tags
