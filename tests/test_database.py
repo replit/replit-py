@@ -39,6 +39,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         """Nuke whatever the test added."""
         for k in await self.db.keys():
             await self.db.delete(k)
+        await self.db.sess.close()
 
     async def test_get_set_delete(self) -> None:
         """Test that we can get, set, and delete a key."""
