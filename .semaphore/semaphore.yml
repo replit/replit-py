@@ -7,7 +7,7 @@ agent:
 blocks:
   - name: Lint and test
     run:
-      when: "change_in('/src')"
+      when: "change_in(['/src', '/pyproject.toml', '/tests'])"
     task:
       secrets:
         - name: replit-database
