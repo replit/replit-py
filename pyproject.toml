@@ -33,6 +33,7 @@ flake8-annotations = ">=2.3.0"
 flake8-docstrings = ">=1.5.0"
 mypy = ">=1.5.0"
 coverage = ">=5.2.1"
+types-requests = "^2.31.0.10"
 
 [tool.poetry.group.docs.dependencies]
 Sphinx = ">=7.0.1"
