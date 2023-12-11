@@ -13,7 +13,7 @@ from typing import (
     Tuple,
     Union,
 )
-import urllib
+import urllib.parse
 
 import aiohttp
 from aiohttp_retry import ExponentialRetry, RetryClient  # type: ignore
