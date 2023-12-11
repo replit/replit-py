@@ -36,13 +36,19 @@ def cli() -> None:
 @click.argument("prefix")
 def find_matches(prefix: str) -> None:
     """List all keys that match the given prefix."""
+    if database is None:
+        click.echo(
+            failure("Database connection not available. Ensure REPLIT_DB_URL is set!")
+        )
+        return
+
     matches = list(database.prefix(prefix))
 
     if matches:
-        click.echo(success(f"Matches found for '{prefix}':\n"))
+        click.echo(success(f"Matches found for {prefix!r}:\n"))
         click.echo("\n".join(matches))
     else:
-        click.echo(failure(f"No matches found for '{prefix}'"))
+        click.echo(failure(f"No matches found for {prefix!r}"))
 
 
 @cli.command(name="set")
@@ -51,7 +57,7 @@ def find_matches(prefix: str) -> None:
 def set_value(key: str, val: str) -> None:
     """Add a given key-value pair to the DB."""
     database[key] = val
-    click.echo(success(f"DB[{key}] was successfully set to '{val}'"))
+    click.echo(success(f"DB[{key!r}] was successfully set to {val!r}"))
 
 
 @cli.command(name="del")
@@ -61,10 +67,10 @@ def del_value(key: str) -> None:
     try:
         del database[key]
     except KeyError:
-        click.echo(failure(f"The key '{key}' was not found in the DB."))
+        click.echo(failure(f"The key {key!r} was not found in the DB."))
     else:
         del database[key]
-        click.echo(success(f"db['{key}'] was successfully deleted."))
+        click.echo(success(f"db[{key!r}] was successfully deleted."))
 
 
 @cli.command(name="nuke")
@@ -98,7 +104,7 @@ def list_all(file_path: str) -> None:
 
         json.dump(binds, f)
 
-        click.echo(success(f"Output successfully dumped to '{file_path}'"))
+        click.echo(success(f"Output successfully dumped to {file_path!r}"))
 
 
 if __name__ == "__main__":
