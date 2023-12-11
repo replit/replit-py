@@ -3,7 +3,6 @@
 from collections import abc
 import json
 from typing import (
-    AbstractSet,
     Any,
     Callable,
     Dict,
@@ -597,7 +596,7 @@ class Database(abc.MutableMapping):
         else:
             return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
 
-    def keys(self) -> AbstractSet[str]:
+    def keys(self) -> abc.KeysView[str]:
         """Returns all of the keys in the database.
 
         Returns:
@@ -611,7 +610,7 @@ class Database(abc.MutableMapping):
         #  type db.keys() in an interactive prompt.
 
         # TODO: Return a set from prefix since keys are guaranteed unique
-        return set(self.prefix(""))
+        return abc.KeysView(self)
 
     def dumps(self, val: Any) -> str:
         """JSON encodes a value that can be a special DB object."""
