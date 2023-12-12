@@ -3,7 +3,6 @@
 from collections import abc
 import json
 from typing import (
-    AbstractSet,
     Any,
     Callable,
     Dict,
@@ -13,7 +12,7 @@ from typing import (
     Tuple,
     Union,
 )
-import urllib
+import urllib.parse
 
 import aiohttp
 from aiohttp_retry import ExponentialRetry, RetryClient  # type: ignore
@@ -597,7 +596,7 @@ class Database(abc.MutableMapping):
         else:
             return tuple(urllib.parse.unquote(k) for k in r.text.split("\n"))
 
-    def keys(self) -> AbstractSet[str]:
+    def keys(self) -> abc.KeysView[str]:
         """Returns all of the keys in the database.
 
         Returns:
@@ -611,7 +610,7 @@ class Database(abc.MutableMapping):
         #  type db.keys() in an interactive prompt.
 
         # TODO: Return a set from prefix since keys are guaranteed unique
-        return set(self.prefix(""))
+        return abc.KeysView(self)
 
     def dumps(self, val: Any) -> str:
         """JSON encodes a value that can be a special DB object."""
@@ -623,7 +622,7 @@ class Database(abc.MutableMapping):
         Returns:
             A string representation of the database object.
         """
-        return f"<{self.__class__.__name__}(db_url={self.db_url!r})>"
+        return f"<{self.__class__.__name__}(db_url=...)>"
 
     def close(self) -> None:
         """Closes the database client connection."""
