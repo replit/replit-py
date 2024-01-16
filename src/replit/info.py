@@ -1,6 +1,7 @@
 """Information about your repl."""
 import os
 from typing import Optional
+from typing_extensions import deprecated
 
 
 class ReplInfo:
@@ -32,6 +33,7 @@ class ReplInfo:
         """The language of the repl (REPL_LANGUAGE environment variable)."""
         return os.getenv("REPL_LANGUAGE")
 
+    @deprecated("Deprecated, please see https://blog.replit.com/hosting-changes for more details")
     @property
     def id_co_url(self) -> Optional[str]:
         """The hosted URL of the repl in the form https://<id>.id.repl.co.
@@ -47,6 +49,7 @@ class ReplInfo:
             return None
         return f"https://{repl_id}.id.repl.co"
 
+    @deprecated("Deprecated, please see https://blog.replit.com/hosting-changes for more details")
     @property
     def co_url(self) -> Optional[str]:
         """The readable, hosted repl.co URL for this repl.
