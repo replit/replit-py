@@ -11,7 +11,7 @@ from .app import ReplitAuthContext
 
 authentication_snippet = (
     '<script authed="location.reload()" '
-    'src="https://auth.turbio.repl.co/script.js"></script>'
+    'src="https://replit.com/public/js/repl-auth.js"></script>'
 )
 
 
