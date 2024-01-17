@@ -24,7 +24,7 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
             url = req.text
             self.db = AsyncDatabase(url)
         else:
-            password = os.environ["PASSWORD"]
+            password = os.environ["JWT_PASSWORD"]
             req = requests.get(
                 "https://database-test-jwt-util.replit.app", auth=("test", password)
             )
@@ -141,7 +141,7 @@ class TestDatabase(unittest.TestCase):
             url = req.text
             self.db = Database(url)
         else:
-            password = os.environ["PASSWORD"]
+            password = os.environ["JWT_PASSWORD"]
             req = requests.get(
                 "https://database-test-jwt-util.replit.app", auth=("test", password)
             )
