@@ -19,14 +19,14 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         elif "DB_RIDT" in os.environ:
             password = os.environ["RIDT_PASSWORD"]
             req = requests.get(
-                "https://database-test-ridt.util.repl.co", auth=("test", password)
+                "https://database-test-ridt-util.replit.app", auth=("test", password)
             )
             url = req.text
             self.db = AsyncDatabase(url)
         else:
-            password = os.environ["PASSWORD"]
+            password = os.environ["JWT_PASSWORD"]
             req = requests.get(
-                "https://database-test-jwt.util.repl.co", auth=("test", password)
+                "https://database-test-jwt-util.replit.app", auth=("test", password)
             )
             url = req.text
             self.db = AsyncDatabase(url)
@@ -133,10 +133,17 @@ class TestDatabase(unittest.TestCase):
         """Grab a JWT for all the tests to share."""
         if "REPLIT_DB_URL" in os.environ:
             self.db = Database(os.environ["REPLIT_DB_URL"])
-        else:
-            password = os.environ["PASSWORD"]
+        elif "DB_RIDT" in os.environ:
+            password = os.environ["RIDT_PASSWORD"]
             req = requests.get(
-                "https://database-test-jwt.kochman.repl.co", auth=("test", password)
+                "https://database-test-ridt-util.replit.app", auth=("test", password)
+            )
+            url = req.text
+            self.db = Database(url)
+        else:
+            password = os.environ["JWT_PASSWORD"]
+            req = requests.get(
+                "https://database-test-jwt-util.replit.app", auth=("test", password)
             )
             url = req.text
             self.db = Database(url)
