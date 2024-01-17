@@ -19,14 +19,14 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         elif "DB_RIDT" in os.environ:
             password = os.environ["RIDT_PASSWORD"]
             req = requests.get(
-                "https://database-test-ridt.util.repl.co", auth=("test", password)
+                "https://database-test-ridt-util.replit.app", auth=("test", password)
             )
             url = req.text
             self.db = AsyncDatabase(url)
         else:
             password = os.environ["PASSWORD"]
             req = requests.get(
-                "https://database-test-jwt.util.repl.co", auth=("test", password)
+                "https://database-test-jwt-util.replit.app", auth=("test", password)
             )
             url = req.text
             self.db = AsyncDatabase(url)
@@ -136,7 +136,7 @@ class TestDatabase(unittest.TestCase):
         else:
             password = os.environ["PASSWORD"]
             req = requests.get(
-                "https://database-test-jwt.kochman.repl.co", auth=("test", password)
+                "https://database-test-jwt-util.replit.app", auth=("test", password)
             )
             url = req.text
             self.db = Database(url)
