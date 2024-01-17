@@ -136,7 +136,7 @@ class TestDatabase(unittest.TestCase):
         else:
             password = os.environ["PASSWORD"]
             req = requests.get(
-                "https://database-test-jwt-py-util.replit.app", auth=("test", password)
+                "https://database-test-jwt-util.replit.app", auth=("test", password)
             )
             url = req.text
             self.db = Database(url)
