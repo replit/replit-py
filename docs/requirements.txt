@@ -1,4 +1,4 @@
-aiohttp==3.9.0; python_version >= "3.6"
+aiohttp==3.9.2; python_version >= "3.6"
 appdirs==1.4.4; python_full_version >= "3.6.1" and python_full_version < "4.0.0"
 async-timeout==3.0.1; python_full_version >= "3.5.3" and python_version >= "3.6"
 attrs==20.3.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
