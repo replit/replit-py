@@ -4,7 +4,7 @@
 
 This repository is the home for the `replit` Python package, which provides:
 
-- A fully-featured database client for [Replit DB](https://docs.repl.it/misc/database).
+- A fully-featured database client for [Replit DB](https://docs.replit.com/category/databases).
 - A Flask–based application framework for accelerating development on the platform.
 - Replit user profile metadata retrieval (more coming here!).
 - A simple audio library that can play tones and audio files!
