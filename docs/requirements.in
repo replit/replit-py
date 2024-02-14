@@ -1,0 +1,10 @@
+typing_extensions>=4,<5
+Flask>=2.0.0
+Werkzeug>=2,<4
+aiohttp>=3.6.2
+requests>=2.25.1
+pyseto>=^1.6.11
+protobuf>=^4.21.8
+urllib3>=1.26,<3
+aiohttp-retry>=2.8.3
+sphinx-autodoc-typehints
