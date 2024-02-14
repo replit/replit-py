@@ -7,3 +7,5 @@ pyseto>=^1.6.11
 protobuf>=^4.21.8
 urllib3>=1.26,<3
 aiohttp-retry>=2.8.3
+sphinx-autodoc-typehints>=1.0.0,<3
+sphinx_click>=4.0.0,<6.0.0
