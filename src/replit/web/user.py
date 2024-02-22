@@ -5,9 +5,7 @@ from typing import Any, Iterator, Optional
 import flask
 
 from .app import ReplitAuthContext
-from ..database import Database, db as real_db
-
-db: Database = real_db  # type: ignore
+from ..database import LazyDB
 
 
 class User(MutableMapping):
@@ -31,10 +29,19 @@ class User(MutableMapping):
 
         Args:
             value (str): The value to set in the database
+
+        Raises:
+            RuntimeError: Raised if the database is not configured.
         """
+        db = LazyDB.get_instance().db
+        if db is None:
+            raise RuntimeError("database not configured")
         db[self.db_key()] = value
 
     def _ensure_value(self) -> Any:
+        db = LazyDB.get_instance().db
+        if db is None:
+            raise RuntimeError("database not configured")
         try:
             return db[self.db_key()]
         except KeyError:
@@ -103,6 +110,9 @@ class UserStore(Mapping):
         return User(username=name, prefix=self.prefix)
 
     def __iter__(self) -> Iterator[str]:
+        db = LazyDB.get_instance().db
+        if db is None:
+            raise RuntimeError("database not configured")
         for k in db.keys():
             if k.startswith(self.prefix):
                 yield self._strip_prefix(k)
