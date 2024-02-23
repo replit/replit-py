@@ -1,5 +1,7 @@
 ### `>>> import replit`
 
+[![Run on Repl.it](https://repl.it/badge/github/replit/replit-py)](https://repl.it/github/replit/replit-py) | [![pypi: replit](https://img.shields.io/pypi/v/replit)](https://pypi.org/project/replit/)
+
 This repository is the home for the `replit` Python package, which provides:
 
 - A fully-featured database client for [Replit DB](https://docs.replit.com/category/databases).
