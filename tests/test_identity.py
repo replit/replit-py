@@ -26,7 +26,8 @@ class TestIdentity(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up the public keys."""
-        if "REPL_PUBKEYS" not in os.environ:
+        pubkeys = json.loads(os.getenv("REPL_PUBKEYS", "{}"))
+        if 'dev:1' not in pubkeys:
             os.environ["REPL_PUBKEYS"] = json.dumps({"dev:1": PUBLIC_KEY})
 
     def test_read_public_key_from_env(self) -> None:
