@@ -1,8 +1,6 @@
 """A module containing the default database."""
-import logging
 import os
 import os.path
-import threading
 from typing import Any, Optional
 
 from .database import Database
@@ -20,51 +18,11 @@ def get_db_url() -> Optional[str]:
 
 
 def refresh_db() -> None:
-    """Deprecated: refresh_db is now located inside the LazyDB singleton instance."""
+    """Deprecated: refresh_db is now the responsibility of the Database instance."""
     pass
 
 
-class LazyDB:
-    """A way to lazily create a database connection."""
-
-    _instance: Optional["LazyDB"] = None
-
-    def __init__(self) -> None:
-        self._db: Optional[Database] = None
-        self._db_url = get_db_url()
-        if self._db_url:
-            self._db = Database(self._db_url)
-            self.refresh_db()
-        else:
-            logging.warning(
-                "Warning: error initializing database. Replit DB is not configured."
-            )
-
-    def refresh_db(self) -> None:
-        """Refresh the DB URL every hour."""
-        if not self._db:
-            return
-        self._db_url = get_db_url()
-        if self._db_url:
-            self._db.update_db_url(self._db_url)
-        threading.Timer(3600, self.refresh_db).start()
-
-    @classmethod
-    def get_instance(cls) -> "LazyDB":
-        """Get the lazy singleton instance."""
-        if cls._instance is None:
-            cls._instance = LazyDB()
-        return cls._instance
-
-    @classmethod
-    def get_db(cls) -> Optional[Database]:
-        """Get a reference to the singleton Database instance."""
-        return cls.get_instance()._db
-
-    @classmethod
-    def get_db_url(cls) -> Optional[str]:
-        """Get the db_url connection string."""
-        return cls.get_instance()._db_url
+_db: Optional[Database] = None
 
 
 # Previous versions of this library would just have side-effects and always set
@@ -73,7 +31,23 @@ class LazyDB:
 # lazily.
 def __getattr__(name: str) -> Any:
     if name == "db":
-        return LazyDB.get_db()
+        global _db
+        if _db is not None:
+            return _db
+
+        db_url = get_db_url()
+
+        def unbind():
+            global _db
+            _db = None
+
+        if db_url:
+            _db = Database(db_url, get_db_url=get_db_url, unbind=unbind)
+        else:
+            # The user will see errors if they try to use the database.
+            print("Warning: error initializing database. Replit DB is not configured.")
+            _db = None
+        return _db
     if name == "db_url":
-        return LazyDB.get_db_url()
+        return get_db_url()
     raise AttributeError(name)

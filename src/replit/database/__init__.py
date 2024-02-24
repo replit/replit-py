@@ -2,7 +2,7 @@
 from typing import Any
 
 from .database import AsyncDatabase, Database, DBJSONEncoder, dumps, to_primitive
-from .default_db import LazyDB
+from . import default_db
 from .server import make_database_proxy_blueprint, start_database_proxy
 
 __all__ = [
@@ -24,7 +24,7 @@ __all__ = [
 # lazily.
 def __getattr__(name: str) -> Any:
     if name == "db":
-        return LazyDB.get_db()
+        return default_db.db
     if name == "db_url":
-        return LazyDB.get_db_url()
+        return default_db.db_url
     raise AttributeError(name)
