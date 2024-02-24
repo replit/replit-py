@@ -4,10 +4,9 @@
 
 from typing import Any
 
-from . import web
+from . import database, web
 from .audio import Audio
 from .database import (
-    LazyDB,
     Database,
     AsyncDatabase,
     make_database_proxy_blueprint,
@@ -33,5 +32,5 @@ audio = Audio()
 # lazily.
 def __getattr__(name: str) -> Any:
     if name == "db":
-        return LazyDB.get_db()
+        return database.db
     raise AttributeError(name)

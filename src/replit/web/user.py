@@ -5,7 +5,7 @@ from typing import Any, Iterator, Optional
 import flask
 
 from .app import ReplitAuthContext
-from ..database import LazyDB
+from .. import database
 
 
 class User(MutableMapping):
@@ -33,20 +33,18 @@ class User(MutableMapping):
         Raises:
             RuntimeError: Raised if the database is not configured.
         """
-        db = LazyDB.get_db()
-        if db is None:
+        if database.db is None:
             raise RuntimeError("database not configured")
-        db[self.db_key()] = value
+        database.db[self.db_key()] = value
 
     def _ensure_value(self) -> Any:
-        db = LazyDB.get_db()
-        if db is None:
+        if database.db is None:
             raise RuntimeError("database not configured")
         try:
-            return db[self.db_key()]
+            return database.db[self.db_key()]
         except KeyError:
-            db[self.db_key()] = {}
-            return db[self.db_key()]
+            database.db[self.db_key()] = {}
+            return database.db[self.db_key()]
 
     def set(self, key: str, val: Any) -> None:
         """Sets a key to a value for this user's entry in the database.
@@ -110,10 +108,9 @@ class UserStore(Mapping):
         return User(username=name, prefix=self.prefix)
 
     def __iter__(self) -> Iterator[str]:
-        db = LazyDB.get_db()
-        if db is None:
+        if database.db is None:
             raise RuntimeError("database not configured")
-        for k in db.keys():
+        for k in database.db.keys():
             if k.startswith(self.prefix):
                 yield self._strip_prefix(k)
 
