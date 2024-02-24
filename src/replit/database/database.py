@@ -2,6 +2,7 @@
 
 from collections import abc
 import json
+import threading
 from typing import (
     Any,
     Callable,
@@ -417,15 +418,26 @@ def item_to_observed(on_mutate: Callable[[Any], None], item: Any) -> Any:
 
 
 class Database(abc.MutableMapping):
-    """Dictionary-like interface for Repl.it Database.
+    """Dictionary-like interface for Replit Database.
 
     This interface will coerce all values everything to and from JSON. If you
     don't want this, use AsyncDatabase instead.
+
+    :param str db_url: The Database URL to connect to
+    :param int retry_count: How many retry attempts we should make
+    :param get_db_url Callable: A callback that returns the current db_url
+    :param unbind Callable: Permit additional behavior after Database close
     """
 
-    __slots__ = ("db_url", "sess")
+    __slots__ = ("db_url", "sess", "_get_db_url", "_unbind", "_refresh_timer")
 
-    def __init__(self, db_url: str, retry_count: int = 5) -> None:
+    def __init__(
+        self,
+        db_url: str,
+        retry_count: int = 5,
+        get_db_url: Optional[Callable[[], Optional[str]]] = None,
+        unbind: Optional[Callable[[], None]] = None,
+    ) -> None:
         """Initialize database. You shouldn't have to do this manually.
 
         Args:
@@ -435,11 +447,28 @@ class Database(abc.MutableMapping):
         """
         self.db_url = db_url
         self.sess = requests.Session()
+        self._get_db_url = get_db_url
+        self._unbind = unbind
         retries = Retry(
             total=retry_count, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
         )
         self.sess.mount("http://", HTTPAdapter(max_retries=retries))
         self.sess.mount("https://", HTTPAdapter(max_retries=retries))
+
+        if self._get_db_url:
+            self._refresh_timer = threading.Timer(3600, self._refresh_db)
+            self._refresh_timer.start()
+
+    def _refresh_db(self):
+        if self._refresh_timer:
+            self._refresh_timer.cancel()
+            self._refresh_timer = None
+        if self._get_db_url:
+            db_url = self._get_db_url()
+            if db_url:
+                self.update_db_url(db_url)
+            self._refresh_timer = threading.Timer(3600, self._refresh_db)
+            self._refresh_timer.start()
 
     def update_db_url(self, db_url: str) -> None:
         """Update the database url.
@@ -627,3 +656,9 @@ class Database(abc.MutableMapping):
     def close(self) -> None:
         """Closes the database client connection."""
         self.sess.close()
+        if self._refresh_timer:
+            self._refresh_timer.cancel()
+            self._refresh_timer = None
+        if self._unbind:
+            # Permit signaling to surrounding scopes that we have closed
+            self._unbind()

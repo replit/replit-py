@@ -5,9 +5,7 @@ from typing import Any, Iterator, Optional
 import flask
 
 from .app import ReplitAuthContext
-from ..database import Database, db as real_db
-
-db: Database = real_db  # type: ignore
+from .. import database
 
 
 class User(MutableMapping):
@@ -31,15 +29,22 @@ class User(MutableMapping):
 
         Args:
             value (str): The value to set in the database
+
+        Raises:
+            RuntimeError: Raised if the database is not configured.
         """
-        db[self.db_key()] = value
+        if database.db is None:
+            raise RuntimeError("database not configured")
+        database.db[self.db_key()] = value
 
     def _ensure_value(self) -> Any:
+        if database.db is None:
+            raise RuntimeError("database not configured")
         try:
-            return db[self.db_key()]
+            return database.db[self.db_key()]
         except KeyError:
-            db[self.db_key()] = {}
-            return db[self.db_key()]
+            database.db[self.db_key()] = {}
+            return database.db[self.db_key()]
 
     def set(self, key: str, val: Any) -> None:
         """Sets a key to a value for this user's entry in the database.
@@ -103,7 +108,9 @@ class UserStore(Mapping):
         return User(username=name, prefix=self.prefix)
 
     def __iter__(self) -> Iterator[str]:
-        for k in db.keys():
+        if database.db is None:
+            raise RuntimeError("database not configured")
+        for k in database.db.keys():
             if k.startswith(self.prefix):
                 yield self._strip_prefix(k)
 
