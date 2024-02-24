@@ -57,6 +57,9 @@ def dumps(val: Any) -> str:
     return json.dumps(val, separators=(",", ":"), cls=DBJSONEncoder)
 
 
+_dumps = dumps
+
+
 def keyStrip(key: str) -> str:
     """Strip slashes from the beginning of keys.
 
@@ -67,9 +70,6 @@ def keyStrip(key: str) -> str:
         str: The stripped key
     """
     return key.lstrip("/")
-
-
-_dumps = dumps
 
 
 class AsyncDatabase:
