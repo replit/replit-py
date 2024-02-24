@@ -1,41 +1,79 @@
 """A module containing the default database."""
-from os import environ, path
+import logging
+import os
+import os.path
 import threading
-from typing import Optional
-
+from typing import Any, Optional
 
 from .database import Database
 
 
-def get_db_url() -> str:
+def get_db_url() -> Optional[str]:
     """Fetches the most up-to-date db url from the Repl environment."""
     # todo look into the security warning ignored below
     tmpdir = "/tmp/replitdb"  # noqa: S108
-    if path.exists(tmpdir):
+    if os.path.exists(tmpdir):
         with open(tmpdir, "r") as file:
-            db_url = file.read()
-    else:
-        db_url = environ.get("REPLIT_DB_URL")
+            return file.read()
 
-    return db_url
+    return os.environ.get("REPLIT_DB_URL")
 
 
 def refresh_db() -> None:
-    """Refresh the DB URL every hour."""
-    global db
-    db_url = get_db_url()
-    db.update_db_url(db_url)
-    threading.Timer(3600, refresh_db).start()
+    """Deprecated: refresh_db is now located inside the LazyDB singleton instance."""
+    pass
 
 
-db: Optional[Database]
-db_url = get_db_url()
-if db_url:
-    db = Database(db_url)
-else:
-    # The user will see errors if they try to use the database.
-    print("Warning: error initializing database. Replit DB is not configured.")
-    db = None
+class LazyDB:
+    """A way to lazily create a database connection."""
 
-if db:
-    refresh_db()
+    _instance: Optional["LazyDB"] = None
+
+    def __init__(self) -> None:
+        self._db: Optional[Database] = None
+        self._db_url = get_db_url()
+        if self._db_url:
+            self._db = Database(self._db_url)
+            self.refresh_db()
+        else:
+            logging.warning(
+                "Warning: error initializing database. Replit DB is not configured."
+            )
+
+    def refresh_db(self) -> None:
+        """Refresh the DB URL every hour."""
+        if not self._db:
+            return
+        self._db_url = get_db_url()
+        if self._db_url:
+            self._db.update_db_url(self._db_url)
+        threading.Timer(3600, self.refresh_db).start()
+
+    @classmethod
+    def get_instance(cls) -> "LazyDB":
+        """Get the lazy singleton instance."""
+        if cls._instance is None:
+            cls._instance = LazyDB()
+        return cls._instance
+
+    @classmethod
+    def get_db(cls) -> Optional[Database]:
+        """Get a reference to the singleton Database instance."""
+        return cls.get_instance()._db
+
+    @classmethod
+    def get_db_url(cls) -> Optional[str]:
+        """Get the db_url connection string."""
+        return cls.get_instance()._db_url
+
+
+# Previous versions of this library would just have side-effects and always set
+# up a database unconditionally. That is very undesirable, so instead of doing
+# that, we are using this egregious hack to get the database / database URL
+# lazily.
+def __getattr__(name: str) -> Any:
+    if name == "db":
+        return LazyDB.get_db()
+    if name == "db_url":
+        return LazyDB.get_db_url()
+    raise AttributeError(name)
