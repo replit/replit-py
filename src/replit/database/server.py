@@ -20,7 +20,7 @@ def make_database_proxy_blueprint(view_only: bool, prefix: str = "") -> Blueprin
     app = Blueprint("database_proxy" + ("_view_only" if view_only else ""), __name__)
 
     def list_keys() -> Any:
-        db = LazyDB.get_instance().db
+        db = LazyDB.get_db()
         if db is None:
             return "Database is not configured", 500
         user_prefix = request.args.get("prefix", "")
@@ -34,7 +34,7 @@ def make_database_proxy_blueprint(view_only: bool, prefix: str = "") -> Blueprin
             return "\n".join(keys)
 
     def set_key() -> Any:
-        db = LazyDB.get_instance().db
+        db = LazyDB.get_db()
         if db is None:
             return "Database is not configured", 500
         if view_only:
@@ -50,7 +50,7 @@ def make_database_proxy_blueprint(view_only: bool, prefix: str = "") -> Blueprin
         return set_key()
 
     def get_key(key: str) -> Any:
-        db = LazyDB.get_instance().db
+        db = LazyDB.get_db()
         if db is None:
             return "Database is not configured", 500
         try:
@@ -59,7 +59,7 @@ def make_database_proxy_blueprint(view_only: bool, prefix: str = "") -> Blueprin
             return "", 404
 
     def delete_key(key: str) -> Any:
-        db = LazyDB.get_instance().db
+        db = LazyDB.get_db()
         if db is None:
             return "Database is not configured", 500
         if view_only:

@@ -33,13 +33,13 @@ class User(MutableMapping):
         Raises:
             RuntimeError: Raised if the database is not configured.
         """
-        db = LazyDB.get_instance().db
+        db = LazyDB.get_db()
         if db is None:
             raise RuntimeError("database not configured")
         db[self.db_key()] = value
 
     def _ensure_value(self) -> Any:
-        db = LazyDB.get_instance().db
+        db = LazyDB.get_db()
         if db is None:
             raise RuntimeError("database not configured")
         try:
@@ -110,7 +110,7 @@ class UserStore(Mapping):
         return User(username=name, prefix=self.prefix)
 
     def __iter__(self) -> Iterator[str]:
-        db = LazyDB.get_instance().db
+        db = LazyDB.get_db()
         if db is None:
             raise RuntimeError("database not configured")
         for k in db.keys():
