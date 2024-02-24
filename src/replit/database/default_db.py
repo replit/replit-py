@@ -19,6 +19,11 @@ def get_db_url() -> Optional[str]:
     return os.environ.get("REPLIT_DB_URL")
 
 
+def refresh_db() -> None:
+    """Deprecated: refresh_db is now located inside the LazyDB singleton instance."""
+    pass
+
+
 class LazyDB:
     """A way to lazily create a database connection."""
 
