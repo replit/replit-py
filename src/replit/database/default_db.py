@@ -22,6 +22,27 @@ def refresh_db() -> None:
     pass
 
 
+def _unbind():
+    global _db
+    _db = None
+
+
+def _get_db() -> Optional[Database]:
+    global _db
+    if _db is not None:
+        return _db
+
+    db_url = get_db_url()
+
+    if db_url:
+        _db = Database(db_url, get_db_url=get_db_url, unbind=_unbind)
+    else:
+        # The user will see errors if they try to use the database.
+        print("Warning: error initializing database. Replit DB is not configured.")
+        _db = None
+    return _db
+
+
 _db: Optional[Database] = None
 
 
@@ -31,23 +52,7 @@ _db: Optional[Database] = None
 # lazily.
 def __getattr__(name: str) -> Any:
     if name == "db":
-        global _db
-        if _db is not None:
-            return _db
-
-        db_url = get_db_url()
-
-        def unbind():
-            global _db
-            _db = None
-
-        if db_url:
-            _db = Database(db_url, get_db_url=get_db_url, unbind=unbind)
-        else:
-            # The user will see errors if they try to use the database.
-            print("Warning: error initializing database. Replit DB is not configured.")
-            _db = None
-        return _db
+        return _get_db()
     if name == "db_url":
         return get_db_url()
     raise AttributeError(name)
