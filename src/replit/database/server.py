@@ -4,7 +4,7 @@ from urllib.parse import quote
 
 from flask import Blueprint, Flask, request
 
-from .default_db import db
+from . import default_db
 
 
 def make_database_proxy_blueprint(view_only: bool, prefix: str = "") -> Blueprint:
@@ -20,10 +20,12 @@ def make_database_proxy_blueprint(view_only: bool, prefix: str = "") -> Blueprin
     app = Blueprint("database_proxy" + ("_view_only" if view_only else ""), __name__)
 
     def list_keys() -> Any:
-        user_prefix = request.args.get("prefix")
+        if default_db.db is None:
+            return "Database is not configured", 500
+        user_prefix = request.args.get("prefix", "")
         encode = "encode" in request.args
-        keys = db.prefix(prefix=prefix + user_prefix)
-        keys = [k[len(prefix) :] for k in keys]
+        raw_keys = default_db.db.prefix(prefix=prefix + user_prefix)
+        keys = [k[len(prefix) :] for k in raw_keys]
 
         if encode:
             return "\n".join(quote(k) for k in keys)
@@ -31,10 +33,12 @@ def make_database_proxy_blueprint(view_only: bool, prefix: str = "") -> Blueprin
             return "\n".join(keys)
 
     def set_key() -> Any:
+        if default_db.db is None:
+            return "Database is not configured", 500
         if view_only:
             return "Database is view only", 401
         for k, v in request.form.items():
-            db[prefix + k] = v
+            default_db.db[prefix + k] = v
         return ""
 
     @app.route("/", methods=["GET", "POST"])
@@ -44,16 +48,20 @@ def make_database_proxy_blueprint(view_only: bool, prefix: str = "") -> Blueprin
         return set_key()
 
     def get_key(key: str) -> Any:
+        if default_db.db is None:
+            return "Database is not configured", 500
         try:
-            return db[prefix + key]
+            return default_db.db[prefix + key]
         except KeyError:
             return "", 404
 
     def delete_key(key: str) -> Any:
+        if default_db.db is None:
+            return "Database is not configured", 500
         if view_only:
             return "Database is view only", 401
         try:
-            del db[prefix + key]
+            del default_db.db[prefix + key]
         except KeyError:
             return "", 404
         return ""

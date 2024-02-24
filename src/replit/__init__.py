@@ -2,10 +2,11 @@
 
 """The Replit Python module."""
 
-from . import web
+from typing import Any
+
+from . import database, web
 from .audio import Audio
 from .database import (
-    db,
     Database,
     AsyncDatabase,
     make_database_proxy_blueprint,
@@ -23,3 +24,13 @@ def clear() -> None:
 
 
 audio = Audio()
+
+
+# Previous versions of this library would just have side-effects and always set
+# up a database unconditionally. That is very undesirable, so instead of doing
+# that, we are using this egregious hack to get the database / database URL
+# lazily.
+def __getattr__(name: str) -> Any:
+    if name == "db":
+        return database.db
+    raise AttributeError(name)
