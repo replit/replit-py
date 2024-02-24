@@ -26,10 +26,10 @@ class LazyDB:
     _instance: Optional["LazyDB"] = None
 
     def __init__(self) -> None:
-        self.db: Optional[Database] = None
-        self.db_url = get_db_url()
-        if self.db_url:
-            self.db = Database(self.db_url)
+        self._db: Optional[Database] = None
+        self._db_url = get_db_url()
+        if self._db_url:
+            self._db = Database(self._db_url)
             self.refresh_db()
         else:
             logging.warning(
@@ -38,11 +38,11 @@ class LazyDB:
 
     def refresh_db(self) -> None:
         """Refresh the DB URL every hour."""
-        if not self.db:
+        if not self._db:
             return
-        self.db_url = get_db_url()
-        if self.db_url:
-            self.db.update_db_url(self.db_url)
+        self._db_url = get_db_url()
+        if self._db_url:
+            self._db.update_db_url(self._db_url)
         threading.Timer(3600, self.refresh_db).start()
 
     @classmethod
@@ -52,6 +52,14 @@ class LazyDB:
             cls._instance = LazyDB()
         return cls._instance
 
+    @classmethod
+    def get_db(cls) -> Optional[Database]:
+        return cls.get_instance()._db
+
+    @classmethod
+    def get_db_url(cls) -> Optional[str]:
+        return cls.get_instance()._db_url
+
 
 # Previous versions of this library would just have side-effects and always set
 # up a database unconditionally. That is very undesirable, so instead of doing
@@ -59,7 +67,7 @@ class LazyDB:
 # lazily.
 def __getattr__(name: str) -> Any:
     if name == "db":
-        return LazyDB.get_instance().db
+        return LazyDB.get_db()
     if name == "db_url":
-        return LazyDB.get_instance().db_url
+        return LazyDB.get_db_url()
     raise AttributeError(name)

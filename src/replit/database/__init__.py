@@ -24,7 +24,7 @@ __all__ = [
 # lazily.
 def __getattr__(name: str) -> Any:
     if name == "db":
-        return LazyDB.get_instance().db
+        return LazyDB.get_db()
     if name == "db_url":
-        return LazyDB.get_instance().db_url
+        return LazyDB.get_db_url()
     raise AttributeError(name)
