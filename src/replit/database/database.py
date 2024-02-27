@@ -61,7 +61,7 @@ def dumps(val: Any) -> str:
 _dumps = dumps
 
 
-def keyStrip(key: str) -> str:
+def _sanitize_key(key: str) -> str:
     """Strip slashes from the beginning of keys.
 
     Args:
@@ -207,7 +207,7 @@ class AsyncDatabase:
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        values = {keyStrip(k): v for k, v in values.items()}
+        values = {_sanitize_key(k): v for k, v in values.items()}
         async with self.client.post(self.db_url, data=values) as response:
             response.raise_for_status()
 
@@ -642,7 +642,7 @@ class Database(abc.MutableMapping):
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        values = {keyStrip(k): v for k, v in values.items()}
+        values = {_sanitize_key(k): v for k, v in values.items()}
         r = self.sess.post(self.db_url, data=values)
         r.raise_for_status()
 
