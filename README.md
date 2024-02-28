@@ -1,6 +1,6 @@
 ### `>>> import replit`
 
-[![Run on Repl.it](https://img.shields.io/badge/run-on_Replit-f26208?logo=replit)](https://repl.it/github/replit/replit-py) [![pypi: replit](https://img.shields.io/pypi/v/replit)](https://pypi.org/project/replit/)
+[![Run on Repl.it](https://img.shields.io/badge/run-on_Replit-f26208?logo=replit)](https://repl.it/github/replit/replit-py) [![pypi: replit](https://img.shields.io/pypi/v/replit)](https://pypi.org/project/replit/) [![Read the Docs](https://img.shields.io/readthedocs/replit-py/latest?logo=readthedocs&label=ReadTheDocs)](https://replit-py.readthedocs.io/)
 
 This repository is the home for the `replit` Python package, which provides:
 
@@ -8,8 +8,6 @@ This repository is the home for the `replit` Python package, which provides:
 - Tools and utilities for Flask Web Development, including an interface to Replit's User Authetication service
 - Replit user profile metadata retrieval (more coming here!).
 - A simple audio library that can play tones and audio files!
-
-### [Read the documentation](https://replit-py.readthedocs.io/en/latest/)
 
 ### Open Source License
 
