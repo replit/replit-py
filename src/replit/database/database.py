@@ -1,5 +1,6 @@
 """Async and dict-like interfaces for interacting with Replit Database."""
 
+import asyncio
 from collections import abc
 import json
 import threading
@@ -82,8 +83,9 @@ class AsyncDatabase:
     :param unbind Callable: Permit additional behavior after Database close
     """
 
-    __slots__ = ("db_url", "sess", "client", "_get_db_url", "_unbind", "_refresh_timer")
+    __slots__ = ("db_url", "sess", "client", "_get_db_url", "_unbind", "_refresh_timer", "_watchdog_timer")
     _refresh_timer: Optional[threading.Timer]
+    _watchdog_timer: Optional[threading.Timer]
 
     def __init__(
         self,
@@ -113,6 +115,9 @@ class AsyncDatabase:
         if self._get_db_url:
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+        calling_thread = threading.current_thread()
+        self._watchdog_timer = threading.Timer(1, self._watchdog, args=[calling_thread])
+        self._watchdog_timer.start()
 
     def _refresh_db(self) -> None:
         if self._refresh_timer:
@@ -124,6 +129,14 @@ class AsyncDatabase:
                 self.update_db_url(db_url)
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+
+    def _watchdog(self, calling_thread):
+        if not calling_thread.is_alive():
+            return asyncio.run(self.close())
+        if self._watchdog_timer:
+            self._watchdog_timer.cancel()
+        self._watchdog_timer = threading.Timer(1, self._watchdog, args=[calling_thread])
+        self._watchdog_timer.start()
 
     def update_db_url(self, db_url: str) -> None:
         """Update the database url.
@@ -292,6 +305,9 @@ class AsyncDatabase:
         if self._refresh_timer:
             self._refresh_timer.cancel()
             self._refresh_timer = None
+        if self._watchdog_timer:
+            self._watchdog_timer.cancel()
+            self._watchdog_timer = None
         if self._unbind:
             # Permit signaling to surrounding scopes that we have closed
             self._unbind()
@@ -485,8 +501,9 @@ class Database(abc.MutableMapping):
     :param unbind Callable: Permit additional behavior after Database close
     """
 
-    __slots__ = ("db_url", "sess", "_get_db_url", "_unbind", "_refresh_timer")
+    __slots__ = ("db_url", "sess", "_get_db_url", "_unbind", "_refresh_timer", "_watchdog_timer")
     _refresh_timer: Optional[threading.Timer]
+    _watchdog_timer: Optional[threading.Timer]
 
     def __init__(
         self,
@@ -518,6 +535,9 @@ class Database(abc.MutableMapping):
         if self._get_db_url:
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+        calling_thread = threading.current_thread()
+        self._watchdog_timer = threading.Timer(1, self._watchdog, args=[calling_thread])
+        self._watchdog_timer.start()
 
     def _refresh_db(self) -> None:
         if self._refresh_timer:
@@ -529,6 +549,15 @@ class Database(abc.MutableMapping):
                 self.update_db_url(db_url)
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+
+
+    def _watchdog(self, calling_thread):
+        if not calling_thread.is_alive():
+            return self.close()
+        if self._watchdog_timer:
+            self._watchdog_timer.cancel()
+        self._watchdog_timer = threading.Timer(1, self._watchdog, args=[calling_thread])
+        self._watchdog_timer.start()
 
     def update_db_url(self, db_url: str) -> None:
         """Update the database url.
@@ -720,6 +749,9 @@ class Database(abc.MutableMapping):
         if self._refresh_timer:
             self._refresh_timer.cancel()
             self._refresh_timer = None
+        if self._watchdog_timer:
+            self._watchdog_timer.cancel()
+            self._watchdog_timer = None
         if self._unbind:
             # Permit signaling to surrounding scopes that we have closed
             self._unbind()
