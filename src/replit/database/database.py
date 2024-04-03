@@ -1,6 +1,7 @@
 """Async and dict-like interfaces for interacting with Replit Database."""
 
 from collections import abc
+import atexit
 import json
 import threading
 from typing import (
@@ -113,6 +114,7 @@ class AsyncDatabase:
         if self._get_db_url:
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+        atexit.register(self.close)
 
     def _refresh_db(self) -> None:
         if self._refresh_timer:
@@ -288,6 +290,7 @@ class AsyncDatabase:
 
     async def close(self) -> None:
         """Closes the database client connection."""
+        atexit.unregister(self.close)
         await self.sess.close()
         if self._refresh_timer:
             self._refresh_timer.cancel()
@@ -518,6 +521,7 @@ class Database(abc.MutableMapping):
         if self._get_db_url:
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+        atexit.register(self.close)
 
     def _refresh_db(self) -> None:
         if self._refresh_timer:
@@ -716,6 +720,7 @@ class Database(abc.MutableMapping):
 
     def close(self) -> None:
         """Closes the database client connection."""
+        atexit.unregister(self.close)
         self.sess.close()
         if self._refresh_timer:
             self._refresh_timer.cancel()
