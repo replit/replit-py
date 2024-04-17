@@ -133,7 +133,7 @@ class Source:
     @property
     def duration(self) -> timedelta:
         """The duration of the source."""
-        return timedelta(millaseconds=self.__payload["Duration"])
+        return timedelta(milliseconds=self.__payload["Duration"])
 
     def get_volume(self) -> float:
         """The volume the source is set to."""
