@@ -15,6 +15,7 @@ from typing import (
     Union,
 )
 import urllib.parse
+from urllib3.filepost import encode_multipart_formdata
 
 import aiohttp
 from aiohttp_retry import ExponentialRetry, RetryClient  # type: ignore
@@ -60,18 +61,6 @@ def dumps(val: Any) -> str:
 
 
 _dumps = dumps
-
-
-def _sanitize_key(key: str) -> str:
-    """Strip slashes from the beginning of keys.
-
-    Args:
-        key (str): The key to strip
-
-    Returns:
-        str: The stripped key
-    """
-    return key.lstrip("/")
 
 
 class AsyncDatabase:
@@ -123,6 +112,8 @@ class AsyncDatabase:
         if self._get_db_url:
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+        else:
+            self._refresh_timer = None
         watched_thread = threading.main_thread()
         self._watchdog_timer = threading.Timer(1, self._watchdog, args=[watched_thread])
         self._watchdog_timer.start()
@@ -228,7 +219,6 @@ class AsyncDatabase:
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        values = {_sanitize_key(k): v for k, v in values.items()}
         async with self.client.post(self.db_url, data=values) as response:
             response.raise_for_status()
 
@@ -241,8 +231,9 @@ class AsyncDatabase:
         Raises:
             KeyError: Key does not exist
         """
+        body, content_type = encode_multipart_formdata({"key": key})
         async with self.client.delete(
-            self.db_url + "/" + urllib.parse.quote(key)
+            self.db_url, data=body, headers={"Content-Type": content_type}
         ) as response:
             if response.status == 404:
                 raise KeyError(key)
@@ -550,6 +541,8 @@ class Database(abc.MutableMapping):
         if self._get_db_url:
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+        else:
+            self._refresh_timer = None
         watched_thread = threading.main_thread()
         self._watchdog_timer = threading.Timer(1, self._watchdog, args=[watched_thread])
         self._watchdog_timer.start()
@@ -685,7 +678,6 @@ class Database(abc.MutableMapping):
         Args:
             values (Dict[str, str]): The key-value pairs to set.
         """
-        values = {_sanitize_key(k): v for k, v in values.items()}
         r = self.sess.post(self.db_url, data=values)
         r.raise_for_status()
 
@@ -698,7 +690,8 @@ class Database(abc.MutableMapping):
         Raises:
             KeyError: Key is not set
         """
-        r = self.sess.delete(self.db_url + "/" + urllib.parse.quote(key))
+        body, content_type = encode_multipart_formdata({"key": key})
+        r = self.sess.delete(self.db_url, data=body, headers={"Content-Type": content_type})
         if r.status_code == 404:
             raise KeyError(key)
 
