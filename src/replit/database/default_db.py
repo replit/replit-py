@@ -1,4 +1,5 @@
 """A module containing the default database."""
+
 import os
 import os.path
 from typing import Any, Optional

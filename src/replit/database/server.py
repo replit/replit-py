@@ -1,4 +1,5 @@
 """A module containing a database proxy implementation."""
+
 from typing import Any
 from urllib.parse import quote
 
