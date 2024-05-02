@@ -1,4 +1,5 @@
 """Utilities for working with user mappings."""
+
 from collections.abc import Mapping, MutableMapping
 from typing import Any, Iterator, Optional
 
