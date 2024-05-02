@@ -123,6 +123,8 @@ class AsyncDatabase:
         if self._get_db_url:
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+        else:
+            self._refresh_timer = None
         watched_thread = threading.main_thread()
         self._watchdog_timer = threading.Timer(1, self._watchdog, args=[watched_thread])
         self._watchdog_timer.start()
@@ -550,6 +552,8 @@ class Database(abc.MutableMapping):
         if self._get_db_url:
             self._refresh_timer = threading.Timer(3600, self._refresh_db)
             self._refresh_timer.start()
+        else:
+            self._refresh_timer = None
         watched_thread = threading.main_thread()
         self._watchdog_timer = threading.Timer(1, self._watchdog, args=[watched_thread])
         self._watchdog_timer.start()
