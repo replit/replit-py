@@ -1,4 +1,5 @@
 """Interface with the Replit Database."""
+
 from typing import Any
 
 from . import default_db
