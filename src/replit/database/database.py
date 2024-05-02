@@ -20,6 +20,7 @@ import aiohttp
 from aiohttp_retry import ExponentialRetry, RetryClient  # type: ignore
 import requests
 from requests.adapters import HTTPAdapter, Retry
+from urllib3.filepost import encode_multipart_formdata
 
 
 def to_primitive(o: Any) -> Any:
@@ -230,8 +231,9 @@ class AsyncDatabase:
         Raises:
             KeyError: Key does not exist
         """
+        body, content_type = encode_multipart_formdata({"key": key})
         async with self.client.delete(
-            self.db_url + "/" + urllib.parse.quote(key)
+            self.db_url, data=body, headers={"Content-Type": content_type}
         ) as response:
             if response.status == 404:
                 raise KeyError(key)
@@ -688,7 +690,10 @@ class Database(abc.MutableMapping):
         Raises:
             KeyError: Key is not set
         """
-        r = self.sess.delete(self.db_url + "/" + urllib.parse.quote(key))
+        body, content_type = encode_multipart_formdata({"key": key})
+        r = self.sess.delete(
+            self.db_url, data=body, headers={"Content-Type": content_type}
+        )
         if r.status_code == 404:
             raise KeyError(key)
 
