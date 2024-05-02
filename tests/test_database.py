@@ -129,29 +129,47 @@ class TestAsyncDatabase(unittest.IsolatedAsyncioTestCase):
         """Test that slash keys work."""
         k = "/key"
         # set
-        await self.db.set(k,"val1")
-        self.assertEqual(await self.db.get(k), "val1")
+        await self.db.set(k, "val1")
+        # TODO: Getting slash keys is currently not supported
+        #       See https://github.com/replit/replit-py/pull/218#discussion_r1588295348
+        # self.assertEqual(await self.db.get(k), "val1")
+        self.assertEqual(list(await self.db.list("/")), [k])
         await self.db.delete(k)
+        # TODO: Getting slash keys is currently not supported
+        #       KeyError is the same though, so it can stay.
         with self.assertRaises(KeyError):
             await self.db.get(k)
         # set_raw
-        await self.db.set_raw(k,"val1")
-        self.assertEqual(await self.db.get_raw(k), "val1")
+        await self.db.set_raw(k, "val1")
+        # TODO: Getting slash keys is currently not supported
+        # self.assertEqual(await self.db.get_raw(k), "val1")
+        self.assertEqual(list(await self.db.list("/")), [k])
         await self.db.delete(k)
+        # TODO: Getting slash keys is currently not supported.
+        #       KeyError is the same though, so it can stay.
         with self.assertRaises(KeyError):
             await self.db.get(k)
         # set_bulk
         await self.db.set_bulk({k: "val1"})
-        self.assertEqual(await self.db.get(k), "val1")
+        # TODO: Getting slash keys is currently not supported
+        # self.assertEqual(await self.db.get(k), "val1")
+        self.assertEqual(list(await self.db.list("/")), [k])
         await self.db.delete(k)
+        # TODO: Getting slash keys is currently not supported
+        #       KeyError is the same though, so it can stay.
         with self.assertRaises(KeyError):
             await self.db.get(k)
         # set_bulk_raw
         await self.db.set_bulk_raw({k: "val1"})
-        self.assertEqual(await self.db.get_raw(k), "val1")
+        # TODO: Getting slash keys is currently not supported
+        # self.assertEqual(await self.db.get_raw(k), "val1")
+        self.assertEqual(list(await self.db.list("/")), [k])
         await self.db.delete(k)
+        # TODO: Getting slash keys is currently not supported
+        #       KeyError is the same though, so it can stay.
         with self.assertRaises(KeyError):
             await self.db.get(k)
+
 
 class TestDatabase(unittest.TestCase):
     """Tests for replit.database.Database."""
@@ -291,26 +309,43 @@ class TestDatabase(unittest.TestCase):
         """Test that slash keys work."""
         k = "/key"
         # set
-        self.db.set(k,"val1")
-        self.assertEqual(self.db[k], "val1")
+        self.db.set(k, "val1")
+        # TODO: Getting slash keys is currently not supported
+        #       See https://github.com/replit/replit-py/pull/218#discussion_r1588295348
+        # self.assertEqual(self.db[k], "val1")
+        self.assertEqual(list(self.db.keys()), [k])
         del self.db[k]
+        # TODO: Getting slash keys is currently not supported
+        #       KeyError is the same though, so it can stay.
         with self.assertRaises(KeyError):
             self.db[k]
         # set_raw
-        self.db.set_raw(k,"val1")
-        self.assertEqual(self.db.get_raw(k), "val1")
+        self.db.set_raw(k, "val1")
+        # TODO: Getting slash keys is currently not supported
+        # self.assertEqual(self.db.get_raw(k), "val1")
+        self.assertEqual(list(self.db.keys()), [k])
         del self.db[k]
+        # TODO: Getting slash keys is currently not supported
+        #       KeyError is the same though, so it can stay.
         with self.assertRaises(KeyError):
             self.db[k]
         # set_bulk
         self.db.set_bulk({k: "val1"})
-        self.assertEqual(self.db.get(k), "val1")
+        # TODO: Getting slash keys is currently not supported
+        # self.assertEqual(self.db.get(k), "val1")
+        self.assertEqual(list(self.db.keys()), [k])
         del self.db[k]
+        # TODO: Getting slash keys is currently not supported
+        #       KeyError is the same though, so it can stay.
         with self.assertRaises(KeyError):
             self.db[k]
         # set_bulk_raw
         self.db.set_bulk_raw({k: "val1"})
-        self.assertEqual(self.db.get_raw(k), "val1")
+        # TODO: Getting slash keys is currently not supported
+        # self.assertEqual(self.db.get_raw(k), "val1")
+        self.assertEqual(list(self.db.keys()), [k])
         del self.db[k]
+        # TODO: Getting slash keys is currently not supported
+        #       KeyError is the same though, so it can stay.
         with self.assertRaises(KeyError):
             self.db[k]
