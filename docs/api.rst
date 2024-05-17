@@ -56,16 +56,3 @@ replit.info module
    :members:
    :undoc-members:
    :show-inheritance:
-
-replit.audio module
--------------------
-
-.. automodule:: replit.audio
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: replit.audio.types
-   :members:
-   :undoc-members:
-   :show-inheritance:
