@@ -5,7 +5,6 @@
 from typing import Any
 
 from . import database, web
-from .audio import Audio
 from .database import (
     Database,
     AsyncDatabase,
@@ -21,9 +20,6 @@ info = ReplInfo()
 def clear() -> None:
     """Clear the terminal."""
     print("\033[H\033[2J", end="", flush=True)
-
-
-audio = Audio()
 
 
 # Previous versions of this library would just have side-effects and always set
