@@ -38,7 +38,7 @@ click==8.1.7
     # via
     #   flask
     #   sphinx-click
-cryptography==42.0.2
+cryptography==44.0.1
     # via pyseto
 docutils==0.20.1
     # via
