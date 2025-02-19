@@ -1871,14 +1871,14 @@ test = ["cython (>=3.0)", "defusedxml (>=0.7.1)", "pytest (>=8.0)", "setuptools 
 
 [[package]]
 name = "sphinx-autobuild"
-version = "2024.9.3"
+version = "2024.10.3"
 description = "Rebuild Sphinx documentation on changes, with hot reloading in the browser."
 optional = false
 python-versions = ">=3.9"
 groups = ["docs"]
 files = [
-    {file = "sphinx_autobuild-2024.9.3-py3-none-any.whl", hash = "sha256:55fe9bcc05dab659650d79bed0e6beb8b6032234edbf23f028f2cac3471f0c2d"},
-    {file = "sphinx_autobuild-2024.9.3.tar.gz", hash = "sha256:75929a5a92b932da8d29837406d6d973a927c456f30986a27f1f20b067897892"},
+    {file = "sphinx_autobuild-2024.10.3-py3-none-any.whl", hash = "sha256:158e16c36f9d633e613c9aaf81c19b0fc458ca78b112533b20dafcda430d60fa"},
+    {file = "sphinx_autobuild-2024.10.3.tar.gz", hash = "sha256:248150f8f333e825107b6d4b86113ab28fa51750e5f9ae63b59dc339be951fb1"},
 ]
 
 [package.dependencies]
@@ -2066,22 +2066,22 @@ test = ["pytest"]
 
 [[package]]
 name = "starlette"
-version = "0.38.5"
+version = "0.45.3"
 description = "The little ASGI library that shines."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["docs"]
 files = [
-    {file = "starlette-0.38.5-py3-none-any.whl", hash = "sha256:632f420a9d13e3ee2a6f18f437b0a9f1faecb0bc42e1942aa2ea0e379a4c4206"},
-    {file = "starlette-0.38.5.tar.gz", hash = "sha256:04a92830a9b6eb1442c766199d62260c3d4dc9c4f9188360626b1e0273cb7077"},
+    {file = "starlette-0.45.3-py3-none-any.whl", hash = "sha256:dfb6d332576f136ec740296c7e8bb8c8a7125044e7c6da30744718880cdd059d"},
+    {file = "starlette-0.45.3.tar.gz", hash = "sha256:2cbcba2a75806f8a41c722141486f37c28e30a0921c5f6fe4346cb0dcee1302f"},
 ]
 
 [package.dependencies]
-anyio = ">=3.4.0,<5"
+anyio = ">=3.6.2,<5"
 typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
-full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.7)", "pyyaml"]
+full = ["httpx (>=0.27.0,<0.29.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.18)", "pyyaml"]
 
 [[package]]
 name = "stevedore"
@@ -2507,4 +2507,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "34cdab65b9725e2b311f8b9eac31fcffb4a10c1a8e9cd84244ca3a78f238b131"
+content-hash = "bc96122db8e410a861660a9a963b749faa6d66b4fc3092ffdbcaf6aa3ba3e624"
