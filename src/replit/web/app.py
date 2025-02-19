@@ -73,6 +73,7 @@ def debug(
     **kwargs: Any
 ) -> None:
     """Run the app in debug mode.
+
     Args:
         watch_dirs (List[str]): Directories whose files will be added to
             watch_files. Defaults to [].
