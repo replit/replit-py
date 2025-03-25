@@ -137,3 +137,6 @@ Pipfile.lock
 t.py
 repl-tweet.py
 .DS_Store
+
+# direnv
+.direnv/
