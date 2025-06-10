@@ -88,7 +88,7 @@ pygments==2.19.1
     # via sphinx
 pyseto==1.8.2
     # via -r requirements.in
-requests==2.32.3
+requests==2.32.4
     # via
     #   -r requirements.in
     #   sphinx
