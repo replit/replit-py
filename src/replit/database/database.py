@@ -30,7 +30,9 @@ class _JitteredExponentialRetry(ExponentialRetry):
     def get_timeout(self, attempt: int, response: Any = None) -> float:
         """Return an exponential delay with up to 100% random jitter."""
         timeout = super().get_timeout(attempt, response)
-        return min(timeout + random.uniform(0, timeout), self._max_timeout)
+        # Retry timing jitter does not protect secrets.
+        jitter = random.uniform(0, timeout)  # nosec B311
+        return min(timeout + jitter, self._max_timeout)
 
 
 class _JitteredRetry(Retry):
@@ -40,7 +42,9 @@ class _JitteredRetry(Retry):
         """Return the usual backoff plus up to 100% random jitter."""
         timeout = super().get_backoff_time()
         jitter_range = max(timeout, self.backoff_factor)
-        return min(timeout + random.uniform(0, jitter_range), self.backoff_max)
+        # Retry timing jitter does not protect secrets.
+        jitter = random.uniform(0, jitter_range)  # nosec B311
+        return min(timeout + jitter, self.backoff_max)
 
 
 def to_primitive(o: Any) -> Any:
