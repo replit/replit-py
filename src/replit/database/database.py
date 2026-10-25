@@ -3,7 +3,7 @@
 import asyncio
 from collections import abc
 import json
-import random
+import secrets
 import threading
 from typing import (
     Any,
@@ -23,6 +23,8 @@ import requests
 from requests.adapters import HTTPAdapter, Retry
 from urllib3.filepost import encode_multipart_formdata
 
+_SYSTEM_RANDOM = secrets.SystemRandom()
+
 
 class _JitteredExponentialRetry(ExponentialRetry):
     """Add jitter to async exponential backoff to spread retry traffic."""
@@ -30,8 +32,7 @@ class _JitteredExponentialRetry(ExponentialRetry):
     def get_timeout(self, attempt: int, response: Any = None) -> float:
         """Return an exponential delay with up to 100% random jitter."""
         timeout = super().get_timeout(attempt, response)
-        # Retry timing jitter does not protect secrets.
-        jitter = random.uniform(0, timeout)  # nosec B311
+        jitter = _SYSTEM_RANDOM.uniform(0, timeout)
         return min(timeout + jitter, self._max_timeout)
 
 
@@ -42,8 +43,7 @@ class _JitteredRetry(Retry):
         """Return the usual backoff plus up to 100% random jitter."""
         timeout = super().get_backoff_time()
         jitter_range = max(timeout, self.backoff_factor)
-        # Retry timing jitter does not protect secrets.
-        jitter = random.uniform(0, jitter_range)  # nosec B311
+        jitter = _SYSTEM_RANDOM.uniform(0, jitter_range)
         return min(timeout + jitter, self.backoff_max)
 
 

@@ -15,7 +15,7 @@ class TestJitteredExponentialRetry(TestCase):
             attempts=3, start_timeout=1, factor=2, max_timeout=3
         )
 
-        with patch("replit.database.database.random.uniform", return_value=1.5):
+        with patch("replit.database.database._SYSTEM_RANDOM.uniform", return_value=1.5):
             self.assertEqual(retry.get_timeout(attempt=1), 3)
 
 
@@ -27,5 +27,5 @@ class TestJitteredRetry(TestCase):
         retry = _JitteredRetry(total=3, backoff_factor=0.1)
         retry = retry.increment(method="GET", url="/")
 
-        with patch("replit.database.database.random.uniform", return_value=0.05):
+        with patch("replit.database.database._SYSTEM_RANDOM.uniform", return_value=0.05):
             self.assertEqual(retry.get_backoff_time(), 0.05)
