@@ -3,6 +3,7 @@
 import asyncio
 from collections import abc
 import json
+import secrets
 import threading
 from typing import (
     Any,
@@ -21,6 +22,29 @@ from aiohttp_retry import ExponentialRetry, RetryClient  # type: ignore
 import requests
 from requests.adapters import HTTPAdapter, Retry
 from urllib3.filepost import encode_multipart_formdata
+
+_SYSTEM_RANDOM = secrets.SystemRandom()
+
+
+class _JitteredExponentialRetry(ExponentialRetry):
+    """Add jitter to async exponential backoff to spread retry traffic."""
+
+    def get_timeout(self, attempt: int, response: Any = None) -> float:
+        """Return an exponential delay with up to 100% random jitter."""
+        timeout = super().get_timeout(attempt, response)
+        jitter = _SYSTEM_RANDOM.uniform(0, timeout)
+        return min(timeout + jitter, self._max_timeout)
+
+
+class _JitteredRetry(Retry):
+    """Add jitter to urllib3 retry backoff to spread retry traffic."""
+
+    def get_backoff_time(self) -> float:
+        """Return the usual backoff plus up to 100% random jitter."""
+        timeout = super().get_backoff_time()
+        jitter_range = max(timeout, self.backoff_factor)
+        jitter = _SYSTEM_RANDOM.uniform(0, jitter_range)
+        return min(timeout + jitter, self.backoff_max)
 
 
 def to_primitive(o: Any) -> Any:
@@ -106,7 +130,7 @@ class AsyncDatabase:
         self._get_db_url = get_db_url
         self._unbind = unbind
 
-        retry_options = ExponentialRetry(attempts=retry_count)
+        retry_options = _JitteredExponentialRetry(attempts=retry_count)
         self.client = RetryClient(client_session=self.sess, retry_options=retry_options)
 
         if self._get_db_url:
@@ -532,7 +556,7 @@ class Database(abc.MutableMapping):
         self.sess = requests.Session()
         self._get_db_url = get_db_url
         self._unbind = unbind
-        retries = Retry(
+        retries = _JitteredRetry(
             total=retry_count, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
         )
         self.sess.mount("http://", HTTPAdapter(max_retries=retries))
